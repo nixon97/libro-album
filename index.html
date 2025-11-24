@@ -3,601 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mito Norte Santander - Libro Álbum</title>
+    <title>Mito Norte Santander | Experiencia Interactiva</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
-    <!-- Phosphor Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- PageFlip Library -->
     <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
 
     <style>
+        :root {
+            --book-shadow: 0 20px 30px -10px rgba(0,0,0,0.4);
+            --paper-texture: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+        }
+
         body {
             background-color: #f3f4f6;
             background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 24px 24px;
+            background-size: 32px 32px;
             font-family: 'Lora', serif;
-            overflow-y: auto; /* Permitir scroll si el contenido es demasiado grande, aunque el libro debe caber */
             margin: 0;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden; /* Evitar scroll del body, el libro se centra */
         }
 
-        h1, h2, h3, .sans { font-family: 'Montserrat', sans-serif; }
-        .serif-title { font-family: 'Cinzel', serif; }
-
-        /* Contenedor del libro - Ajustado para centrar y añadir margen */
+        /* Wrapper Centrado */
         .wrapper {
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh; /* Ocupa al menos la altura de la vista */
-            padding: 40px 20px; /* Margen superior/inferior para el padding estético */
-            box-sizing: border-box;
+            height: 100vh;
             width: 100%;
-        }
-        
-        /* Aseguramos que el contenedor del libro no sea más grande que el wrapper */
-        #book {
-            max-width: 100%;
-            margin: auto;
+            perspective: 1500px;
         }
 
-        /* Estilos de las páginas */
+        /* Estilos de Página Base */
         .page {
-            background-color: #fdfbf7; 
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
-            box-shadow: inset -3px 0px 20px rgba(0,0,0,0.02);
+            background-color: #fcf8f3; 
+            background-image: var(--paper-texture);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
             overflow: hidden;
-            border: 1px solid #e5e5e5;
         }
 
-        .page.-left { border-right: 0; box-shadow: inset -15px 0 25px -10px rgba(0,0,0,0.1); }
-        .page.-right { border-left: 0; box-shadow: inset 15px 0 25px -10px rgba(0,0,0,0.1); }
+        /* Sombras de lomo para realismo */
+        .page.-left { border-right: none; box-shadow: inset -10px 0 20px -10px rgba(0,0,0,0.15); }
+        .page.-right { border-left: none; box-shadow: inset 10px 0 20px -10px rgba(0,0,0,0.15); }
 
+        /* Páginas duras (Portadas) */
         .hard {
-            background-color: #e2e8f0;
+            background-color: #f1f5f9;
             border: solid 1px #94a3b8;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
 
-        /* Contenido */
+        /* Contenido interno */
         .page-content {
             width: 100%; height: 100%;
             display: flex; flex-direction: column;
-            position: relative; padding: 2rem;
+            position: relative;
         }
 
-        /* Hotspots de información (Ahora son interactivos para TTS) */
-        .hotspot {
+        /* --- HOTSPOTS OPTIMIZADOS --- */
+        .hotspot-container {
             position: absolute;
-            width: 32px; height: 32px;
-            /* Color actualizado para mejor contraste y destacar la interactividad */
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
-            animation: float 3s ease-in-out infinite;
             z-index: 50;
+            /* Transform para centrar exactamente en las coordenadas dadas */
+            transform: translate(-50%, -50%);
+        }
+
+        .hotspot-btn {
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            border: 2px solid #10b981;
+            border-radius: 50%;
+            color: #10b981;
             display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 18px;
-            transition: transform 0.3s;
-            border: 2px solid white;
-            /* Indicador de carga de audio */
-            pointer-events: all;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 20px;
+        }
+
+        .hotspot-btn:hover {
+            transform: scale(1.15);
+            background: #10b981;
+            color: white;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+        }
+
+        .hotspot-btn.speaking {
+            background: #ef4444; /* Rojo para indicar "hablando" */
+            border-color: #ef4444;
+            color: white;
+            animation: pulse-speak 1.5s infinite;
+        }
+
+        /* Tooltip mejorado */
+        .hotspot-tooltip {
+            position: absolute;
+            bottom: 50px; left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: white;
+            width: 220px;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            opacity: 0; visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            text-align: center;
+            border: 1px solid #f3f4f6;
         }
         
-        /* Tooltip visible al pasar el mouse */
-        .hotspot:hover { transform: scale(1.2) rotate(5deg); box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
-        .hotspot.speaking { background: #3b82f6; animation: speaking 0.5s infinite alternate; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        @keyframes speaking {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
+        .hotspot-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px;
+            border-width: 6px; border-style: solid; border-color: white transparent transparent transparent;
         }
 
-        /* Tooltip */
-        .tooltip-card {
-            position: absolute;
-            bottom: 140%; left: 50%; transform: translateX(-50%);
-            background: white; padding: 1.2rem;
-            border-radius: 0.8rem;
-            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.25);
-            width: 240px; text-align: center;
-            opacity: 0; visibility: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 60; border: 1px solid #f3f4f6;
-            pointer-events: none; /* No interactúa con el ratón */
-        }
-        .tooltip-card::after {
-            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -8px;
-            border-width: 8px; border-style: solid; border-color: white transparent transparent transparent;
-        }
-        /* Activación de Tooltip con hover */
-        .hotspot:hover .tooltip-card, .hotspot:focus .tooltip-card {
-            opacity: 1; visibility: visible; bottom: 160%;
+        /* Mostrar tooltip en hover del contenedor */
+        .hotspot-container:hover .hotspot-tooltip {
+            opacity: 1; visibility: visible;
+            transform: translateX(-50%) translateY(0);
         }
 
-        /* Controles - Fijos en el centro inferior, con respecto al body */
-        .controls {
-            position: fixed; 
-            bottom: 20px; /* Ajuste para dar más aire en la parte inferior */
-            left: 50%; 
-            transform: translateX(-50%); 
-            z-index: 500;
+        @keyframes pulse-speak {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        /* Loader */
-        #loader {
-            position: fixed; inset: 0; background: #f3f4f6; z-index: 2000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        /* UI Controls */
+        .controls-bar {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 100;
+            display: flex; gap: 1rem;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
+            padding: 0.75rem 1.5rem;
+            border-radius: 99px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.5);
         }
     </style>
 </head>
 <body>
 
-    <!-- Loader -->
-    <div id="loader">
-        <i class="ph-fill ph-sparkle text-6xl text-pink-500 mb-4 animate-bounce"></i>
-        <p class="font-sans text-gray-500 font-bold tracking-widest text-sm">CARGANDO LIBRO...</p>
-    </div>
+    <div id="startModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+            <i class="ph-duotone ph-book-bookmark text-5xl text-emerald-500 mb-4"></i>
+            <h2 class="text-2xl font-bold font-sans text-gray-800 mb-2">Mito Norte Santander</h2>
+            <p class="text-gray-600 mb-6 text-sm">Una experiencia de libro interactivo con narración IA.</p>
+            
+            <div class="text-left bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Gemini API Key (Opcional para Audio)</label>
+                <input type="password" id="apiKeyInput" placeholder="Pega tu API Key aquí..." 
+                       class="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 transition">
+                <p class="text-[10px] text-gray-400 mt-2">
+                    * La clave se usa solo localmente. Si no tienes una, el libro funcionará visualmente sin narración.
+                </p>
+            </div>
 
-    <!-- Controles de Navegación -->
-    <div class="controls flex gap-2 bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-lg border border-gray-200">
-        <button id="btnPrev" class="p-2 hover:bg-gray-100 rounded-full text-gray-700 transition"><i class="ph-bold ph-caret-left text-xl"></i></button>
-        <span class="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mx-2">
-            <i class="ph-fill ph-book-open text-pink-500 mr-2"></i>Álbum
-        </span>
-        <button id="btnNext" class="p-2 hover:bg-gray-100 rounded-full text-gray-700 transition"><i class="ph-bold ph-caret-right text-xl"></i></button>
-    </div>
-
-    <!-- Escena del libro -->
-    <div class="wrapper">
-        <div id="book">
-            <!-- Renderizado dinámico -->
+            <button onclick="startExperience()" 
+                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-200">
+                Abrir Libro
+            </button>
         </div>
     </div>
 
-    <!-- JavaScript Module -->
+    <div class="controls-bar">
+        <button onclick="flipPrev()" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition" aria-label="Página anterior">
+            <i class="ph-bold ph-caret-left text-xl text-gray-700"></i>
+        </button>
+        <span class="font-sans text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center">
+            <span id="pageIndicator">Portada</span>
+        </span>
+        <button onclick="flipNext()" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition" aria-label="Página siguiente">
+            <i class="ph-bold ph-caret-right text-xl text-gray-700"></i>
+        </button>
+    </div>
+
+    <div class="wrapper">
+        <div id="book">
+            </div>
+    </div>
+
     <script>
-        // DATOS INICIALES (AQUÍ DEBES REEMPLAZAR LAS IMÁGENES)
-        const bookData = {
-            cover: { 
-                // *** 1. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen de PORTADA (Página Visual 1) ***
-                img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" 
-            }, 
-            respect: { title: "Mito Norte Santander" },
-            credits: { 
-                publisher: "Autor: [Tu nombre/Equipo]", 
-                year: "2025", 
-                legal: "Todos los derechos reservados.\n© 2025 Mito Norte Santander. \nProhibida la reproducción total o parcial." 
-            },
-            dedication: { text: "Para los niños y jóvenes que mantienen viva\nla historia de nuestra tierra." },
-            body: [
-                // *** 2. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 6 ***
-                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
-                // *** 3. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 7 ***
-                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
-                // *** 4. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 8 ***
-                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
-                // *** 5. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 9 ***
-                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
-                // *** 6. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 10 ***
-                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
-                // *** 7. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 11 ***
-                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
-                // *** 8. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 12 ***
-                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
-                // *** 9. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 13 ***
-                { img: "https://images.unsplash.com/photo-1533285962552-f9d2a0957948?w=600" },
-                // *** 10. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 14 ***
-                { img: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=600" },
-                // *** 11. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 15 ***
-                { img: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=600" },
-                // *** 12. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 16 ***
-                { img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=600" },
-                // *** 13. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 17 ***
-                { img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=600" },
-                // *** 14. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 18 ***
-                { img: "https://images.unsplash.com/photo-1425913397330-cf8af2ff40a1?w=600" },
-                // *** 15. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 19 ***
-                { img: "https://images.unsplash.com/photo-1505506874110-6a7a69069a08?w=600" }
-            ],
-            colophon: { text: "Diseño y concepto: [Tu Nombre].\nTipografía: Lora & Montserrat.\nPapel Digital Ecológico." },
-            back: { text: "Una inmersión profunda en las tradiciones y leyendas de\nel Norte de Santander." }
-        };
-
+        // CONFIGURACIÓN
+        let apiKey = ""; // Se llenará desde el modal
         let pageFlip;
-        let isSpeaking = false; // Bandera para evitar llamadas TTS duplicadas en hover
+        const isMobile = window.innerWidth < 768;
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            renderBook();
-            document.getElementById('loader').style.display = 'none';
-        });
+        // DATOS DEL LIBRO (Estructura separada para fácil edición)
+        const bookContent = [
+            // Portada
+            { type: 'cover', img: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=600&q=80', title: "El Mito", desc: "Portada principal" },
+            // Guardas
+            { type: 'empty' },
+            // Hoja de respeto
+            { type: 'text', text: "Mito Norte Santander", sub: "Edición Digital 2025" },
+            // Créditos
+            { type: 'legal', text: "Desarrollado con Gemini API\n© 2025 Estudio Creativo" },
+            // Historia (Imágenes)
+            { type: 'image', img: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=600', hotspot: {t: "El Inicio", d: "Donde todo comenzó en las montañas.", x: "20%", y: "30%"} },
+            { type: 'image', img: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=600', hotspot: {t: "La Niebla", d: "El misterio cubre los valles al amanecer.", x: "50%", y: "50%"} },
+            { type: 'image', img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=600', hotspot: {t: "El Árbol", d: "Testigo silencioso de siglos de historia.", x: "70%", y: "80%"} },
+            { type: 'image', img: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=600', hotspot: {t: "El Valle", d: "Caminos que conectan nuestros pueblos.", x: "30%", y: "60%"} },
+            // Final
+            { type: 'text', text: "Fin", sub: "Gracias por leer" },
+            { type: 'cover-back', text: "Una producción interactiva." }
+        ];
 
-        // =========================================================================
-        // LÓGICA DE TEXTO A VOZ (TTS)
-        // =========================================================================
-
-        const apiKey = ""; // API Key is provided by Canvas environment
-        const ttsModel = "gemini-2.5-flash-preview-tts";
-        const ttsVoice = "Kore"; // Voz firme, buena para narración.
-
-        /** * Llama a la API con reintento exponencial para manejar fallos temporales.
-         * Esto previene el error "TTS API failed: Something went wrong".
-         */
-        async function fetchWithExponentialBackoff(url, options, maxRetries = 3, delay = 1000) {
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (response.ok) {
-                        return response;
-                    } else if (response.status === 429 || response.status >= 500) {
-                        // Error de límite de velocidad o de servidor, intentar reintentar
-                        if (i < maxRetries - 1) {
-                            const backoffDelay = delay * Math.pow(2, i) + Math.random() * 1000;
-                            // Silently wait (no console.log)
-                            await new Promise(resolve => setTimeout(resolve, backoffDelay));
-                        } else {
-                            // Último intento fallido
-                            throw new Error(`TTS API failed after ${maxRetries} retries: ${response.statusText}`);
-                        }
-                    } else {
-                        // Error de cliente (ej. 400 Bad Request, 403 Forbidden). No reintentar.
-                        throw new Error(`TTS API failed: ${response.statusText}`);
-                    }
-                } catch (error) {
-                    if (i < maxRetries - 1 && (error.message.includes("Failed to fetch") || error.message.includes("NetworkError"))) {
-                        // Error de red
-                        const backoffDelay = delay * Math.pow(2, i) + Math.random() * 1000;
-                        // Silently wait (no console.log)
-                        await new Promise(resolve => setTimeout(resolve, backoffDelay));
-                    } else {
-                        throw error; // Relanzar si es un error no reintentable o si no quedan reintentos
-                    }
-                }
-            }
-        }
-
-        /** Convierte una cadena Base64 a ArrayBuffer (necesario para el audio) */
-        function base64ToArrayBuffer(base64) {
-            const binaryString = atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-
-        /** Convierte datos PCM de 16 bits sin procesar a un blob WAV reproducible */
-        function pcmToWav(pcmData, sampleRate) {
-            const numChannels = 1;
-            const bytesPerSample = 2; // 16-bit PCM
-            const byteRate = sampleRate * numChannels * bytesPerSample;
-            const blockAlign = numChannels * bytesPerSample;
-            const dataSize = pcmData.byteLength;
-            const buffer = new ArrayBuffer(44 + dataSize);
-            const view = new DataView(buffer);
-            let offset = 0;
-
-            // RIFF chunk
-            writeString(view, offset, 'RIFF'); offset += 4;
-            view.setUint32(offset, 36 + dataSize, true); offset += 4;
-            writeString(view, offset, 'WAVE'); offset += 4;
-
-            // FMT chunk
-            writeString(view, offset, 'fmt '); offset += 4;
-            view.setUint32(offset, 16, true); offset += 4; // ChunkSize (16 for PCM)
-            view.setUint16(offset, 1, true); offset += 2; // AudioFormat (1 for PCM)
-            view.setUint16(offset, numChannels, true); offset += 2;
-            view.setUint32(offset, sampleRate, true); offset += 4;
-            view.setUint32(offset, byteRate, true); offset += 4;
-            view.setUint16(offset, blockAlign, true); offset += 2;
-            view.setUint16(offset, 16, true); offset += 2; // BitsPerSample (16)
-
-            // DATA chunk
-            writeString(view, offset, 'data'); offset += 4;
-            view.setUint32(offset, dataSize, true); offset += 4;
-
-            // PCM data
-            const pcmBytes = new Uint8Array(buffer, offset);
-            pcmBytes.set(new Uint8Array(pcmData.buffer));
-
-            return new Blob([buffer], { type: 'audio/wav' });
-
-            function writeString(view, offset, string) {
-                for (let i = 0; i < string.length; i++) {
-                    view.setUint8(offset + i, string.charCodeAt(i));
-                }
-            }
-        }
-
-        /** Llama al API de Gemini para generar el audio y lo reproduce. */
-        async function speakText(textToSpeak, hotspotElement) {
-            if (isSpeaking) return; // Evitar disparos múltiples
-            isSpeaking = true;
-
-            if (hotspotElement) hotspotElement.classList.add('speaking');
-
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${ttsModel}:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: `Di en español: ${textToSpeak}` }] }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: {
-                        voiceConfig: { prebuiltVoiceConfig: { voiceName: ttsVoice } }
-                    }
-                },
-            };
-
-            try {
-                // Usamos la función con reintento
-                const response = await fetchWithExponentialBackoff(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-                const part = result?.candidates?.[0]?.content?.parts?.[0];
-                const audioData = part?.inlineData?.data;
-                const mimeType = part?.inlineData?.mimeType;
-
-                if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
-                    // El mimetype es audio/L16;rate=16000;channels=1;encoding=pcm16
-                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
-                    const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
-                    
-                    const pcmData = base64ToArrayBuffer(audioData);
-                    const pcm16 = new Int16Array(pcmData);
-                    
-                    const wavBlob = pcmToWav(pcm16, sampleRate);
-                    const audioUrl = URL.createObjectURL(wavBlob);
-                    
-                    const audio = new Audio(audioUrl);
-                    // play() tiene éxito porque es llamado desde un manejador de click explícito
-                    audio.play().catch(e => console.error("Error al intentar reproducir audio:", e));
-                    
-                    audio.onended = () => {
-                        if (hotspotElement) hotspotElement.classList.remove('speaking');
-                        URL.revokeObjectURL(audioUrl); // Limpiar el objeto URL
-                        isSpeaking = false; // Liberar la bandera al finalizar
-                    };
-
-                } else {
-                    console.error("TTS API: No se recibieron datos de audio válidos.");
-                    if (hotspotElement) hotspotElement.classList.remove('speaking');
-                    isSpeaking = false;
-                }
-
-            } catch (error) {
-                console.error("Error en la llamada al TTS:", error);
-                if (hotspotElement) hotspotElement.classList.remove('speaking');
-                isSpeaking = false;
-            }
-        }
-
-
-        // =========================================================================
-        // LÓGICA DEL LIBRO
-        // =========================================================================
-
-        function renderBook() {
-            const container = document.getElementById('book');
-            if (pageFlip) container.innerHTML = ''; 
-
-            let html = '';
-            let visualPageCount = 0;
-
-            // --- 1. PORTADA (Página Visual 1) ---
-            html += `
-            <div class="page hard" data-density="hard">
-                <div class="page-content p-0">
-                    <div class="w-full h-full bg-slate-900 flex items-center justify-center relative" 
-                         style="background-image: url('${bookData.cover.img}'); border-color: #f59e0b50; background-size: cover; background-position: center;">
-                        
-                        ${renderHotspot("La Portada", "La cara principal. Usa solo una imagen impactante (full-bleed).", "5%", "85%")}
-                    </div>
-                </div>
-            </div>`;
-
-            // --- 2. GUARDAS (Página Visual 2) ---
-            visualPageCount++;
-            html += `
-            <div class="page" data-density="hard">
-                <div class="page-content bg-slate-800 p-0">
-                    <div class="w-full h-full opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png');"></div>
-                    ${renderHotspot("Las Guardas", "Hojas que unen el cuerpo del libro con las tapas. Marcan el inicio de la atmósfera.", "50%", "50%")}
-                </div>
-            </div>`;
-
-            // --- 3. HOJA DE RESPETO / ANTEPORTADA (Página Visual 3) ---
-            visualPageCount++;
-            html += `
-            <div class="page">
-                <div class="page-content flex items-center justify-center text-center">
-                    <h2 class="text-xl text-gray-500 font-serif tracking-widest uppercase">${bookData.respect.title}</h2>
-                    ${renderHotspot("Hoja de Respeto", "Minimalista. Lleva solo el título.", "20%", "50%")}
-                    <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
-                </div>
-            </div>`;
-
-            // --- 4. CRÉDITOS / PÁGINA LEGAL (Página Visual 4) ---
-            visualPageCount++;
-            html += `
-            <div class="page">
-                <div class="page-content justify-end text-left pb-12 pl-12">
-                     <div class="border-l-2 border-gray-200 pl-4">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Créditos</h3>
-                        <p class="text-xs text-gray-600 font-bold">${bookData.credits.publisher}</p>
-                        <div class="text-[10px] text-gray-400 mt-2 whitespace-pre-wrap leading-relaxed">${bookData.credits.legal}</div>
-                     </div>
-                     ${renderHotspot("Página Legal", "Información técnica: Editorial, ISBN, derechos.", "20%", "20%")}
-                     <span class="absolute bottom-6 left-6 text-[10px] text-gray-300">${visualPageCount}</span>
-                </div>
-            </div>`;
-
-            // --- 5. DEDICATORIA (Página Visual 5) ---
-            visualPageCount++;
-            html += `
-            <div class="page">
-                <div class="page-content flex items-center justify-center text-center italic">
-                    <p class="text-base text-gray-600 font-serif max-w-xs">${bookData.dedication.text}</p>
-                    ${renderHotspot("Dedicatoria", "Un regalo personal del autor.", "20px", "50%")}
-                    <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
-                </div>
-            </div>`;
-
-            // --- 6-19. CUERPO (14 Páginas - SOLO IMAGENES) ---
-            bookData.body.forEach((page, i) => {
-                visualPageCount++;
-                const isLeft = (visualPageCount % 2 === 0);
-                
-                let hotspotHtml = '';
-                
-                // HOTSPOT: PÁGINA ÚNICA (P6)
-                if (i === 0) {
-                    hotspotHtml = renderHotspot("Página Única", "El espacio narrativo de la imagen es limitado a una hoja.", "5%", "5%");
-                }
-                
-                // HOTSPOT: DOBLE PÁGINA (P8/P9 -> i=2, i=3)
-                if (i === 2) { 
-                    hotspotHtml = renderHotspot("Doble Página (Izq)", "La ilustración se extiende por el lomo al lado derecho.", "50%", "80%");
-                }
-                if (i === 3) { 
-                    hotspotHtml = renderHotspot("Doble Página (Der)", "Permite un horizonte narrativo más amplio.", "50%", "20%");
-                }
-
-                html += `
-                <div class="page">
-                    <div class="page-content p-0">
-                        <div class="w-full h-full bg-gray-50 flex items-center justify-center relative" 
-                             style="background-image: url('${page.img}'); background-size: cover; background-position: center;">
-                            
-                             ${hotspotHtml}
-                        </div>
-                        <span class="absolute bottom-6 ${isLeft ? 'left-6' : 'right-6'} text-[10px] text-gray-500 font-bold bg-white/80 px-2 py-1 rounded z-30 shadow-sm">${visualPageCount}</span>
-                    </div>
-                </div>`;
-            });
-
-            // --- 20. COLOFÓN (Página Visual 20) ---
-            visualPageCount++;
-            html += `
-            <div class="page">
-                <div class="page-content flex flex-col items-center justify-center text-center relative">
-                    <i class="ph-duotone ph-pen-nib text-3xl text-gray-300 mb-4"></i>
-                    <h3 class="text-sm font-bold mb-2 uppercase tracking-widest text-gray-400">Fin</h3>
-                    <p class="text-xs text-gray-500 whitespace-pre-wrap">${bookData.colophon.text}</p>
-                    ${renderHotspot("Colofón", "Nota final sobre la impresión y tipografía.", "70%", "50%")}
-                    <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
-                </div>
-            </div>`;
-
-            // --- 21. GUARDAS TRASERAS (Página Visual 21) ---
-            visualPageCount++;
-            html += `
-            <div class="page" data-density="hard">
-                <div class="page-content bg-slate-800 p-0">
-                     <div class="w-full h-full opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png');"></div>
-                </div>
-            </div>`;
-
-            // --- 22. CONTRAPORTADA (Página Visual 22) ---
-            visualPageCount++;
-            html += `
-            <div class="page hard" data-density="hard">
-                <div class="page-content bg-slate-900 text-white flex flex-col justify-center items-center text-center border-4 border-yellow-500/50">
-                    <div class="max-w-xs relative">
-                        <h4 class="font-bold text-yellow-500 uppercase tracking-widest mb-4 text-xs">Sinopsis</h4>
-                        <p class="text-sm font-serif font-light leading-loose mb-8 opacity-80">
-                            ${bookData.back.text}
-                        </p>
-                        <div class="border border-white/20 px-3 py-1 inline-block text-[10px] tracking-widest opacity-50">ISBN 978-0-000</div>
-                        ${renderHotspot("Contraportada", "Cierre del libro. Busca convencer con la sinopsis.", "10%", "90%")}
-                    </div>
-                </div>
-            </div>`;
-
-            container.innerHTML = html;
-            initPageFlip();
-            // Llama a la función para añadir el evento de audio después de renderizar
-            addHotspotListeners(); 
-        }
-
-        /** Añade los listeners de click a todos los hotspots generados para activar el TTS */
-        function addHotspotListeners() {
-            document.querySelectorAll('.hotspot').forEach(hotspot => {
-                // Remove previous listeners (important)
-                hotspot.removeEventListener('click', handleHotspotClick); 
-                // Add click listener for TTS
-                hotspot.addEventListener('click', handleHotspotClick); 
-                
-                // NOTA: Los listeners de hover para el audio se han eliminado para cumplir con la Autoplay Policy.
-                // El tooltip (visual) sigue funcionando con hover/focus gracias a CSS.
-            });
-        }
-
-        /** Manejador de click para los hotspots (dispara el TTS inmediatamente) */
-        function handleHotspotClick(event) {
-            const hotspot = event.currentTarget;
-            const textToSpeak = hotspot.getAttribute('data-tts-text');
-
-            if (textToSpeak && !isSpeaking) {
-                // Prepara el texto, diciendo primero el título y luego la descripción
-                const [title, desc] = textToSpeak.split('|');
-                const fullSentence = `${title}. ${desc}`;
-                speakText(fullSentence, hotspot);
-            }
-        }
-
-
-        // HELPER HOTSPOT: Ahora incluye el texto como un data attribute y usa un ícono de altavoz
-        function renderHotspot(title, desc, top, left) {
-            const ttsText = `${title}|${desc}`; // Usamos '|' como separador para el listener
-            return `
-            <div class="hotspot" style="top: ${top}; left: ${left};" tabindex="0" data-tts-text="${ttsText}">
-                <i class="ph-fill ph-speaker-high"></i>
-                <div class="tooltip-card text-gray-800 font-sans text-left">
-                    <h4 class="font-bold text-emerald-600 mb-2 text-xs uppercase tracking-wider flex items-center gap-2">
-                        <i class="ph-bold ph-lightbulb"></i> ${title}
-                    </h4>
-                    <p class="text-xs leading-relaxed text-gray-600 font-serif">${desc}</p>
-                </div>
-            </div>`;
-        }
-
-        function initPageFlip() {
-            const isMobile = window.innerWidth < 768;
-            const bookElement = document.getElementById('book');
+        // INICIALIZACIÓN
+        function startExperience() {
+            const inputKey = document.getElementById('apiKeyInput').value;
+            if(inputKey) apiKey = inputKey;
             
-            // Revisa si el elemento existe y si la librería ya ha sido cargada
-            if (!bookElement || typeof St === 'undefined' || typeof St.PageFlip === 'undefined') {
-                 console.error("PageFlip library or book element not found.");
-                 return;
-            }
+            document.getElementById('startModal').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('startModal').style.display = 'none';
+                initBook();
+            }, 500);
+        }
 
-            pageFlip = new St.PageFlip(bookElement, {
-                width: isMobile ? 310 : 420,
-                height: isMobile ? 480 : 600,
+        function initBook() {
+            const bookEl = document.getElementById('book');
+            let html = '';
+
+            bookContent.forEach((page, index) => {
+                let content = '';
+                let cssClass = 'page';
+                if(page.type.includes('cover')) cssClass += ' hard';
+
+                // Renderizado condicional según tipo de página
+                if (page.type === 'cover') {
+                    content = `<div class="w-full h-full bg-slate-900 relative">
+                        <img src="${page.img}" class="w-full h-full object-cover opacity-80">
+                        <h1 class="absolute bottom-10 left-0 w-full text-center text-white text-3xl font-serif tracking-widest drop-shadow-lg">${page.title}</h1>
+                    </div>`;
+                } else if (page.type === 'empty') {
+                    content = `<div class="w-full h-full opacity-20" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png');"></div>`;
+                } else if (page.type === 'text' || page.type === 'legal') {
+                    content = `<div class="flex flex-col items-center justify-center h-full p-8 text-center">
+                        <h2 class="text-xl font-bold text-gray-700 mb-2">${page.text}</h2>
+                        ${page.sub ? `<p class="text-gray-400 text-xs uppercase tracking-widest">${page.sub}</p>` : ''}
+                    </div>`;
+                } else if (page.type === 'image') {
+                    content = `<div class="w-full h-full relative">
+                        <img src="${page.img}" class="w-full h-full object-cover">
+                        ${page.hotspot ? renderHotspot(page.hotspot) : ''}
+                        <span class="absolute bottom-4 right-4 text-[10px] text-white/80 bg-black/20 px-2 rounded">${index + 1}</span>
+                    </div>`;
+                } else if (page.type === 'cover-back') {
+                    content = `<div class="flex items-center justify-center h-full bg-slate-800 text-white p-8 text-center border-4 border-slate-700">
+                        <p class="font-serif italic opacity-70">${page.text}</p>
+                    </div>`;
+                }
+
+                html += `<div class="${cssClass}"><div class="page-content">${content}</div></div>`;
+            });
+
+            bookEl.innerHTML = html;
+
+            // Inicializar PageFlip
+            pageFlip = new St.PageFlip(bookEl, {
+                width: isMobile ? 320 : 450,
+                height: isMobile ? 500 : 650,
                 size: 'stretch',
-                minWidth: 300, maxWidth: 800,
+                minWidth: 300, maxWidth: 1000,
                 minHeight: 400, maxHeight: 1000,
                 maxShadowOpacity: 0.5,
                 showCover: true,
                 mobileScrollSupport: false
             });
+
             pageFlip.loadFromHTML(document.querySelectorAll('.page'));
             
-            document.getElementById('btnPrev').onclick = () => pageFlip.flipPrev();
-            document.getElementById('btnNext').onclick = () => pageFlip.flipNext();
+            // Eventos de Audio
+            attachAudioEvents();
+
+            // Actualizar indicador
+            pageFlip.on('flip', (e) => {
+                document.getElementById('pageIndicator').innerText = `Pág ${e.data + 1}`;
+            });
         }
+
+        // --- SISTEMA DE AUDIO (Gemini TTS) ---
+        
+        function renderHotspot(data) {
+            // Guardamos los datos en atributos data- para leerlos al hacer click
+            return `
+            <div class="hotspot-container" style="left: ${data.x}; top: ${data.y};">
+                <button class="hotspot-btn" data-tts="${data.t}. ${data.d}" aria-label="Escuchar narración: ${data.t}">
+                    <i class="ph-fill ph-speaker-high"></i>
+                </button>
+                <div class="hotspot-tooltip">
+                    <strong class="block text-emerald-700 text-xs uppercase mb-1">${data.t}</strong>
+                    <span class="text-xs text-gray-600 font-serif leading-tight block">${data.d}</span>
+                </div>
+            </div>`;
+        }
+
+        function attachAudioEvents() {
+            document.querySelectorAll('.hotspot-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Evitar que el libro pase de página al hacer click
+                    const text = btn.getAttribute('data-tts');
+                    speakText(text, btn);
+                });
+            });
+        }
+
+        async function speakText(text, btnElement) {
+            if (!apiKey) {
+                alert("Por favor recarga e ingresa una API Key válida para escuchar el audio.");
+                return;
+            }
+
+            if (btnElement.classList.contains('speaking')) return;
+            
+            btnElement.classList.add('speaking');
+            const icon = btnElement.querySelector('i');
+            icon.classList.replace('ph-speaker-high', 'ph-spinner');
+            icon.classList.add('animate-spin');
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Lee este texto con tono de narrador de cuentos: "${text}"` }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } } }
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
+                    const audioData = data.candidates[0].content.parts[0].inlineData.data;
+                    const audioSrc = "data:audio/mp3;base64," + audioData;
+                    const audio = new Audio(audioSrc);
+                    
+                    icon.classList.remove('animate-spin');
+                    icon.classList.replace('ph-spinner', 'ph-wave-sine'); // Icono de onda mientras suena
+                    
+                    audio.play();
+                    audio.onended = () => {
+                        btnElement.classList.remove('speaking');
+                        icon.classList.replace('ph-wave-sine', 'ph-speaker-high');
+                    };
+                } else {
+                    throw new Error("No audio data");
+                }
+
+            } catch (error) {
+                console.error("Error TTS:", error);
+                alert("Error al generar audio. Revisa la consola o tu API Key.");
+                btnElement.classList.remove('speaking');
+                icon.classList.remove('animate-spin');
+                icon.classList.replace('ph-spinner', 'ph-speaker-slash');
+            }
+        }
+
+        // Navegación Global
+        function flipNext() { pageFlip.flipNext(); }
+        function flipPrev() { pageFlip.flipPrev(); }
 
     </script>
 </body>
