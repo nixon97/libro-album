@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Secreto del Faro - Libro Álbum</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- PageFlip Library -->
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+
+    <style>
+        body {
+            background-color: #f3f4f6;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+            font-family: 'Lora', serif;
+            overflow: hidden; 
+            margin: 0;
+            height: 100vh;
+        }
+
+        h1, h2, h3, .sans { font-family: 'Montserrat', sans-serif; }
+        .serif-title { font-family: 'Cinzel', serif; }
+
+        /* Contenedor del libro */
+        .wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding-top: 20px;
+        }
+
+        /* Estilos de las páginas */
+        .page {
+            background-color: #fdfbf7; 
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            box-shadow: inset -3px 0px 20px rgba(0,0,0,0.02);
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
+        }
+
+        .page.-left { border-right: 0; box-shadow: inset -15px 0 25px -10px rgba(0,0,0,0.1); }
+        .page.-right { border-left: 0; box-shadow: inset 15px 0 25px -10px rgba(0,0,0,0.1); }
+
+        .hard {
+            background-color: #e2e8f0;
+            border: solid 1px #94a3b8;
+        }
+
+        /* Contenido */
+        .page-content {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            position: relative; padding: 2rem;
+        }
+
+        /* Hotspots */
+        .hotspot {
+            position: absolute;
+            width: 32px; height: 32px;
+            /* Degradado dorado/rosado */
+            background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.6);
+            animation: float 3s ease-in-out infinite;
+            z-index: 50;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 18px;
+            transition: transform 0.3s;
+            border: 2px solid white;
+        }
+        .hotspot:hover { transform: scale(1.2) rotate(15deg); box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Tooltip */
+        .tooltip-card {
+            position: absolute;
+            bottom: 140%; left: 50%; transform: translateX(-50%);
+            background: white; padding: 1.2rem;
+            border-radius: 0.8rem;
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.25);
+            width: 240px; text-align: center;
+            opacity: 0; visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 60; border: 1px solid #f3f4f6;
+            pointer-events: none;
+        }
+        .tooltip-card::after {
+            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -8px;
+            border-width: 8px; border-style: solid; border-color: white transparent transparent transparent;
+        }
+        .hotspot:hover .tooltip-card, .hotspot:focus .tooltip-card {
+            opacity: 1; visibility: visible; bottom: 160%;
+        }
+        
+        /* Upload Zone */
+        .upload-zone {
+            transition: all 0.3s ease;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            position: relative; overflow: hidden;
+            border: 4px solid transparent; /* Para simular el grosor de la tapa */
+        }
+        /* Resalta el borde solo al pasar el mouse si es editable */
+        .upload-zone:hover { box-shadow: inset 0 0 0 4px rgba(236, 72, 153, 0.3); }
+
+        .editable { outline: none; border-bottom: 1px dashed transparent; }
+        .editable:focus { border-bottom: 1px dashed #ec4899; background: rgba(255,255,255,0.8); }
+        
+        /* Controles */
+        .controls {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 100; display: flex; gap: 1rem;
+            background: white; padding: 0.6rem 1.5rem; border-radius: 9999px;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed; inset: 0; background: #f3f4f6; z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loader -->
+    <div id="loader">
+        <i class="ph-fill ph-sparkle text-6xl text-pink-500 mb-4 animate-bounce"></i>
+        <p class="font-sans text-gray-500 font-bold tracking-widest text-sm">PREPARANDO LIBRO...</p>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="fixed top-4 right-4 z-50 flex gap-2">
+        <button id="btnAuth" class="bg-gray-900 text-white px-5 py-2 rounded-full shadow-xl text-xs font-bold font-sans hover:bg-gray-800 transition tracking-wide">
+            SOY PROFE
+        </button>
+        <button id="btnSave" class="hidden bg-emerald-500 text-white px-5 py-2 rounded-full shadow-xl text-xs font-bold font-sans hover:bg-emerald-600 transition flex items-center gap-2 tracking-wide">
+            <i class="ph-bold ph-floppy-disk"></i> GUARDAR
+        </button>
+    </div>
+
+    <!-- Controles de Navegación -->
+    <div class="controls">
+        <button id="btnPrev" class="p-2 hover:bg-gray-100 rounded-full text-gray-700 transition"><i class="ph-bold ph-caret-left text-xl"></i></button>
+        <span class="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mx-2">
+            <i class="ph-fill ph-book-open text-pink-500 mr-2"></i>Álbum
+        </span>
+        <button id="btnNext" class="p-2 hover:bg-gray-100 rounded-full text-gray-700 transition"><i class="ph-bold ph-caret-right text-xl"></i></button>
+    </div>
+
+    <!-- Escena del libro -->
+    <div class="wrapper">
+        <div id="book">
+            <!-- Renderizado dinámico -->
+        </div>
+    </div>
+
+    <!-- JavaScript Module -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+
+        // FIREBASE CONFIG (Placeholder)
+        const firebaseConfig = {
+            apiKey: "",
+            authDomain: "",
+            projectId: "",
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: ""
+        };
+
+        // DATOS INICIALES
+        const initialData = {
+            cover: { img: "https://images.unsplash.com/photo-1547849929-c7009e4f5099?w=600&q=80" }, // Portada solo imagen
+            respect: { title: "El Secreto del Faro" },
+            credits: { 
+                publisher: "Editorial Imaginación", 
+                year: "2025", 
+                legal: "Todos los derechos reservados.\nImpreso en Colombia.\nISBN: 978-00-0000-000-0" 
+            },
+            dedication: { text: "Para los niños que miran\nal cielo esperando magia." },
+            body: [
+                // 14 Páginas del Cuerpo (Solo Imágenes)
+                { img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600" },
+                { img: "https://images.unsplash.com/photo-1518939223783-05b106263433?w=600" },
+                { img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600" },
+                { img: "https://images.unsplash.com/photo-1448375240586-dfd8d395ea6c?w=600" },
+                { img: "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=600" },
+                { img: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=600" },
+                { img: "https://images.unsplash.com/photo-1501854140884-074bf6f24344?w=600" },
+                { img: "https://images.unsplash.com/photo-1533285962552-f9d2a0957948?w=600" },
+                { img: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=600" },
+                { img: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=600" },
+                { img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=600" },
+                { img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=600" },
+                { img: "https://images.unsplash.com/photo-1425913397330-cf8af2ff40a1?w=600" },
+                { img: "https://images.unsplash.com/photo-1505506874110-6a7a69069a08?w=600" }
+            ],
+            colophon: { text: "Tipografía: Lora & Montserrat.\nPapel Digital Ecológico." },
+            back: { text: "Una historia fascinante sobre\nel fenómeno meteorológico\nmás hermoso del mundo." }
+        };
+
+        // VARS
+        let bookData = JSON.parse(JSON.stringify(initialData));
+        let pageFlip, db, storage, auth;
+        let isAdmin = false;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                if (firebaseConfig.apiKey) {
+                    const app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+                    storage = getStorage(app);
+                    onAuthStateChanged(auth, (user) => {
+                        isAdmin = !!user;
+                        document.getElementById('btnSave').classList.toggle('hidden', !isAdmin);
+                        document.getElementById('btnAuth').innerText = isAdmin ? "SALIR" : "SOY PROFE";
+                        renderBook(); 
+                    });
+                    // Usando una nueva versión de DB para evitar conflictos
+                    const docSnap = await getDoc(doc(db, 'libros', 'catatumbo_v4'));
+                    if (docSnap.exists()) bookData = docSnap.data();
+                }
+            } catch (e) { console.log("Modo Demo"); }
+            renderBook();
+            document.getElementById('loader').style.display = 'none';
+        });
+
+        function renderBook() {
+            const container = document.getElementById('book');
+            if (pageFlip) container.innerHTML = ''; 
+
+            let html = '';
+            let visualPageCount = 0; // Contador para la paginación
+
+            // --- 1. PORTADA (Ajustada a solo imagen) ---
+            html += `
+            <div class="page hard" data-density="hard">
+                <div class="page-content p-0">
+                    <div class="upload-zone w-full h-full bg-slate-900 flex items-center justify-center cursor-pointer relative group" 
+                         onclick="triggerUpload('cover', 0)" 
+                         style="background-image: url('${bookData.cover.img}'); border-color: #f59e0b50;">
+                        
+                        <!-- Hotspot de información, ubicado fuera del área central para no molestar la imagen -->
+                        ${renderHotspot("La Portada", "La cara principal. Usa solo una imagen impactante (full-bleed).", "5%", "85%")}
+
+                        <!-- Overlay de edición -->
+                         <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                            <span class="bg-white/90 text-gray-800 px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 pointer-events-none">
+                                <i class="ph-bold ph-image"></i> Cambiar Arte de Portada
+                            </span>
+                         </div>
+                    </div>
+                </div>
+            </div>`;
+
+            // --- 2. GUARDAS ---
+            visualPageCount++;
+            html += `
+            <div class="page" data-density="hard">
+                <div class="page-content bg-slate-800 p-0">
+                    <div class="w-full h-full opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png');"></div>
+                    ${renderHotspot("Las Guardas", "Hojas que unen el cuerpo del libro con las tapas. Marcan el inicio de la atmósfera.", "50%", "50%")}
+                </div>
+            </div>`;
+
+            // --- 3. HOJA DE RESPETO (ANTEPORTADA) ---
+            visualPageCount++;
+            html += `
+            <div class="page">
+                <div class="page-content flex items-center justify-center text-center">
+                    <h2 class="text-xl text-gray-500 font-serif tracking-widest uppercase editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('respect', 'title', this.innerText)">${bookData.respect.title}</h2>
+                    ${renderHotspot("Hoja de Respeto", "Minimalista. Lleva solo el título.", "20%", "50%")}
+                    <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
+                </div>
+            </div>`;
+
+            // --- 4. CRÉDITOS ---
+            visualPageCount++;
+            html += `
+            <div class="page">
+                <div class="page-content justify-end text-left pb-12 pl-12">
+                     <div class="border-l-2 border-gray-200 pl-4">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Créditos</h3>
+                        <p class="text-xs text-gray-600 font-bold editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('credits', 'publisher', this.innerText)">${bookData.credits.publisher}</p>
+                        <div class="text-[10px] text-gray-400 mt-2 whitespace-pre-wrap leading-relaxed editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('credits', 'legal', this.innerText)">${bookData.credits.legal}</div>
+                     </div>
+                     ${renderHotspot("Página Legal", "Información técnica: Editorial, ISBN, derechos.", "20%", "20%")}
+                     <span class="absolute bottom-6 left-6 text-[10px] text-gray-300">${visualPageCount}</span>
+                </div>
+            </div>`;
+
+            // --- 5. DEDICATORIA ---
+            visualPageCount++;
+            html += `
+            <div class="page">
+                <div class="page-content flex items-center justify-center text-center italic">
+                    <p class="text-base text-gray-600 font-serif editable max-w-xs" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('dedication', 'text', this.innerText)">${bookData.dedication.text}</p>
+                    ${renderHotspot("Dedicatoria", "Un regalo personal del autor.", "20px", "50%")}
+                    <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
+                </div>
+            </div>`;
+
+            // --- 6-19. CUERPO (14 Páginas - SOLO IMAGENES) ---
+            bookData.body.forEach((page, i) => {
+                visualPageCount++;
+                const isLeft = (visualPageCount % 2 === 0); // La paginación visual comienza aquí
+                
+                let hotspotHtml = '';
+                
+                // HOTSPOT: PÁGINA ÚNICA (P6)
+                if (i === 0) {
+                    hotspotHtml = renderHotspot("Página Única", "El espacio narrativo de la imagen es limitado a una hoja.", "5%", "5%");
+                }
+                
+                // HOTSPOT: DOBLE PÁGINA (P8/P9 -> i=2, i=3)
+                if (i === 2) { 
+                    hotspotHtml = renderHotspot("Doble Página (Izq)", "La ilustración se extiende por el lomo al lado derecho.", "50%", "80%");
+                }
+                if (i === 3) { 
+                    hotspotHtml = renderHotspot("Doble Página (Der)", "Permite un horizonte narrativo más amplio.", "50%", "20%");
+                }
+
+                html += `
+                <div class="page">
+                    <div class="page-content p-0">
+                        <div class="upload-zone w-full h-full bg-gray-50 flex items-center justify-center cursor-pointer relative group" 
+                             style="background-image: url('${page.img}')"
+                             onclick="triggerUpload('body', ${i})">
+                            
+                             <!-- Overlay de edición -->
+                             <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                                <span class="bg-white/90 text-gray-800 px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 pointer-events-none">
+                                    <i class="ph-bold ph-image"></i> Cambiar Ilustración
+                                </span>
+                             </div>
+
+                             ${hotspotHtml}
+                        </div>
+                        <span class="absolute bottom-6 ${isLeft ? 'left-6' : 'right-6'} text-[10px] text-gray-500 font-bold bg-white/80 px-2 py-1 rounded z-30 shadow-sm">${visualPageCount}</span>
+                    </div>
+                </div>`;
+            });
+
+            // --- 20. COLOFÓN ---
+            visualPageCount++;
+            html += `
+            <div class="page">
+                <div class="page-content flex flex-col items-center justify-center text-center relative">
+                    <i class="ph-duotone ph-pen-nib text-3xl text-gray-300 mb-4"></i>
+                    <h3 class="text-sm font-bold mb-2 uppercase tracking-widest text-gray-400">Fin</h3>
+                    <p class="text-xs text-gray-500 editable whitespace-pre-wrap" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('colophon', 'text', this.innerText)">${bookData.colophon.text}</p>
+                    ${renderHotspot("Colofón", "Nota final sobre la impresión y tipografía.", "70%", "50%")}
+                    <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
+                </div>
+            </div>`;
+
+            // --- 21. GUARDAS TRASERAS ---
+            visualPageCount++;
+            html += `
+            <div class="page" data-density="hard">
+                <div class="page-content bg-slate-800 p-0">
+                     <div class="w-full h-full opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png');"></div>
+                </div>
+            </div>`;
+
+            // --- 22. CONTRAPORTADA ---
+            visualPageCount++;
+            html += `
+            <div class="page hard" data-density="hard">
+                <div class="page-content bg-slate-900 text-white flex flex-col justify-center items-center text-center border-4 border-yellow-500/50">
+                    <div class="max-w-xs relative">
+                        <h4 class="font-bold text-yellow-500 uppercase tracking-widest mb-4 text-xs">Sinopsis</h4>
+                        <p class="text-sm font-serif font-light leading-loose mb-8 opacity-80 editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('back', 'text', this.innerText)">
+                            ${bookData.back.text}
+                        </p>
+                        <div class="border border-white/20 px-3 py-1 inline-block text-[10px] tracking-widest opacity-50">ISBN 978-0-000</div>
+                        ${renderHotspot("Contraportada", "Cierre del libro. Busca convencer con la sinopsis.", "10%", "90%")}
+                    </div>
+                </div>
+            </div>`;
+
+            container.innerHTML = html;
+            initPageFlip();
+        }
+
+        // HELPER HOTSPOT
+        function renderHotspot(title, desc, top, left) {
+            return `
+            <div class="hotspot" style="top: ${top}; left: ${left};" onclick="event.stopPropagation()">
+                <i class="ph-fill ph-sparkle"></i>
+                <div class="tooltip-card text-gray-800 font-sans text-left">
+                    <h4 class="font-bold text-pink-600 mb-2 text-xs uppercase tracking-wider flex items-center gap-2">
+                        <i class="ph-bold ph-star"></i> ${title}
+                    </h4>
+                    <p class="text-xs leading-relaxed text-gray-600 font-serif">${desc}</p>
+                </div>
+            </div>`;
+        }
+
+        function initPageFlip() {
+            const isMobile = window.innerWidth < 768;
+            pageFlip = new St.PageFlip(document.getElementById('book'), {
+                width: isMobile ? 310 : 420,
+                height: isMobile ? 480 : 600,
+                size: 'stretch',
+                minWidth: 300, maxWidth: 800,
+                minHeight: 400, maxHeight: 1000,
+                maxShadowOpacity: 0.5,
+                showCover: true,
+                mobileScrollSupport: false
+            });
+            pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+            
+            document.getElementById('btnPrev').onclick = () => pageFlip.flipPrev();
+            document.getElementById('btnNext').onclick = () => pageFlip.flipNext();
+        }
+
+        // --- EDIT LOGIC ---
+        window.updateData = (s, f, v) => { if(isAdmin) bookData[s][f] = v; };
+
+        window.triggerUpload = (section, index) => {
+            if(!isAdmin) return alert("Modo Lectura: Inicia sesión para editar.");
+            const input = document.createElement('input');
+            input.type = 'file'; input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    if (section === 'body') bookData.body[index].img = ev.target.result;
+                    else if (section === 'cover') bookData.cover.img = ev.target.result;
+                    renderBook();
+                };
+                reader.readAsDataURL(file);
+                
+                // Firebase Upload (Background)
+                if (storage) {
+                    try {
+                        const refS = ref(storage, `books/${Date.now()}_${file.name}`);
+                        const snap = await uploadBytes(refS, file);
+                        const url = await getDownloadURL(snap.ref);
+                        if (section === 'body') bookData.body[index].img = url;
+                        else if (section === 'cover') bookData.cover.img = url;
+                    } catch(e) { console.error(e); }
+                }
+            };
+            input.click();
+        };
+
+        document.getElementById('btnAuth').onclick = async () => {
+            if (isAdmin) location.reload();
+            else {
+                if(auth) await signInAnonymously(auth);
+                else { isAdmin = true; renderBook(); document.getElementById('btnSave').classList.remove('hidden'); }
+            }
+        };
+
+        document.getElementById('btnSave').onclick = async () => {
+            if (!db) return alert("Sin conexión a DB.");
+            const btn = document.getElementById('btnSave');
+            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i>`;
+            try {
+                // Guardar con la nueva versión
+                await setDoc(doc(db, 'libros', 'catatumbo_v4'), bookData); 
+                btn.innerHTML = `<i class="ph-bold ph-check"></i> LISTO`;
+                setTimeout(() => btn.innerHTML = `<i class="ph-bold ph-floppy-disk"></i> GUARDAR`, 2000);
+            } catch (e) { alert(e.message); btn.innerHTML = "ERROR"; }
+        };
+
+    </script>
+</body>
+</html>
