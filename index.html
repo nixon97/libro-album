@@ -228,6 +228,42 @@
         const ttsModel = "gemini-2.5-flash-preview-tts";
         const ttsVoice = "Kore"; // Voz firme, buena para narración.
 
+        /** * Llama a la API con reintento exponencial para manejar fallos temporales.
+         * Esto previene el error "TTS API failed: Something went wrong".
+         */
+        async function fetchWithExponentialBackoff(url, options, maxRetries = 3, delay = 1000) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) {
+                        return response;
+                    } else if (response.status === 429 || response.status >= 500) {
+                        // Error de límite de velocidad o de servidor, intentar reintentar
+                        if (i < maxRetries - 1) {
+                            const backoffDelay = delay * Math.pow(2, i) + Math.random() * 1000;
+                            // Silently wait (no console.log)
+                            await new Promise(resolve => setTimeout(resolve, backoffDelay));
+                        } else {
+                            // Último intento fallido
+                            throw new Error(`TTS API failed after ${maxRetries} retries: ${response.statusText}`);
+                        }
+                    } else {
+                        // Error de cliente (ej. 400 Bad Request, 403 Forbidden). No reintentar.
+                        throw new Error(`TTS API failed: ${response.statusText}`);
+                    }
+                } catch (error) {
+                    if (i < maxRetries - 1 && (error.message.includes("Failed to fetch") || error.message.includes("NetworkError"))) {
+                        // Error de red
+                        const backoffDelay = delay * Math.pow(2, i) + Math.random() * 1000;
+                        // Silently wait (no console.log)
+                        await new Promise(resolve => setTimeout(resolve, backoffDelay));
+                    } else {
+                        throw error; // Relanzar si es un error no reintentable o si no quedan reintentos
+                    }
+                }
+            }
+        }
+
         /** Convierte una cadena Base64 a ArrayBuffer (necesario para el audio) */
         function base64ToArrayBuffer(base64) {
             const binaryString = atob(base64);
@@ -301,16 +337,13 @@
             };
 
             try {
-                const response = await fetch(apiUrl, {
+                // Usamos la nueva función con reintento
+                const response = await fetchWithExponentialBackoff(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 
-                if (!response.ok) {
-                    throw new Error(`TTS API failed: ${response.statusText}`);
-                }
-
                 const result = await response.json();
                 const part = result?.candidates?.[0]?.content?.parts?.[0];
                 const audioData = part?.inlineData?.data;
