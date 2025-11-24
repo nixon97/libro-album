@@ -337,7 +337,7 @@
             };
 
             try {
-                // Usamos la nueva función con reintento
+                // Usamos la función con reintento
                 const response = await fetchWithExponentialBackoff(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -361,6 +361,7 @@
                     const audioUrl = URL.createObjectURL(wavBlob);
                     
                     const audio = new Audio(audioUrl);
+                    // play() tiene éxito porque es llamado desde un manejador de click explícito
                     audio.play().catch(e => console.error("Error al intentar reproducir audio:", e));
                     
                     audio.onended = () => {
@@ -530,44 +531,30 @@
             addHotspotListeners(); 
         }
 
-        // Variable para almacenar el ID del temporizador de retraso
-        let hoverTimeout = null; 
-
-        /** Añade los listeners de hover a todos los hotspots generados */
+        /** Añade los listeners de click a todos los hotspots generados para activar el TTS */
         function addHotspotListeners() {
-            // Se limpia el DOM antes de añadir nuevos listeners para evitar duplicados
             document.querySelectorAll('.hotspot').forEach(hotspot => {
-                hotspot.removeEventListener('mouseenter', handleHotspotHover);
-                hotspot.removeEventListener('mouseleave', handleHotspotLeave);
-                hotspot.addEventListener('mouseenter', handleHotspotHover);
-                hotspot.addEventListener('mouseleave', handleHotspotLeave);
+                // Remove previous listeners (important)
+                hotspot.removeEventListener('click', handleHotspotClick); 
+                // Add click listener for TTS
+                hotspot.addEventListener('click', handleHotspotClick); 
+                
+                // NOTA: Los listeners de hover para el audio se han eliminado para cumplir con la Autoplay Policy.
+                // El tooltip (visual) sigue funcionando con hover/focus gracias a CSS.
             });
         }
 
-        /** Manejador de hover (mouseenter) para los hotspots (dispara el TTS con retraso) */
-        function handleHotspotHover(event) {
-            // Limpia cualquier timeout anterior para evitar disparos accidentales
-            clearTimeout(hoverTimeout); 
-            
+        /** Manejador de click para los hotspots (dispara el TTS inmediatamente) */
+        function handleHotspotClick(event) {
             const hotspot = event.currentTarget;
             const textToSpeak = hotspot.getAttribute('data-tts-text');
 
-            // Establece un retraso de 300ms antes de llamar a speakText
-            hoverTimeout = setTimeout(() => {
-                if (textToSpeak && !isSpeaking) {
-                    // Prepara el texto, diciendo primero el título y luego la descripción
-                    const [title, desc] = textToSpeak.split('|');
-                    const fullSentence = `${title}. ${desc}`;
-                    speakText(fullSentence, hotspot);
-                }
-            }, 300);
-        }
-
-        /** Manejador de mouseleave para cancelar la reproducción si el usuario se va */
-        function handleHotspotLeave() {
-            clearTimeout(hoverTimeout);
-            // No se implementa la parada de audio en curso ya que no es trivial con el API
-            // Pero se evita que se inicie un audio si el mouse se va rápidamente.
+            if (textToSpeak && !isSpeaking) {
+                // Prepara el texto, diciendo primero el título y luego la descripción
+                const [title, desc] = textToSpeak.split('|');
+                const fullSentence = `${title}. ${desc}`;
+                speakText(fullSentence, hotspot);
+            }
         }
 
 
