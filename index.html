@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Secreto del Faro - Libro Álbum</title>
+    <title>Mito Norte Santander - Libro Álbum</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -61,27 +61,34 @@
             position: relative; padding: 2rem;
         }
 
-        /* Hotspots */
+        /* Hotspots de información (Ahora son interactivos para TTS) */
         .hotspot {
             position: absolute;
             width: 32px; height: 32px;
-            /* Degradado dorado/rosado */
-            background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
+            /* Color actualizado para mejor contraste y destacar la interactividad */
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(236, 72, 153, 0.6);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
             animation: float 3s ease-in-out infinite;
             z-index: 50;
             display: flex; align-items: center; justify-content: center;
             color: white; font-size: 18px;
             transition: transform 0.3s;
             border: 2px solid white;
+            /* Indicador de carga de audio */
+            pointer-events: all;
         }
-        .hotspot:hover { transform: scale(1.2) rotate(15deg); box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); }
+        .hotspot:hover { transform: scale(1.2) rotate(5deg); box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
+        .hotspot.speaking { background: #3b82f6; animation: speaking 0.5s infinite alternate; }
 
         @keyframes float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
+        }
+        @keyframes speaking {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
         }
 
         /* Tooltip */
@@ -95,7 +102,7 @@
             opacity: 0; visibility: hidden;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 60; border: 1px solid #f3f4f6;
-            pointer-events: none;
+            pointer-events: none; /* No interactúa con el ratón */
         }
         .tooltip-card::after {
             content: ''; position: absolute; top: 100%; left: 50%; margin-left: -8px;
@@ -103,28 +110,6 @@
         }
         .hotspot:hover .tooltip-card, .hotspot:focus .tooltip-card {
             opacity: 1; visibility: visible; bottom: 160%;
-        }
-        
-        /* Upload Zone */
-        .upload-zone {
-            transition: all 0.3s ease;
-            background-size: cover; background-position: center; background-repeat: no-repeat;
-            position: relative; overflow: hidden;
-            border: 4px solid transparent; /* Para simular el grosor de la tapa */
-        }
-        /* Resalta el borde solo al pasar el mouse si es editable */
-        .upload-zone:hover { box-shadow: inset 0 0 0 4px rgba(236, 72, 153, 0.3); }
-
-        .editable { outline: none; border-bottom: 1px dashed transparent; }
-        .editable:focus { border-bottom: 1px dashed #ec4899; background: rgba(255,255,255,0.8); }
-        
-        /* Controles */
-        .controls {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 100; display: flex; gap: 1rem;
-            background: white; padding: 0.6rem 1.5rem; border-radius: 9999px;
-            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
-            border: 1px solid #e5e7eb;
         }
 
         /* Loader */
@@ -139,21 +124,11 @@
     <!-- Loader -->
     <div id="loader">
         <i class="ph-fill ph-sparkle text-6xl text-pink-500 mb-4 animate-bounce"></i>
-        <p class="font-sans text-gray-500 font-bold tracking-widest text-sm">PREPARANDO LIBRO...</p>
-    </div>
-
-    <!-- Admin Panel -->
-    <div class="fixed top-4 right-4 z-50 flex gap-2">
-        <button id="btnAuth" class="bg-gray-900 text-white px-5 py-2 rounded-full shadow-xl text-xs font-bold font-sans hover:bg-gray-800 transition tracking-wide">
-            SOY PROFE
-        </button>
-        <button id="btnSave" class="hidden bg-emerald-500 text-white px-5 py-2 rounded-full shadow-xl text-xs font-bold font-sans hover:bg-emerald-600 transition flex items-center gap-2 tracking-wide">
-            <i class="ph-bold ph-floppy-disk"></i> GUARDAR
-        </button>
+        <p class="font-sans text-gray-500 font-bold tracking-widest text-sm">CARGANDO LIBRO...</p>
     </div>
 
     <!-- Controles de Navegación -->
-    <div class="controls">
+    <div class="controls fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex gap-2 bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-lg border border-gray-200">
         <button id="btnPrev" class="p-2 hover:bg-gray-100 rounded-full text-gray-700 transition"><i class="ph-bold ph-caret-left text-xl"></i></button>
         <span class="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mx-2">
             <i class="ph-fill ph-book-open text-pink-500 mr-2"></i>Álbum
@@ -169,109 +144,209 @@
     </div>
 
     <!-- JavaScript Module -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
-
-        // FIREBASE CONFIG (Placeholder)
-        const firebaseConfig = {
-            apiKey: "",
-            authDomain: "",
-            projectId: "",
-            storageBucket: "",
-            messagingSenderId: "",
-            appId: ""
-        };
-
-        // DATOS INICIALES
-        const initialData = {
-            cover: { img: "https://images.unsplash.com/photo-1547849929-c7009e4f5099?w=600&q=80" }, // Portada solo imagen
-            respect: { title: "El Secreto del Faro" },
+    <script>
+        // DATOS INICIALES (AQUÍ DEBES REEMPLAZAR LAS IMÁGENES)
+        const bookData = {
+            cover: { 
+                // *** 1. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen de PORTADA (Página Visual 1) ***
+                img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" 
+            }, 
+            respect: { title: "Mito Norte Santander" },
             credits: { 
-                publisher: "Editorial Imaginación", 
+                publisher: "Autor: [Tu nombre/Equipo]", 
                 year: "2025", 
-                legal: "Todos los derechos reservados.\nImpreso en Colombia.\nISBN: 978-00-0000-000-0" 
+                legal: "Todos los derechos reservados.\n© 2025 Mito Norte Santander. \nProhibida la reproducción total o parcial." 
             },
-            dedication: { text: "Para los niños que miran\nal cielo esperando magia." },
+            dedication: { text: "Para los niños y jóvenes que mantienen viva\nla historia de nuestra tierra." },
             body: [
-                // 14 Páginas del Cuerpo (Solo Imágenes)
-                { img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600" },
-                { img: "https://images.unsplash.com/photo-1518939223783-05b106263433?w=600" },
-                { img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600" },
-                { img: "https://images.unsplash.com/photo-1448375240586-dfd8d395ea6c?w=600" },
-                { img: "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=600" },
-                { img: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=600" },
-                { img: "https://images.unsplash.com/photo-1501854140884-074bf6f24344?w=600" },
+                // *** 2. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 6 ***
+                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
+                // *** 3. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 7 ***
+                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
+                // *** 4. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 8 ***
+                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
+                // *** 5. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 9 ***
+                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
+                // *** 6. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 10 ***
+                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
+                // *** 7. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 11 ***
+                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
+                // *** 8. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 12 ***
+                { img: "https://www.grupoeducar.cl/wp-content/uploads/2017/03/latentaciondesanantonio.jpg" },
+                // *** 9. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 13 ***
                 { img: "https://images.unsplash.com/photo-1533285962552-f9d2a0957948?w=600" },
+                // *** 10. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 14 ***
                 { img: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=600" },
+                // *** 11. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 15 ***
                 { img: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=600" },
+                // *** 12. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 16 ***
                 { img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=600" },
+                // *** 13. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 17 ***
                 { img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=600" },
+                // *** 14. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 18 ***
                 { img: "https://images.unsplash.com/photo-1425913397330-cf8af2ff40a1?w=600" },
+                // *** 15. REEMPLAZA ESTA URL con la URL DIRECTA de tu Imagen para la PÁGINA VISUAL 19 ***
                 { img: "https://images.unsplash.com/photo-1505506874110-6a7a69069a08?w=600" }
             ],
-            colophon: { text: "Tipografía: Lora & Montserrat.\nPapel Digital Ecológico." },
-            back: { text: "Una historia fascinante sobre\nel fenómeno meteorológico\nmás hermoso del mundo." }
+            colophon: { text: "Diseño y concepto: [Tu Nombre].\nTipografía: Lora & Montserrat.\nPapel Digital Ecológico." },
+            back: { text: "Una inmersión profunda en las tradiciones y leyendas de\nel Norte de Santander." }
         };
 
-        // VARS
-        let bookData = JSON.parse(JSON.stringify(initialData));
-        let pageFlip, db, storage, auth;
-        let isAdmin = false;
+        let pageFlip;
 
         window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                if (firebaseConfig.apiKey) {
-                    const app = initializeApp(firebaseConfig);
-                    auth = getAuth(app);
-                    db = getFirestore(app);
-                    storage = getStorage(app);
-                    onAuthStateChanged(auth, (user) => {
-                        isAdmin = !!user;
-                        document.getElementById('btnSave').classList.toggle('hidden', !isAdmin);
-                        document.getElementById('btnAuth').innerText = isAdmin ? "SALIR" : "SOY PROFE";
-                        renderBook(); 
-                    });
-                    // Usando una nueva versión de DB para evitar conflictos
-                    const docSnap = await getDoc(doc(db, 'libros', 'catatumbo_v4'));
-                    if (docSnap.exists()) bookData = docSnap.data();
-                }
-            } catch (e) { console.log("Modo Demo"); }
             renderBook();
             document.getElementById('loader').style.display = 'none';
         });
+
+        // =========================================================================
+        // LÓGICA DE TEXTO A VOZ (TTS)
+        // =========================================================================
+
+        const apiKey = ""; // API Key is provided by Canvas environment
+        const ttsModel = "gemini-2.5-flash-preview-tts";
+        const ttsVoice = "Kore"; // Voz firme, buena para narración.
+
+        /** Convierte una cadena Base64 a ArrayBuffer (necesario para el audio) */
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        /** Convierte datos PCM de 16 bits sin procesar a un blob WAV reproducible */
+        function pcmToWav(pcmData, sampleRate) {
+            const numChannels = 1;
+            const bytesPerSample = 2; // 16-bit PCM
+            const byteRate = sampleRate * numChannels * bytesPerSample;
+            const blockAlign = numChannels * bytesPerSample;
+            const dataSize = pcmData.byteLength;
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+            let offset = 0;
+
+            // RIFF chunk
+            writeString(view, offset, 'RIFF'); offset += 4;
+            view.setUint32(offset, 36 + dataSize, true); offset += 4;
+            writeString(view, offset, 'WAVE'); offset += 4;
+
+            // FMT chunk
+            writeString(view, offset, 'fmt '); offset += 4;
+            view.setUint32(offset, 16, true); offset += 4; // ChunkSize (16 for PCM)
+            view.setUint16(offset, 1, true); offset += 2; // AudioFormat (1 for PCM)
+            view.setUint16(offset, numChannels, true); offset += 2;
+            view.setUint32(offset, sampleRate, true); offset += 4;
+            view.setUint32(offset, byteRate, true); offset += 4;
+            view.setUint16(offset, blockAlign, true); offset += 2;
+            view.setUint16(offset, 16, true); offset += 2; // BitsPerSample (16)
+
+            // DATA chunk
+            writeString(view, offset, 'data'); offset += 4;
+            view.setUint32(offset, dataSize, true); offset += 4;
+
+            // PCM data
+            const pcmBytes = new Uint8Array(buffer, offset);
+            pcmBytes.set(new Uint8Array(pcmData.buffer));
+
+            return new Blob([buffer], { type: 'audio/wav' });
+
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+        }
+
+        /** Llama al API de Gemini para generar el audio y lo reproduce. */
+        async function speakText(textToSpeak, hotspotElement) {
+            if (hotspotElement) hotspotElement.classList.add('speaking');
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${ttsModel}:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: `Di en español: ${textToSpeak}` }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: { prebuiltVoiceConfig: { voiceName: ttsVoice } }
+                    }
+                },
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`TTS API failed: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
+                    // El mimetype es audio/L16;rate=16000;channels=1;encoding=pcm16
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
+                    
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    
+                    const audio = new Audio(audioUrl);
+                    audio.play().catch(e => console.error("Error al intentar reproducir audio:", e));
+                    
+                    audio.onended = () => {
+                        if (hotspotElement) hotspotElement.classList.remove('speaking');
+                        URL.revokeObjectURL(audioUrl); // Limpiar el objeto URL
+                    };
+
+                } else {
+                    console.error("TTS API: No se recibieron datos de audio válidos.");
+                    if (hotspotElement) hotspotElement.classList.remove('speaking');
+                }
+
+            } catch (error) {
+                console.error("Error en la llamada al TTS:", error);
+                if (hotspotElement) hotspotElement.classList.remove('speaking');
+            }
+        }
+
+
+        // =========================================================================
+        // LÓGICA DEL LIBRO
+        // =========================================================================
 
         function renderBook() {
             const container = document.getElementById('book');
             if (pageFlip) container.innerHTML = ''; 
 
             let html = '';
-            let visualPageCount = 0; // Contador para la paginación
+            let visualPageCount = 0;
 
-            // --- 1. PORTADA (Ajustada a solo imagen) ---
+            // --- 1. PORTADA (Página Visual 1) ---
             html += `
             <div class="page hard" data-density="hard">
                 <div class="page-content p-0">
-                    <div class="upload-zone w-full h-full bg-slate-900 flex items-center justify-center cursor-pointer relative group" 
-                         onclick="triggerUpload('cover', 0)" 
-                         style="background-image: url('${bookData.cover.img}'); border-color: #f59e0b50;">
+                    <div class="w-full h-full bg-slate-900 flex items-center justify-center relative" 
+                         style="background-image: url('${bookData.cover.img}'); border-color: #f59e0b50; background-size: cover; background-position: center;">
                         
-                        <!-- Hotspot de información, ubicado fuera del área central para no molestar la imagen -->
                         ${renderHotspot("La Portada", "La cara principal. Usa solo una imagen impactante (full-bleed).", "5%", "85%")}
-
-                        <!-- Overlay de edición -->
-                         <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-                            <span class="bg-white/90 text-gray-800 px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 pointer-events-none">
-                                <i class="ph-bold ph-image"></i> Cambiar Arte de Portada
-                            </span>
-                         </div>
                     </div>
                 </div>
             </div>`;
 
-            // --- 2. GUARDAS ---
+            // --- 2. GUARDAS (Página Visual 2) ---
             visualPageCount++;
             html += `
             <div class="page" data-density="hard">
@@ -281,38 +356,38 @@
                 </div>
             </div>`;
 
-            // --- 3. HOJA DE RESPETO (ANTEPORTADA) ---
+            // --- 3. HOJA DE RESPETO / ANTEPORTADA (Página Visual 3) ---
             visualPageCount++;
             html += `
             <div class="page">
                 <div class="page-content flex items-center justify-center text-center">
-                    <h2 class="text-xl text-gray-500 font-serif tracking-widest uppercase editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('respect', 'title', this.innerText)">${bookData.respect.title}</h2>
+                    <h2 class="text-xl text-gray-500 font-serif tracking-widest uppercase">${bookData.respect.title}</h2>
                     ${renderHotspot("Hoja de Respeto", "Minimalista. Lleva solo el título.", "20%", "50%")}
                     <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
                 </div>
             </div>`;
 
-            // --- 4. CRÉDITOS ---
+            // --- 4. CRÉDITOS / PÁGINA LEGAL (Página Visual 4) ---
             visualPageCount++;
             html += `
             <div class="page">
                 <div class="page-content justify-end text-left pb-12 pl-12">
                      <div class="border-l-2 border-gray-200 pl-4">
                         <h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Créditos</h3>
-                        <p class="text-xs text-gray-600 font-bold editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('credits', 'publisher', this.innerText)">${bookData.credits.publisher}</p>
-                        <div class="text-[10px] text-gray-400 mt-2 whitespace-pre-wrap leading-relaxed editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('credits', 'legal', this.innerText)">${bookData.credits.legal}</div>
+                        <p class="text-xs text-gray-600 font-bold">${bookData.credits.publisher}</p>
+                        <div class="text-[10px] text-gray-400 mt-2 whitespace-pre-wrap leading-relaxed">${bookData.credits.legal}</div>
                      </div>
                      ${renderHotspot("Página Legal", "Información técnica: Editorial, ISBN, derechos.", "20%", "20%")}
                      <span class="absolute bottom-6 left-6 text-[10px] text-gray-300">${visualPageCount}</span>
                 </div>
             </div>`;
 
-            // --- 5. DEDICATORIA ---
+            // --- 5. DEDICATORIA (Página Visual 5) ---
             visualPageCount++;
             html += `
             <div class="page">
                 <div class="page-content flex items-center justify-center text-center italic">
-                    <p class="text-base text-gray-600 font-serif editable max-w-xs" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('dedication', 'text', this.innerText)">${bookData.dedication.text}</p>
+                    <p class="text-base text-gray-600 font-serif max-w-xs">${bookData.dedication.text}</p>
                     ${renderHotspot("Dedicatoria", "Un regalo personal del autor.", "20px", "50%")}
                     <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
                 </div>
@@ -321,7 +396,7 @@
             // --- 6-19. CUERPO (14 Páginas - SOLO IMAGENES) ---
             bookData.body.forEach((page, i) => {
                 visualPageCount++;
-                const isLeft = (visualPageCount % 2 === 0); // La paginación visual comienza aquí
+                const isLeft = (visualPageCount % 2 === 0);
                 
                 let hotspotHtml = '';
                 
@@ -341,17 +416,9 @@
                 html += `
                 <div class="page">
                     <div class="page-content p-0">
-                        <div class="upload-zone w-full h-full bg-gray-50 flex items-center justify-center cursor-pointer relative group" 
-                             style="background-image: url('${page.img}')"
-                             onclick="triggerUpload('body', ${i})">
+                        <div class="w-full h-full bg-gray-50 flex items-center justify-center relative" 
+                             style="background-image: url('${page.img}'); background-size: cover; background-position: center;">
                             
-                             <!-- Overlay de edición -->
-                             <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-                                <span class="bg-white/90 text-gray-800 px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 pointer-events-none">
-                                    <i class="ph-bold ph-image"></i> Cambiar Ilustración
-                                </span>
-                             </div>
-
                              ${hotspotHtml}
                         </div>
                         <span class="absolute bottom-6 ${isLeft ? 'left-6' : 'right-6'} text-[10px] text-gray-500 font-bold bg-white/80 px-2 py-1 rounded z-30 shadow-sm">${visualPageCount}</span>
@@ -359,20 +426,20 @@
                 </div>`;
             });
 
-            // --- 20. COLOFÓN ---
+            // --- 20. COLOFÓN (Página Visual 20) ---
             visualPageCount++;
             html += `
             <div class="page">
                 <div class="page-content flex flex-col items-center justify-center text-center relative">
                     <i class="ph-duotone ph-pen-nib text-3xl text-gray-300 mb-4"></i>
                     <h3 class="text-sm font-bold mb-2 uppercase tracking-widest text-gray-400">Fin</h3>
-                    <p class="text-xs text-gray-500 editable whitespace-pre-wrap" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('colophon', 'text', this.innerText)">${bookData.colophon.text}</p>
+                    <p class="text-xs text-gray-500 whitespace-pre-wrap">${bookData.colophon.text}</p>
                     ${renderHotspot("Colofón", "Nota final sobre la impresión y tipografía.", "70%", "50%")}
                     <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
                 </div>
             </div>`;
 
-            // --- 21. GUARDAS TRASERAS ---
+            // --- 21. GUARDAS TRASERAS (Página Visual 21) ---
             visualPageCount++;
             html += `
             <div class="page" data-density="hard">
@@ -381,14 +448,14 @@
                 </div>
             </div>`;
 
-            // --- 22. CONTRAPORTADA ---
+            // --- 22. CONTRAPORTADA (Página Visual 22) ---
             visualPageCount++;
             html += `
             <div class="page hard" data-density="hard">
                 <div class="page-content bg-slate-900 text-white flex flex-col justify-center items-center text-center border-4 border-yellow-500/50">
                     <div class="max-w-xs relative">
                         <h4 class="font-bold text-yellow-500 uppercase tracking-widest mb-4 text-xs">Sinopsis</h4>
-                        <p class="text-sm font-serif font-light leading-loose mb-8 opacity-80 editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('back', 'text', this.innerText)">
+                        <p class="text-sm font-serif font-light leading-loose mb-8 opacity-80">
                             ${bookData.back.text}
                         </p>
                         <div class="border border-white/20 px-3 py-1 inline-block text-[10px] tracking-widest opacity-50">ISBN 978-0-000</div>
@@ -399,16 +466,40 @@
 
             container.innerHTML = html;
             initPageFlip();
+            // Llama a la función para añadir el evento de audio después de renderizar
+            addHotspotListeners(); 
         }
 
-        // HELPER HOTSPOT
+        /** Añade los listeners de click a todos los hotspots generados */
+        function addHotspotListeners() {
+            document.querySelectorAll('.hotspot').forEach(hotspot => {
+                // Elimina listener existente si hay (para evitar duplicados en renderBook)
+                hotspot.removeEventListener('click', handleHotspotClick); 
+                hotspot.addEventListener('click', handleHotspotClick);
+            });
+        }
+
+        /** Manejador de clic para los hotspots (dispara el TTS) */
+        function handleHotspotClick(event) {
+            const hotspot = event.currentTarget;
+            const textToSpeak = hotspot.getAttribute('data-tts-text');
+            if (textToSpeak) {
+                // Prepara el texto, diciendo primero el título y luego la descripción
+                const [title, desc] = textToSpeak.split('|');
+                const fullSentence = `${title}. ${desc}`;
+                speakText(fullSentence, hotspot);
+            }
+        }
+
+        // HELPER HOTSPOT: Ahora incluye el texto como un data attribute y usa un ícono de altavoz
         function renderHotspot(title, desc, top, left) {
+            const ttsText = `${title}|${desc}`; // Usamos '|' como separador para el listener
             return `
-            <div class="hotspot" style="top: ${top}; left: ${left};" onclick="event.stopPropagation()">
-                <i class="ph-fill ph-sparkle"></i>
+            <div class="hotspot" style="top: ${top}; left: ${left};" tabindex="0" data-tts-text="${ttsText}">
+                <i class="ph-fill ph-speaker-high"></i>
                 <div class="tooltip-card text-gray-800 font-sans text-left">
-                    <h4 class="font-bold text-pink-600 mb-2 text-xs uppercase tracking-wider flex items-center gap-2">
-                        <i class="ph-bold ph-star"></i> ${title}
+                    <h4 class="font-bold text-emerald-600 mb-2 text-xs uppercase tracking-wider flex items-center gap-2">
+                        <i class="ph-bold ph-lightbulb"></i> ${title}
                     </h4>
                     <p class="text-xs leading-relaxed text-gray-600 font-serif">${desc}</p>
                 </div>
@@ -417,7 +508,15 @@
 
         function initPageFlip() {
             const isMobile = window.innerWidth < 768;
-            pageFlip = new St.PageFlip(document.getElementById('book'), {
+            const bookElement = document.getElementById('book');
+            
+            // Revisa si el elemento existe y si la librería ya ha sido cargada
+            if (!bookElement || typeof St === 'undefined' || typeof St.PageFlip === 'undefined') {
+                 console.error("PageFlip library or book element not found.");
+                 return;
+            }
+
+            pageFlip = new St.PageFlip(bookElement, {
                 width: isMobile ? 310 : 420,
                 height: isMobile ? 480 : 600,
                 size: 'stretch',
@@ -432,58 +531,6 @@
             document.getElementById('btnPrev').onclick = () => pageFlip.flipPrev();
             document.getElementById('btnNext').onclick = () => pageFlip.flipNext();
         }
-
-        // --- EDIT LOGIC ---
-        window.updateData = (s, f, v) => { if(isAdmin) bookData[s][f] = v; };
-
-        window.triggerUpload = (section, index) => {
-            if(!isAdmin) return alert("Modo Lectura: Inicia sesión para editar.");
-            const input = document.createElement('input');
-            input.type = 'file'; input.accept = 'image/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    if (section === 'body') bookData.body[index].img = ev.target.result;
-                    else if (section === 'cover') bookData.cover.img = ev.target.result;
-                    renderBook();
-                };
-                reader.readAsDataURL(file);
-                
-                // Firebase Upload (Background)
-                if (storage) {
-                    try {
-                        const refS = ref(storage, `books/${Date.now()}_${file.name}`);
-                        const snap = await uploadBytes(refS, file);
-                        const url = await getDownloadURL(snap.ref);
-                        if (section === 'body') bookData.body[index].img = url;
-                        else if (section === 'cover') bookData.cover.img = url;
-                    } catch(e) { console.error(e); }
-                }
-            };
-            input.click();
-        };
-
-        document.getElementById('btnAuth').onclick = async () => {
-            if (isAdmin) location.reload();
-            else {
-                if(auth) await signInAnonymously(auth);
-                else { isAdmin = true; renderBook(); document.getElementById('btnSave').classList.remove('hidden'); }
-            }
-        };
-
-        document.getElementById('btnSave').onclick = async () => {
-            if (!db) return alert("Sin conexión a DB.");
-            const btn = document.getElementById('btnSave');
-            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i>`;
-            try {
-                // Guardar con la nueva versión
-                await setDoc(doc(db, 'libros', 'catatumbo_v4'), bookData); 
-                btn.innerHTML = `<i class="ph-bold ph-check"></i> LISTO`;
-                setTimeout(() => btn.innerHTML = `<i class="ph-bold ph-floppy-disk"></i> GUARDAR`, 2000);
-            } catch (e) { alert(e.message); btn.innerHTML = "ERROR"; }
-        };
 
     </script>
 </body>
