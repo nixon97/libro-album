@@ -3,487 +3,601 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Secreto del Faro - Libro Álbum</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- PageFlip Library -->
-    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+    <title>Revista Digital: Libro Álbum Interactivo</title>
+    <!-- Fuentes para tipografía elegante -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Iconos para UI -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        body {
-            background-color: #f3f4f6;
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 24px 24px;
-            font-family: 'Lora', serif;
-            overflow: hidden; 
-            margin: 0;
-            height: 100vh;
+        /* --- VARIABLES & RESET --- */
+        :root {
+            --book-width: 440px;  /* Ancho de una sola página */
+            --book-height: 580px; /* Alto del libro */
+            --bg-color: #eef2f3;
+            --text-color: #2c3e50;
+            --paper-color: #fdfbf7;
+            --shadow-soft: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-deep: 0 20px 40px rgba(0,0,0,0.2);
+            --accent-color: #5d4037; /* Marrón tierra suave */
+            --tooltip-bg: rgba(255, 255, 255, 0.95);
         }
 
-        h1, h2, h3, .sans { font-family: 'Montserrat', sans-serif; }
-        .serif-title { font-family: 'Cinzel', serif; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        /* Contenedor del libro */
-        .wrapper {
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--bg-color);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Evita scroll en el body principal */
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            padding-top: 20px;
+            color: var(--text-color);
         }
 
-        /* Estilos de las páginas */
-        .page {
-            background-color: #fdfbf7; 
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
-            box-shadow: inset -3px 0px 20px rgba(0,0,0,0.02);
-            overflow: hidden;
-            border: 1px solid #e5e5e5;
+        /* --- UI: SIDEBAR --- */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 60px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #ddd;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
         }
 
-        .page.-left { border-right: 0; box-shadow: inset -15px 0 25px -10px rgba(0,0,0,0.1); }
-        .page.-right { border-left: 0; box-shadow: inset 15px 0 25px -10px rgba(0,0,0,0.1); }
-
-        .hard {
-            background-color: #e2e8f0;
-            border: solid 1px #94a3b8;
+        .project-title {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #888;
+            font-size: 14px;
         }
 
-        /* Contenido */
-        .page-content {
-            width: 100%; height: 100%;
-            display: flex; flex-direction: column;
-            position: relative; padding: 2rem;
+        /* --- UI: TOP CONTROLS --- */
+        .top-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
         }
 
-        /* Hotspots */
-        .hotspot {
-            position: absolute;
-            width: 32px; height: 32px;
-            /* Degradado dorado/rosado */
-            background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
+        .btn-icon {
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(236, 72, 153, 0.6);
-            animation: float 3s ease-in-out infinite;
-            z-index: 50;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 18px;
-            transition: transform 0.3s;
-            border: 2px solid white;
-        }
-        .hotspot:hover { transform: scale(1.2) rotate(15deg); box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            box-shadow: var(--shadow-soft);
+            color: #555;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Tooltip */
-        .tooltip-card {
+        .btn-icon:hover {
+            transform: translateY(-2px);
+            color: var(--accent-color);
+        }
+
+        /* --- STAGE & BOOK CONTAINER --- */
+        #stage {
+            perspective: 2000px; /* Profundidad 3D esencial */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.5s ease;
+            width: 100%;
+            height: 100%;
+        }
+
+        .book {
+            position: relative;
+            width: var(--book-width); /* Ancho inicial (cerrado) */
+            height: var(--book-height);
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease;
+        }
+
+        /* Cuando el libro está abierto, desplazamos el contenedor para centrar la doble página */
+        .book.opened {
+            transform: translateX(50%); /* Mueve el eje al centro */
+        }
+
+        /* --- NAVIGATION ARROWS --- */
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            box-shadow: var(--shadow-soft);
+            cursor: pointer;
+            z-index: 90;
+            color: #333;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .nav-btn:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .prev-btn { left: 80px; }
+        .next-btn { right: 40px; }
+
+        .nav-btn:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+            transform: translateY(-50%);
+        }
+
+        /* --- PAGE STRUCTURE (THE FLIP MECHANISM) --- */
+        /* Una 'paper' es una hoja física con dos caras */
+        .paper {
             position: absolute;
-            bottom: 140%; left: 50%; transform: translateX(-50%);
-            background: white; padding: 1.2rem;
-            border-radius: 0.8rem;
-            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.25);
-            width: 240px; text-align: center;
-            opacity: 0; visibility: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 60; border: 1px solid #f3f4f6;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transform-origin: left center; /* El punto de pivote es el lomo (izquierda) */
+            transition: transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1); /* Efecto fluido */
+            transform-style: preserve-3d;
+            z-index: 1;
+        }
+
+        /* Lógica de Z-Index para apilar correctamente */
+        .paper.flipped {
+            transform: rotateY(-180deg);
+            z-index: 0; /* Al voltear, se va al fondo de la pila izquierda */
+        }
+
+        /* Las caras de la hoja */
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-color: var(--paper-color);
+            backface-visibility: hidden; /* Oculta la cara trasera cuando no se ve */
+            border-radius: 4px 8px 8px 4px; /* Bordes redondeados externos */
+            overflow: hidden;
+            box-shadow: inset 5px 0 10px rgba(0,0,0,0.02); /* Sombra sutil interna */
+        }
+
+        /* La cara Front es la página derecha inicial */
+        .front {
+            z-index: 2;
+        }
+
+        /* La cara Back es la página izquierda cuando se voltea */
+        .back {
+            z-index: 1;
+            transform: rotateY(180deg); /* Ya está rotada para verse al girar la hoja */
+            border-radius: 8px 4px 4px 8px;
+            box-shadow: inset -5px 0 10px rgba(0,0,0,0.02);
+        }
+
+        /* Sombra central (Spine) */
+        .front::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0; width: 30px;
+            background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
             pointer-events: none;
         }
-        .tooltip-card::after {
-            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -8px;
-            border-width: 8px; border-style: solid; border-color: white transparent transparent transparent;
+        .back::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 0; bottom: 0; width: 30px;
+            background: linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
         }
-        .hotspot:hover .tooltip-card, .hotspot:focus .tooltip-card {
-            opacity: 1; visibility: visible; bottom: 160%;
+
+        /* --- CONTENT STYLING --- */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            padding: 40px; /* Margen amplio editorial */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-size: cover;
+            background-position: center;
         }
-        
-        /* Upload Zone */
-        .upload-zone {
+
+        /* Capa blanca semitransparente para legibilidad sobre fondos */
+        .content-overlay {
+            background: rgba(255,255,255,0.85);
+            padding: 20px;
+            width: 100%;
+            height: 100%;
+            border-radius: 2px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        h1, h2, h3 { font-family: 'Merriweather', serif; color: var(--accent-color); margin-bottom: 15px; }
+        p { line-height: 1.8; font-size: 0.95rem; color: #4a4a4a; margin-bottom: 1rem; }
+        .page-number { position: absolute; bottom: 20px; font-size: 0.8rem; color: #888; font-family: 'Merriweather', serif; }
+        .front .page-number { right: 25px; }
+        .back .page-number { left: 25px; }
+
+        /* Estilos específicos de secciones */
+        .cover-page .content-overlay { border: 4px double var(--accent-color); background: rgba(255,255,255,0.9); }
+        .cover-page h1 { font-size: 2.5rem; margin-top: 20px; }
+        .endpaper { background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=600'); opacity: 0.8; }
+        .endpaper .content-overlay { background: rgba(255,255,255,0.4); border: none; }
+
+        /* --- EDUCATIONAL TOOLTIP SYSTEM --- */
+        .edu-icon {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            width: 24px;
+            height: 24px;
+            cursor: help;
+            color: #FFD700; /* Dorado */
+            font-size: 1.2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 50;
+            animation: pulse 2s infinite;
+        }
+
+        .back .edu-icon { right: auto; left: 25px; } /* Ajuste para página izquierda */
+
+        .edu-tooltip {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            width: 280px;
+            background: var(--tooltip-bg);
+            backdrop-filter: blur(5px);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-deep);
+            border-left: 4px solid var(--accent-color);
+            font-size: 0.85rem;
+            text-align: left;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
             transition: all 0.3s ease;
-            background-size: cover; background-position: center; background-repeat: no-repeat;
-            position: relative; overflow: hidden;
-            border: 4px solid transparent; /* Para simular el grosor de la tapa */
-        }
-        /* Resalta el borde solo al pasar el mouse si es editable */
-        .upload-zone:hover { box-shadow: inset 0 0 0 4px rgba(236, 72, 153, 0.3); }
-
-        .editable { outline: none; border-bottom: 1px dashed transparent; }
-        .editable:focus { border-bottom: 1px dashed #ec4899; background: rgba(255,255,255,0.8); }
-        
-        /* Controles */
-        .controls {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 100; display: flex; gap: 1rem;
-            background: white; padding: 0.6rem 1.5rem; border-radius: 9999px;
-            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
-            border: 1px solid #e5e7eb;
+            pointer-events: none;
+            z-index: 60;
+            color: #333;
         }
 
-        /* Loader */
-        #loader {
-            position: fixed; inset: 0; background: #f3f4f6; z-index: 2000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        .edu-tooltip h4 {
+            color: var(--accent-color);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .edu-icon:hover + .edu-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back .edu-tooltip { right: auto; left: 0; border-left: none; border-right: 4px solid var(--accent-color); }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        /* --- RESPONSIVE ADJUSTMENTS --- */
+        @media (max-width: 1000px) {
+            :root { --book-width: 350px; --book-height: 480px; }
+            .sidebar { display: none; }
+            .prev-btn { left: 20px; }
+            .next-btn { right: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Loader -->
-    <div id="loader">
-        <i class="ph-fill ph-sparkle text-6xl text-pink-500 mb-4 animate-bounce"></i>
-        <p class="font-sans text-gray-500 font-bold tracking-widest text-sm">PREPARANDO LIBRO...</p>
+    <!-- Sidebar con nombre del proyecto -->
+    <div class="sidebar">
+        <div class="project-title">Libro Álbum Pedagógico - Edición Digital</div>
     </div>
 
-    <!-- Admin Panel -->
-    <div class="fixed top-4 right-4 z-50 flex gap-2">
-        <button id="btnAuth" class="bg-gray-900 text-white px-5 py-2 rounded-full shadow-xl text-xs font-bold font-sans hover:bg-gray-800 transition tracking-wide">
-            SOY PROFE
-        </button>
-        <button id="btnSave" class="hidden bg-emerald-500 text-white px-5 py-2 rounded-full shadow-xl text-xs font-bold font-sans hover:bg-emerald-600 transition flex items-center gap-2 tracking-wide">
-            <i class="ph-bold ph-floppy-disk"></i> GUARDAR
-        </button>
+    <!-- Controles Superiores -->
+    <div class="top-controls">
+        <button class="btn-icon" onclick="toggleZoom()" title="Zoom"><i class="fas fa-search-plus"></i></button>
+        <button class="btn-icon" onclick="toggleFullScreen()" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
     </div>
 
-    <!-- Controles de Navegación -->
-    <div class="controls">
-        <button id="btnPrev" class="p-2 hover:bg-gray-100 rounded-full text-gray-700 transition"><i class="ph-bold ph-caret-left text-xl"></i></button>
-        <span class="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mx-2">
-            <i class="ph-fill ph-book-open text-pink-500 mr-2"></i>Álbum
-        </span>
-        <button id="btnNext" class="p-2 hover:bg-gray-100 rounded-full text-gray-700 transition"><i class="ph-bold ph-caret-right text-xl"></i></button>
-    </div>
+    <!-- Botón Anterior -->
+    <button class="nav-btn prev-btn" id="prevBtn" onclick="goPrev()"><i class="fas fa-chevron-left"></i></button>
 
-    <!-- Escena del libro -->
-    <div class="wrapper">
-        <div id="book">
-            <!-- Renderizado dinámico -->
+    <!-- Escenario del Libro -->
+    <div id="stage">
+        <div class="book" id="book">
+            <!-- El contenido se genera dinámicamente con JS para mantener el HTML limpio -->
         </div>
     </div>
 
-    <!-- JavaScript Module -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+    <!-- Botón Siguiente -->
+    <button class="nav-btn next-btn" id="nextBtn" onclick="goNext()"><i class="fas fa-chevron-right"></i></button>
 
-        // FIREBASE CONFIG (Placeholder)
-        const firebaseConfig = {
-            apiKey: "",
-            authDomain: "",
-            projectId: "",
-            storageBucket: "",
-            messagingSenderId: "",
-            appId: ""
-        };
-
-        // DATOS INICIALES
-        const initialData = {
-            cover: { img: "https://images.unsplash.com/photo-1547849929-c7009e4f5099?w=600&q=80" }, // Portada solo imagen
-            respect: { title: "El Secreto del Faro" },
-            credits: { 
-                publisher: "Editorial Imaginación", 
-                year: "2025", 
-                legal: "Todos los derechos reservados.\nImpreso en Colombia.\nISBN: 978-00-0000-000-0" 
+    <script>
+        // --- CONFIGURACIÓN DEL CONTENIDO DEL LIBRO ---
+        // Definimos las "Hojas" (Papers). Cada Paper tiene Front (Derecha) y Back (Izquierda al voltear).
+        // Total páginas lógicas solicitadas: Portada, Guardas, Respeto, Creditos, Dedicatoria, 14 cuerpo, Guardas, Contra.
+        
+        const bookData = [
+            {
+                // PAPER 1: Front=Portada, Back=Guarda Delantera (Izq)
+                front: {
+                    type: "cover-page",
+                    bg: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=600",
+                    title: "El Eco de las Montañas",
+                    text: "Autor: Gemini Creative<br>Ilustraciones: IA Generativa",
+                    tooltipTitle: "La Portada",
+                    tooltipText: "Es la cara principal del libro. Su función es atraer al lector, presentar el título, el autor y sugerir el tono de la obra mediante la ilustración."
+                },
+                back: {
+                    type: "endpaper",
+                    bg: "none", // Usamos patrón CSS en clase endpaper
+                    title: "",
+                    text: "",
+                    tooltipTitle: "Guardas (Delanteras)",
+                    tooltipText: "Hojas de papel que unen el cuerpo del libro con las tapas. Suelen tener un color o diseño diferente y marcan la transición al interior."
+                }
             },
-            dedication: { text: "Para los niños que miran\nal cielo esperando magia." },
-            body: [
-                // 14 Páginas del Cuerpo (Solo Imágenes)
-                { img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600" },
-                { img: "https://images.unsplash.com/photo-1518939223783-05b106263433?w=600" },
-                { img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600" },
-                { img: "https://images.unsplash.com/photo-1448375240586-dfd8d395ea6c?w=600" },
-                { img: "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=600" },
-                { img: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=600" },
-                { img: "https://images.unsplash.com/photo-1501854140884-074bf6f24344?w=600" },
-                { img: "https://images.unsplash.com/photo-1533285962552-f9d2a0957948?w=600" },
-                { img: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=600" },
-                { img: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=600" },
-                { img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=600" },
-                { img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=600" },
-                { img: "https://images.unsplash.com/photo-1425913397330-cf8af2ff40a1?w=600" },
-                { img: "https://images.unsplash.com/photo-1505506874110-6a7a69069a08?w=600" }
-            ],
-            colophon: { text: "Tipografía: Lora & Montserrat.\nPapel Digital Ecológico." },
-            back: { text: "Una historia fascinante sobre\nel fenómeno meteorológico\nmás hermoso del mundo." }
-        };
-
-        // VARS
-        let bookData = JSON.parse(JSON.stringify(initialData));
-        let pageFlip, db, storage, auth;
-        let isAdmin = false;
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                if (firebaseConfig.apiKey) {
-                    const app = initializeApp(firebaseConfig);
-                    auth = getAuth(app);
-                    db = getFirestore(app);
-                    storage = getStorage(app);
-                    onAuthStateChanged(auth, (user) => {
-                        isAdmin = !!user;
-                        document.getElementById('btnSave').classList.toggle('hidden', !isAdmin);
-                        document.getElementById('btnAuth').innerText = isAdmin ? "SALIR" : "SOY PROFE";
-                        renderBook(); 
-                    });
-                    // Usando una nueva versión de DB para evitar conflictos
-                    const docSnap = await getDoc(doc(db, 'libros', 'catatumbo_v4'));
-                    if (docSnap.exists()) bookData = docSnap.data();
+            {
+                // PAPER 2: Front=Guarda Delantera (Der), Back=Hoja de Respeto
+                front: {
+                    type: "endpaper",
+                    bg: "none",
+                    title: "",
+                    text: "",
+                    tooltipTitle: "Guardas (Continuación)",
+                    tooltipText: "Las guardas son dobles. Esta parte completa la experiencia visual de entrada antes de llegar al contenido textual."
+                },
+                back: {
+                    type: "respect-page",
+                    bg: "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&q=80&w=600",
+                    title: "El Eco de las Montañas",
+                    text: "(Hoja de Respeto)",
+                    tooltipTitle: "Hoja de Respeto",
+                    tooltipText: "También llamada portadilla. Lleva solo el título del libro, en un cuerpo de letra menor. Sirve de cortesía y protección a la portada interior."
                 }
-            } catch (e) { console.log("Modo Demo"); }
-            renderBook();
-            document.getElementById('loader').style.display = 'none';
-        });
+            },
+            {
+                // PAPER 3: Front=Créditos, Back=Dedicatoria
+                front: {
+                    type: "credits-page",
+                    bg: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=600",
+                    title: "Créditos Legales",
+                    text: "© 2023 Editorial Digital<br>Edición: 1.ª Edición<br>Diseño: CSS3 Experts<br>ISBN: 978-0-000-00000-0<br>Impreso en la Web",
+                    tooltipTitle: "Página de Créditos",
+                    tooltipText: "Contiene la información legal: copyright, año de edición, traductor, editorial e ISBN. Es el 'carnet de identidad' del libro."
+                },
+                back: {
+                    type: "dedication-page",
+                    bg: "https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&q=80&w=600",
+                    title: "Dedicatoria",
+                    text: "<i>Para aquellos que buscan<br>la belleza en lo simple.</i>",
+                    tooltipTitle: "Dedicatoria",
+                    tooltipText: "Un espacio breve y emotivo donde el autor ofrece su obra a una o varias personas especiales. Suele ir en página impar (derecha), pero aquí adaptamos por espacio."
+                }
+            },
+            // --- CUERPO DEL LIBRO (14 Páginas = 7 Hojas) ---
+            // Generaremos 7 papers para el cuerpo
+        ];
 
-        function renderBook() {
-            const container = document.getElementById('book');
-            if (pageFlip) container.innerHTML = ''; 
+        // Añadir las 14 páginas de cuerpo (7 hojas físicas)
+        const storyParts = [
+            "El viaje comenzó al amanecer.", "Las nubes bajaron a saludar.",
+            "El bosque susurraba secretos.", "Encontró una piedra brillante.",
+            "El río cantaba canciones antiguas.", "Los pájaros guiaban el camino.",
+            "La montaña se alzaba majestuosa.", "El viento frío acariciaba su rostro.",
+            "Un refugio apareció en la niebla.", "El fuego calentó sus manos.",
+            "La noche trajo estrellas nuevas.", "El silencio era su compañero.",
+            "Al final, entendió el mensaje.", "La naturaleza es nuestro hogar."
+        ];
 
-            let html = '';
-            let visualPageCount = 0; // Contador para la paginación
+        // Imágenes aleatorias de naturaleza para el cuerpo
+        const natureImages = [
+            "1472214103451-9374bd1c798e", "1470071459604-3b5ec3a7fe05", "1447752875204-b2f9798c19a3", 
+            "1501854140884-074cf2b29752", "1441974231531-c6227db76b6e", "1479030160180-b1860951d6ec", "1519681393784-d120267933ba"
+        ];
 
-            // --- 1. PORTADA (Ajustada a solo imagen) ---
-            html += `
-            <div class="page hard" data-density="hard">
-                <div class="page-content p-0">
-                    <div class="upload-zone w-full h-full bg-slate-900 flex items-center justify-center cursor-pointer relative group" 
-                         onclick="triggerUpload('cover', 0)" 
-                         style="background-image: url('${bookData.cover.img}'); border-color: #f59e0b50;">
-                        
-                        <!-- Hotspot de información, ubicado fuera del área central para no molestar la imagen -->
-                        ${renderHotspot("La Portada", "La cara principal. Usa solo una imagen impactante (full-bleed).", "5%", "85%")}
+        for (let i = 0; i < 7; i++) {
+            bookData.push({
+                front: {
+                    type: "body-page",
+                    bg: `https://images.unsplash.com/photo-${natureImages[i % natureImages.length]}?auto=format&fit=crop&q=80&w=600`,
+                    title: `Capítulo ${i + 1}`,
+                    text: storyParts[i * 2],
+                    tooltipTitle: "Cuerpo - Página Derecha",
+                    tooltipText: "El cuerpo es donde se desarrolla la narrativa. En el libro álbum, la imagen predomina y dialoga con el texto."
+                },
+                back: {
+                    type: "body-page",
+                    bg: `https://images.unsplash.com/photo-${natureImages[(i + 1) % natureImages.length]}?auto=format&fit=crop&q=80&w=600`,
+                    title: "",
+                    text: storyParts[(i * 2) + 1],
+                    tooltipTitle: "Cuerpo - Página Izquierda",
+                    tooltipText: "La doble página se concibe como una unidad visual. El diseño debe fluir de un lado a otro sin interrupciones bruscas."
+                }
+            });
+        }
 
-                        <!-- Overlay de edición -->
-                         <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-                            <span class="bg-white/90 text-gray-800 px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 pointer-events-none">
-                                <i class="ph-bold ph-image"></i> Cambiar Arte de Portada
-                            </span>
-                         </div>
+        // --- FINAL DEL LIBRO ---
+        bookData.push(
+            {
+                // PAPER FINAL: Front=Guardas Finales, Back=Contraportada
+                front: {
+                    type: "endpaper",
+                    bg: "none",
+                    title: "",
+                    text: "",
+                    tooltipTitle: "Guardas (Finales)",
+                    tooltipText: "Cierran el bloque del libro, dando simetría a las guardas delanteras y estructura física a la encuadernación."
+                },
+                back: {
+                    type: "back-cover",
+                    bg: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=600", // Misma que portada o similar
+                    title: "Resumen",
+                    text: "Un viaje visual a través de paisajes soñados.<br><br>ISBN: 978-0-EX-AM-PLE",
+                    tooltipTitle: "Contraportada",
+                    tooltipText: "La parte trasera externa. Suele incluir una sinopsis, biografía breve del autor, código de barras y logotipo de la editorial."
+                }
+            }
+        );
+
+        // --- RENDERIZADO DEL DOM ---
+        const bookContainer = document.getElementById('book');
+        let currentPaperIndex = -1; // -1 significa cerrado (portada visible)
+        // El índice representa cuántos papeles se han volteado a la izquierda.
+
+        bookData.forEach((sheet, index) => {
+            const paperDiv = document.createElement('div');
+            paperDiv.className = 'paper';
+            paperDiv.id = `paper-${index}`;
+            // Z-Index inicial: Los papeles más arriba (índice bajo) deben estar encima cuando están a la derecha
+            paperDiv.style.zIndex = bookData.length - index;
+
+            // Función para generar contenido HTML interno
+            const createFace = (faceData, isBack, globalIndex) => {
+                return `
+                <div class="${isBack ? 'back' : 'front'} ${faceData.type}" style="background-image: url('${faceData.bg}')">
+                    <div class="content-overlay">
+                        ${faceData.title ? `<h2>${faceData.title}</h2>` : ''}
+                        ${faceData.text ? `<p>${faceData.text}</p>` : ''}
+                        <span class="page-number">${globalIndex}</span>
                     </div>
-                </div>
-            </div>`;
-
-            // --- 2. GUARDAS ---
-            visualPageCount++;
-            html += `
-            <div class="page" data-density="hard">
-                <div class="page-content bg-slate-800 p-0">
-                    <div class="w-full h-full opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png');"></div>
-                    ${renderHotspot("Las Guardas", "Hojas que unen el cuerpo del libro con las tapas. Marcan el inicio de la atmósfera.", "50%", "50%")}
-                </div>
-            </div>`;
-
-            // --- 3. HOJA DE RESPETO (ANTEPORTADA) ---
-            visualPageCount++;
-            html += `
-            <div class="page">
-                <div class="page-content flex items-center justify-center text-center">
-                    <h2 class="text-xl text-gray-500 font-serif tracking-widest uppercase editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('respect', 'title', this.innerText)">${bookData.respect.title}</h2>
-                    ${renderHotspot("Hoja de Respeto", "Minimalista. Lleva solo el título.", "20%", "50%")}
-                    <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
-                </div>
-            </div>`;
-
-            // --- 4. CRÉDITOS ---
-            visualPageCount++;
-            html += `
-            <div class="page">
-                <div class="page-content justify-end text-left pb-12 pl-12">
-                     <div class="border-l-2 border-gray-200 pl-4">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Créditos</h3>
-                        <p class="text-xs text-gray-600 font-bold editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('credits', 'publisher', this.innerText)">${bookData.credits.publisher}</p>
-                        <div class="text-[10px] text-gray-400 mt-2 whitespace-pre-wrap leading-relaxed editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('credits', 'legal', this.innerText)">${bookData.credits.legal}</div>
-                     </div>
-                     ${renderHotspot("Página Legal", "Información técnica: Editorial, ISBN, derechos.", "20%", "20%")}
-                     <span class="absolute bottom-6 left-6 text-[10px] text-gray-300">${visualPageCount}</span>
-                </div>
-            </div>`;
-
-            // --- 5. DEDICATORIA ---
-            visualPageCount++;
-            html += `
-            <div class="page">
-                <div class="page-content flex items-center justify-center text-center italic">
-                    <p class="text-base text-gray-600 font-serif editable max-w-xs" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('dedication', 'text', this.innerText)">${bookData.dedication.text}</p>
-                    ${renderHotspot("Dedicatoria", "Un regalo personal del autor.", "20px", "50%")}
-                    <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
-                </div>
-            </div>`;
-
-            // --- 6-19. CUERPO (14 Páginas - SOLO IMAGENES) ---
-            bookData.body.forEach((page, i) => {
-                visualPageCount++;
-                const isLeft = (visualPageCount % 2 === 0); // La paginación visual comienza aquí
-                
-                let hotspotHtml = '';
-                
-                // HOTSPOT: PÁGINA ÚNICA (P6)
-                if (i === 0) {
-                    hotspotHtml = renderHotspot("Página Única", "El espacio narrativo de la imagen es limitado a una hoja.", "5%", "5%");
-                }
-                
-                // HOTSPOT: DOBLE PÁGINA (P8/P9 -> i=2, i=3)
-                if (i === 2) { 
-                    hotspotHtml = renderHotspot("Doble Página (Izq)", "La ilustración se extiende por el lomo al lado derecho.", "50%", "80%");
-                }
-                if (i === 3) { 
-                    hotspotHtml = renderHotspot("Doble Página (Der)", "Permite un horizonte narrativo más amplio.", "50%", "20%");
-                }
-
-                html += `
-                <div class="page">
-                    <div class="page-content p-0">
-                        <div class="upload-zone w-full h-full bg-gray-50 flex items-center justify-center cursor-pointer relative group" 
-                             style="background-image: url('${page.img}')"
-                             onclick="triggerUpload('body', ${i})">
-                            
-                             <!-- Overlay de edición -->
-                             <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-                                <span class="bg-white/90 text-gray-800 px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 pointer-events-none">
-                                    <i class="ph-bold ph-image"></i> Cambiar Ilustración
-                                </span>
-                             </div>
-
-                             ${hotspotHtml}
-                        </div>
-                        <span class="absolute bottom-6 ${isLeft ? 'left-6' : 'right-6'} text-[10px] text-gray-500 font-bold bg-white/80 px-2 py-1 rounded z-30 shadow-sm">${visualPageCount}</span>
+                    <i class="fas fa-sparkles edu-icon"></i>
+                    <div class="edu-tooltip">
+                        <h4><i class="fas fa-info-circle"></i> ${faceData.tooltipTitle}</h4>
+                        <p>${faceData.tooltipText}</p>
                     </div>
                 </div>`;
-            });
-
-            // --- 20. COLOFÓN ---
-            visualPageCount++;
-            html += `
-            <div class="page">
-                <div class="page-content flex flex-col items-center justify-center text-center relative">
-                    <i class="ph-duotone ph-pen-nib text-3xl text-gray-300 mb-4"></i>
-                    <h3 class="text-sm font-bold mb-2 uppercase tracking-widest text-gray-400">Fin</h3>
-                    <p class="text-xs text-gray-500 editable whitespace-pre-wrap" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('colophon', 'text', this.innerText)">${bookData.colophon.text}</p>
-                    ${renderHotspot("Colofón", "Nota final sobre la impresión y tipografía.", "70%", "50%")}
-                    <span class="absolute bottom-6 right-6 text-[10px] text-gray-300">${visualPageCount}</span>
-                </div>
-            </div>`;
-
-            // --- 21. GUARDAS TRASERAS ---
-            visualPageCount++;
-            html += `
-            <div class="page" data-density="hard">
-                <div class="page-content bg-slate-800 p-0">
-                     <div class="w-full h-full opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png');"></div>
-                </div>
-            </div>`;
-
-            // --- 22. CONTRAPORTADA ---
-            visualPageCount++;
-            html += `
-            <div class="page hard" data-density="hard">
-                <div class="page-content bg-slate-900 text-white flex flex-col justify-center items-center text-center border-4 border-yellow-500/50">
-                    <div class="max-w-xs relative">
-                        <h4 class="font-bold text-yellow-500 uppercase tracking-widest mb-4 text-xs">Sinopsis</h4>
-                        <p class="text-sm font-serif font-light leading-loose mb-8 opacity-80 editable" ${isAdmin ? 'contenteditable' : ''} onblur="updateData('back', 'text', this.innerText)">
-                            ${bookData.back.text}
-                        </p>
-                        <div class="border border-white/20 px-3 py-1 inline-block text-[10px] tracking-widest opacity-50">ISBN 978-0-000</div>
-                        ${renderHotspot("Contraportada", "Cierre del libro. Busca convencer con la sinopsis.", "10%", "90%")}
-                    </div>
-                </div>
-            </div>`;
-
-            container.innerHTML = html;
-            initPageFlip();
-        }
-
-        // HELPER HOTSPOT
-        function renderHotspot(title, desc, top, left) {
-            return `
-            <div class="hotspot" style="top: ${top}; left: ${left};" onclick="event.stopPropagation()">
-                <i class="ph-fill ph-sparkle"></i>
-                <div class="tooltip-card text-gray-800 font-sans text-left">
-                    <h4 class="font-bold text-pink-600 mb-2 text-xs uppercase tracking-wider flex items-center gap-2">
-                        <i class="ph-bold ph-star"></i> ${title}
-                    </h4>
-                    <p class="text-xs leading-relaxed text-gray-600 font-serif">${desc}</p>
-                </div>
-            </div>`;
-        }
-
-        function initPageFlip() {
-            const isMobile = window.innerWidth < 768;
-            pageFlip = new St.PageFlip(document.getElementById('book'), {
-                width: isMobile ? 310 : 420,
-                height: isMobile ? 480 : 600,
-                size: 'stretch',
-                minWidth: 300, maxWidth: 800,
-                minHeight: 400, maxHeight: 1000,
-                maxShadowOpacity: 0.5,
-                showCover: true,
-                mobileScrollSupport: false
-            });
-            pageFlip.loadFromHTML(document.querySelectorAll('.page'));
-            
-            document.getElementById('btnPrev').onclick = () => pageFlip.flipPrev();
-            document.getElementById('btnNext').onclick = () => pageFlip.flipNext();
-        }
-
-        // --- EDIT LOGIC ---
-        window.updateData = (s, f, v) => { if(isAdmin) bookData[s][f] = v; };
-
-        window.triggerUpload = (section, index) => {
-            if(!isAdmin) return alert("Modo Lectura: Inicia sesión para editar.");
-            const input = document.createElement('input');
-            input.type = 'file'; input.accept = 'image/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    if (section === 'body') bookData.body[index].img = ev.target.result;
-                    else if (section === 'cover') bookData.cover.img = ev.target.result;
-                    renderBook();
-                };
-                reader.readAsDataURL(file);
-                
-                // Firebase Upload (Background)
-                if (storage) {
-                    try {
-                        const refS = ref(storage, `books/${Date.now()}_${file.name}`);
-                        const snap = await uploadBytes(refS, file);
-                        const url = await getDownloadURL(snap.ref);
-                        if (section === 'body') bookData.body[index].img = url;
-                        else if (section === 'cover') bookData.cover.img = url;
-                    } catch(e) { console.error(e); }
-                }
             };
-            input.click();
-        };
 
-        document.getElementById('btnAuth').onclick = async () => {
-            if (isAdmin) location.reload();
-            else {
-                if(auth) await signInAnonymously(auth);
-                else { isAdmin = true; renderBook(); document.getElementById('btnSave').classList.remove('hidden'); }
+            // Numeración lógica de páginas (Portada es 0)
+            const frontPageNum = (index * 2) + 1;
+            const backPageNum = (index * 2) + 2;
+
+            paperDiv.innerHTML = createFace(sheet.front, false, frontPageNum) + createFace(sheet.back, true, backPageNum);
+            bookContainer.appendChild(paperDiv);
+        });
+
+        const papers = document.querySelectorAll('.paper');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // --- LÓGICA DE NAVEGACIÓN (FLIP) ---
+
+        function updateZIndexes() {
+            // Recorremos todos los papeles para ajustar z-index según su estado
+            papers.forEach((paper, i) => {
+                if (i <= currentPaperIndex) {
+                    // El papel está volteado a la izquierda
+                    // En la pila izquierda, el último volteado (índice mayor) debe estar arriba
+                    paper.style.zIndex = i + 1;
+                } else {
+                    // El papel está a la derecha
+                    // En la pila derecha, el primero (índice menor) debe estar arriba
+                    paper.style.zIndex = papers.length - i;
+                }
+            });
+
+            // Ajuste de posición del libro para centrar la vista abierta
+            if (currentPaperIndex >= 0 && currentPaperIndex < papers.length - 1) {
+                bookContainer.classList.add('opened');
+            } else {
+                bookContainer.classList.remove('opened');
             }
-        };
 
-        document.getElementById('btnSave').onclick = async () => {
-            if (!db) return alert("Sin conexión a DB.");
-            const btn = document.getElementById('btnSave');
-            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i>`;
-            try {
-                // Guardar con la nueva versión
-                await setDoc(doc(db, 'libros', 'catatumbo_v4'), bookData); 
-                btn.innerHTML = `<i class="ph-bold ph-check"></i> LISTO`;
-                setTimeout(() => btn.innerHTML = `<i class="ph-bold ph-floppy-disk"></i> GUARDAR`, 2000);
-            } catch (e) { alert(e.message); btn.innerHTML = "ERROR"; }
-        };
+            // Estado de botones
+            prevBtn.disabled = currentPaperIndex === -1;
+            nextBtn.disabled = currentPaperIndex === papers.length - 1;
+        }
+
+        function goNext() {
+            if (currentPaperIndex < papers.length - 1) {
+                currentPaperIndex++;
+                papers[currentPaperIndex].classList.add('flipped');
+                updateZIndexes();
+            }
+        }
+
+        function goPrev() {
+            if (currentPaperIndex >= 0) {
+                papers[currentPaperIndex].classList.remove('flipped');
+                currentPaperIndex--;
+                updateZIndexes();
+            }
+        }
+
+        // Navegación con teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "ArrowRight") goNext();
+            if (e.key === "ArrowLeft") goPrev();
+        });
+
+        // --- FUNCIONES DE UTILIDAD (ZOOM, FULLSCREEN) ---
+        let zoomLevel = 1;
+        function toggleZoom() {
+            const stage = document.getElementById('stage');
+            if (zoomLevel === 1) {
+                zoomLevel = 1.25;
+            } else {
+                zoomLevel = 1;
+            }
+            stage.style.transform = `scale(${zoomLevel})`;
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Error al intentar pantalla completa: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Inicializar
+        updateZIndexes();
 
     </script>
 </body>
