@@ -32,8 +32,8 @@
         :root {
             /* Textura de papel sutil para páginas interiores */
             --paper-texture: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-            /* Textura más rugosa para las guardas */
-            --guard-texture: url("https://www.transparenttextures.com/patterns/dust-scratches.png");
+            /* Textura más rugosa para las guardas (NUEVA) */
+            --guard-texture: url("https://www.transparenttextures.com/patterns/light-sketch.png");
         }
 
         body {
@@ -100,9 +100,9 @@
             padding: 0; /* Sin padding por defecto */
         }
         
-        /* --- ESTILOS DE PÁGINAS ESPECÍFICOS (DIAGRAMACIÓN) --- */
+        /* --- ESTILOS DE PÁGINAS ESPECÍFICOS (DIAGRAMACIÓN PROFESIONAL) --- */
         
-        /* 1. Créditos (Legal) */
+        /* 1. Créditos (Legal) - AJUSTADO */
         .page-content.legal-page {
             font-family: 'Montserrat', sans-serif;
             justify-content: center;
@@ -111,30 +111,31 @@
         }
         .legal-box {
             width: 100%;
-            max-width: 300px; /* Ancho de columna de texto */
+            max-width: 320px; /* Ancho de columna de texto (Ajustado) */
         }
         .legal-box h2 {
             font-family: 'Cinzel', serif;
             font-weight: 700;
-            font-size: 1.5rem; /* 24px */
+            font-size: 1.25rem; /* 20px (Ajustado) */
             color: #1e293b;
             border-bottom: 1px solid #cbd5e1;
             padding-bottom: 0.5rem;
             margin-bottom: 1rem;
+            letter-spacing: 0.05em; /* Espaciado de letra elegante */
         }
         .legal-box p {
-            font-size: 0.75rem; /* 12px */
-            line-height: 1.6;
+            font-size: 0.8rem; /* 13px (Ajustado para 'fine print') */
+            line-height: 1.65; /* (Ajustado) */
             color: #475569;
             white-space: pre-line; /* Respeta los saltos de línea del JS */
         }
         
-        /* 2. Dedicatoria */
+        /* 2. Dedicatoria - AJUSTADO */
         .page-content.dedication-page {
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 3rem;
+            padding: 4rem 3rem; /* Más "aire" (Ajustado) */
         }
         .dedication-page p {
             font-family: 'Lora', serif;
@@ -142,24 +143,24 @@
             font-size: 1.125rem; /* 18px */
             color: #334155;
             max-width: 350px;
-            line-height: 1.7;
+            line-height: 1.8; /* Más interlineado (Ajustado) */
         }
         
-        /* 3. Guardas (Endpapers) */
+        /* 3. Guardas (Endpapers) - AJUSTADO */
         .page-content.guard-page {
             background-color: #e0e7ff; /* Color lila pálido */
-            background-image: var(--guard-texture);
-            opacity: 0.6;
+            background-image: var(--guard-texture); /* Nueva textura */
+            opacity: 0.8; /* (Ajustado) */
         }
         
-        /* 4. Contraportada (Reflexión) */
+        /* 4. Contraportada (Reflexión) - AJUSTADO */
         .reflection-box {
             position: absolute;
             bottom: 1.5rem;
             left: 1.5rem;
             right: 1.5rem;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.5); /* Más sutil */
+            backdrop-filter: blur(8px); /* Más desenfoque */
             padding: 1rem 1.25rem;
             border-radius: 8px;
             color: #f1f5f9;
@@ -169,13 +170,20 @@
         }
         
         /* --- HOTSPOT PEDAGÓGICO (El ícono llamativo) --- */
-        .pedagogical-btn {
+
+        /* Contenedor del hotspot (para el 'group-hover') */
+        .pedagogical-container {
             position: absolute;
             z-index: 50;
             top: 1rem; /* 16px */
             right: 1rem; /* 16px */
-            
-            /* Apariencia */
+            /* 'group' se añade vía JS/HTML */
+        }
+
+        .pedagogical-btn {
+            /* Ya no necesita position: absolute */
+            position: relative;
+            z-index: 2; /* Para estar sobre la animación */
             width: 40px;
             height: 40px;
             background-color: #06b6d4; /* Color Cian (Llamativo) */
@@ -202,6 +210,36 @@
         
         .pedagogical-btn:hover {
             transform: scale(1.15);
+        }
+
+        /* El Tooltip (se muestra en hover) */
+        .pedagogical-tooltip {
+            position: absolute;
+            bottom: 110%; /* Encima del botón */
+            right: 0;
+            
+            background-color: #1e293b; /* Color oscuro */
+            color: white;
+            padding: 0.5rem 0.75rem; /* 8px 12px */
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.875rem; /* 14px */
+            font-weight: 500;
+            white-space: nowrap; /* Para que no se parta el título */
+            
+            /* Oculto por defecto */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px); /* Sube al aparecer */
+            transition: all 0.2s ease-out;
+            pointer-events: none; /* No interfiere con el clic */
+        }
+        
+        /* Mostrar en hover (usando 'group-hover' del div contenedor) */
+        .group:hover .pedagogical-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
         /* Animación del Hotspot */
@@ -324,22 +362,21 @@
     <script>
         let pageFlip; // Variable global para el objeto del libro
         
-        // URLs de imágenes (Placeholders para libro álbum)
-        // Usamos Unsplash con "seed" para obtener imágenes variadas pero consistentes
-        const IMG_URL = 'https://source.unsplash.com/800x1200?';
-        const IMG_PORTADA = IMG_URL + 'fantasy,illustration';
-        const IMG_CONTRAPORTADA = IMG_URL + 'path,mystical';
+        // --- URL DE LA IMAGEN DE FONDO (AJUSTADA) ---
+        // Aquí puedes cambiar la imagen de fondo para todas las páginas
+        const PLACEHOLDER_IMG_URL = 'https://source.unsplash.com/800x1200?landscape,nature';
+        
         
         // --- 1. CONTENIDO DEL LIBRO (La "Fuente de Verdad") ---
-        // Aquí definimos la estructura pedagógica.
+        // Textos pedagógicos actualizados
         const bookContent = [
             // 1. Portada
             { 
                 type: 'cover', 
-                img: IMG_PORTADA, 
+                img: PLACEHOLDER_IMG_URL, 
                 hotspot: {
                     title: 'La Portada',
-                    text: 'Esta es la Portada. Es la "cara" del libro y lo primero que vemos. En un libro álbum, la ilustración de la portada es clave para contarnos de qué se tratará la historia sin usar palabras.'
+                    text: 'Es la "cara" del libro. Debe incluir el título y el nombre del autor e ilustrador. La imagen es lo más importante, ya que nos da una pista sobre la historia.'
                 }
             },
             
@@ -348,7 +385,7 @@
                 type: 'guard',
                 hotspot: {
                     title: 'Las Guardas',
-                    text: 'Estas son las Guardas. Son las páginas (a veces dobles) que unen la tapa dura con el interior del libro. Pueden ser de un color, tener un patrón o una ilustración que nos introduce al mundo de la historia.'
+                    text: 'Son las páginas que unen la tapa dura con el interior. Su función es proteger el libro. A veces tienen colores o ilustraciones que nos introducen al mundo de la historia.'
                 }
             },
             
@@ -359,10 +396,10 @@
             { 
                 type: 'legal', 
                 title: 'Créditos Editoriales',
-                text: 'Ilustraciones: Artista Ejemplo\nHistoria: Escritor Ejemplo\nDiseño: Tu Nombre Aquí\nPublicado por: Editorial Creativa, 2025\nHecho en Colombia',
+                text: 'Ilustraciones: Artista Ejemplo\nHistoria: Escritor Ejemplo\nDiseño: Tu Nombre Aquí\nPublicado por: Editorial Creativa, 2025\nHecho en Colombia\nISBN: 978-0-00-000000-0',
                 hotspot: {
                     title: 'Página de Créditos',
-                    text: 'Esta es la página de Créditos o página legal. Aquí se lista quiénes hicieron el libro (autor, ilustrador, editorial) y la información de publicación, como el año y el país.'
+                    text: 'Aquí se lista quiénes hicieron el libro (autor, ilustrador, editorial) y la información legal, como el año de publicación y el ISBN (un código único del libro).'
                 }
             },
             
@@ -372,7 +409,7 @@
                 text: 'A todos los que se atreven a soñar con mundos dibujados.',
                 hotspot: {
                     title: 'La Dedicatoria',
-                    text: 'Esta es la Dedicatoria. Es un espacio corto y elegante donde el autor o ilustrador le ofrece su obra a una persona o grupo especial en su vida.'
+                    text: 'Es un breve texto, usualmente en una página propia, donde el autor o ilustrador le ofrece su obra a una persona o grupo especial en su vida.'
                 }
             },
             
@@ -380,11 +417,11 @@
             // Generamos 14 páginas de cuerpo.
             ...Array.from({ length: 14 }, (v, i) => ({
                 type: 'body',
-                img: `${IMG_URL}dream,illustration,${i}`, // Imagen única para cada página
+                img: `${PLACEHOLDER_IMG_URL},${i}`, // Añadimos el índice para variar la imagen de Unsplash
                 // El hotspot solo se añade a la PRIMERA página del cuerpo
                 hotspot: i === 0 ? { 
                     title: 'Páginas de Cuerpo',
-                    text: 'Estas son las Páginas de Cuerpo. En un libro álbum, aquí es donde la historia se cuenta visualmente. Las ilustraciones ocupan toda la página y son las protagonistas.'
+                    text: 'Es donde la historia se desarrolla. En un libro álbum, la ilustración es la protagonista y debe ocupar la mayor parte del espacio, contando la historia visualmente.'
                 } : null
             })),
 
@@ -394,11 +431,11 @@
             // 21. Contraportada
             { 
                 type: 'cover-back', 
-                img: IMG_CONTRAPORTADA,
+                img: PLACEHOLDER_IMG_URL, // Usa la misma imagen base
                 reflection: 'Las mejores historias no terminan en la última página, sino que comienzan en tu imaginación.',
                 hotspot: {
                     title: 'La Contraportada',
-                    text: 'Esta es la Contraportada. Es la parte de atrás del libro. A menudo tiene un pequeño texto o reflexión final que te deja pensando sobre la historia que acabas de ver.'
+                    text: 'Es la parte de atrás del libro. Usualmente tiene un breve resumen de la historia (sinopsis), una ilustración final, o la información de la editorial y el código de barras.'
                 }
             }
         ];
@@ -449,6 +486,8 @@
                 let pageClasses = 'page';
                 let contentClasses = 'page-content';
                 let style = '';
+                // Fallback de color por si la imagen falla
+                let fallbackStyle = 'background-color: #f1f5f9;'; 
 
                 // Asignar clases de Tapa Dura
                 if (page.type === 'cover' || page.type === 'cover-back') {
@@ -459,10 +498,10 @@
                 switch (page.type) {
                     case 'cover':
                     case 'body':
-                        style = `background-image: url('${page.img}');`;
+                        style = `background-image: url('${page.img}'); ${fallbackStyle}`;
                         break;
                     case 'cover-back':
-                        style = `background-image: url('${page.img}');`;
+                        style = `background-image: url('${page.img}'); ${fallbackStyle}`;
                         content = `<div class="reflection-box">${page.reflection}</div>`;
                         break;
                     case 'guard':
@@ -520,35 +559,57 @@
             // Actualizar indicador al inicio
             updatePageIndicator(0);
             
-            // Conectar botones del modal
-            attachHotspotEvents();
-        }
+            // **CORRECCIÓN:** Conectar botones del modal y hotspots
+            attachModalListeners(); 
 
-        // --- 3. FUNCIONES DE HOTSPOT Y MODAL ---
+        } // <-- Esta es la llave que faltaba en la versión anterior.
+
+        // --- 3. FUNCIONES DE HOTSPOT Y MODAL (REFACTORIZADAS) ---
         
-        // Genera el HTML para el botón del hotspot
+        // Genera el HTML para el botón del hotspot y el tooltip
         function renderHotspot(hotspot) {
-            // Escapamos comillas simples para que no rompan el HTML
-            const title = hotspot.title.replace(/'/g, "\\'");
-            const text = hotspot.text.replace(/'/g, "\\'");
+            // **CORRECCIÓN:** Escapar las comillas para atributos HTML
+            const safeTitle = hotspot.title.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+            const safeText = hotspot.text.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
             
-            // El onclick llama a la función del modal
-            return `<button 
-                        class="pedagogical-btn" 
-                        onclick="showPedagogicalModal('${title}', '${text}')"
-                    >?</button>`;
+            // Contenedor 'group' para el hover
+            return `<div class="pedagogical-container group">
+                        
+                        <!-- El Tooltip (se muestra en hover) -->
+                        <span class="pedagogical-tooltip">${hotspot.title}</span>
+                        
+                        <!-- El Botón (ahora usa data-attributes) -->
+                        <button 
+                            class="pedagogical-btn" 
+                            data-title="${safeTitle}"
+                            data-text="${safeText}"
+                        >?</button>
+                    </div>`;
         }
         
-        // Asigna el evento al botón de "Cerrar" del modal
-        function attachHotspotEvents() {
-            document.getElementById('closeModalBtn').onclick = hidePedagogicalModal;
+        /** * **NUEVA FUNCIÓN**
+         * Asigna todos los listeners para los modales.
+         * Se llama 1 sola vez después de que se crea el HTML del libro.
+         */
+        function attachModalListeners() {
+            // 1. Asignar listener a CADA botón pedagógico
+            document.querySelectorAll('.pedagogical-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const title = btn.getAttribute('data-title');
+                    const text = btn.getAttribute('data-text');
+                    showPedagogicalModal(title, text);
+                });
+            });
+
+            // 2. Asignar listener al botón de "Cerrar" del modal
+            document.getElementById('closeModalBtn').addEventListener('click', hidePedagogicalModal);
             
-            // Cierra el modal si se hace clic fuera del contenido
-            document.getElementById('pedagogicalModal').onclick = (e) => {
+            // 3. Asignar listener para cerrar el modal al hacer clic fuera
+            document.getElementById('pedagogicalModal').addEventListener('click', (e) => {
                 if (e.target.id === 'pedagogicalModal') {
                     hidePedagogicalModal();
                 }
-            };
+            });
         }
         
         // Muestra el modal con el contenido pedagógico
@@ -571,26 +632,33 @@
         // Actualiza el texto del indicador de página (Ej: "Pág 2-3")
         function updatePageIndicator(currentPage) {
             const indicator = document.getElementById('pageIndicator');
+            if (!pageFlip) return; // Chequeo de seguridad
+            
             const total = pageFlip.getPageCount();
             
             if (currentPage === 0) {
                 indicator.innerText = 'Portada';
-            } else if (currentPage >= total - 2) { // Última página (contraportada)
+            } else if (currentPage >= total - 1) { // Contraportada
                 indicator.innerText = 'Final';
             } else {
-                let left = currentPage;
-                let right = currentPage + 1;
-                if (left % 2 !== 0) { // Si estamos en una página derecha
-                    left = currentPage - 1;
-                    right = currentPage;
-                }
-                if (left === 0) left = 1; // Evitar mostrar "Pág 0-1"
+                // Detectamos si es vista móvil o si la librería se configuró para una sola página
+                const settings = pageFlip.getSettings();
+                const isMobileView = window.innerWidth < 768 || (settings.width < settings.maxWidth / 1.5);
                 
-                // En móvil, PageFlip muestra de a una
-                if (window.innerWidth < 768) {
+                if (isMobileView || currentPage === 1) { // Vista móvil o las primeras páginas
                     indicator.innerText = `Pág ${currentPage}`;
                 } else {
-                     indicator.innerText = `Pág ${left}-${right}`;
+                    // En Desktop (modo spread)
+                    let left, right;
+                    if (currentPage % 2 === 0) { // Página derecha (2, 4, ...)
+                        left = currentPage - 1;
+                        right = currentPage;
+                    } else { // Página izquierda (3, 5, ...)
+                        left = currentPage;
+                        right = currentPage + 1;
+                    }
+                    
+                    indicator.innerText = `Pág ${left}-${right}`;
                 }
             }
         }
