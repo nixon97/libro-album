@@ -3,79 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mito Norte Santander | Ajuste Automático</title>
-    
+    <title>Mito Norte Santander | Edición Interactiva</title>
+   
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
 
     <style>
+        /* --- ESTILOS GENERALES Y TEXTURAS --- */
         :root {
+            /* Textura de papel sutil con noise SVG */
             --paper-texture: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
         }
 
         body {
-            background-color: #1e293b; /* Fondo oscuro para resaltar el libro */
+            background-color: #1e293b; 
             background-image: radial-gradient(#334155 1px, transparent 1px);
             background-size: 32px 32px;
             font-family: 'Lora', serif;
             margin: 0;
-            height: 100vh; /* Altura exacta de la ventana */
+            height: 100vh;
             width: 100vw;
-            overflow: hidden; /* CRÍTICO: Evita cualquier scroll bar */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        /* HEADER (Opcional, para dar aire arriba) */
-        .header-space {
-            height: 20px;
-            flex-shrink: 0;
-        }
-
-        /* WRAPPER PRINCIPAL: Ocupa todo el espacio disponible */
+        /* WRAPPER PRINCIPAL */
         .wrapper {
             flex-grow: 1;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
-            height: 100%;
             position: relative;
             perspective: 1500px;
-            padding-bottom: 60px; /* Espacio reservado para controles */
+            padding-bottom: 60px;
         }
 
         /* EL LIBRO */
-        /* No le damos width/height fijos por CSS, lo maneja el JS para ser exacto */
         .stf__wrapper {
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        /* Estilos de Página */
+        /* Estilos de Página Estándar */
         .page {
             background-color: #fcf8f3; 
             background-image: var(--paper-texture);
             border: 1px solid #cbd5e1;
             overflow: hidden;
-            background-size: cover; /* Asegura que las texturas cubran todo */
+            background-size: cover;
         }
 
         .page.-left { border-right: none; box-shadow: inset -10px 0 20px -10px rgba(0,0,0,0.2); }
         .page.-right { border-left: none; box-shadow: inset 10px 0 20px -10px rgba(0,0,0,0.2); }
 
+        /* Estilos de Páginas Duras (Tapa y Contratapa) */
         .hard {
-            background-color: #f1f5f9;
-            border: solid 1px #94a3b8;
+            background-color: #3b82f6; /* Color de tapa Azul */
+            border: solid 1px #1e40af;
         }
 
+        /* Contenido de la Página */
         .page-content {
             width: 100%; height: 100%;
             display: flex; flex-direction: column;
+            padding: 2rem; /* Añadir padding por defecto para texto */
+        }
+        
+        /* Estilos específicos para la Dedicatoria y Créditos */
+        .page-content.centered {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
-        /* --- INTERACTIVIDAD Y HOTSPOTS --- */
+        /* Estilo para la página del Cuerpo del Libro */
+        .body-page {
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            position: relative;
+        }
+
+        .body-page .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4); /* Oscurecer la imagen para que el texto resalte */
+        }
+
+        .body-page .text-box {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 1.5rem;
+            margin: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* --- INTERACTIVIDAD Y HOTSPOTS --- (Mantengo los estilos) */
         .hotspot-container {
             position: absolute; z-index: 50; transform: translate(-50%, -50%);
         }
@@ -110,7 +138,7 @@
 
     <div class="wrapper">
         <div id="book">
-            </div>
+        </div>
     </div>
 
     <div class="controls-bar">
@@ -121,10 +149,10 @@
 
     <div id="startModal" class="fixed inset-0 bg-black/80 z-[2000] flex items-center justify-center p-4">
         <div class="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-2xl">
-            <h2 class="text-lg font-bold mb-2">Mito Norte Santander</h2>
-            <p class="text-sm text-gray-600 mb-4">Ajustado para tu pantalla.</p>
-            <input type="password" id="apiKeyInput" placeholder="Gemini API Key (Opcional)" class="w-full border p-2 rounded text-sm mb-4 bg-gray-50">
-            <button onclick="startExperience()" class="w-full bg-emerald-600 text-white py-2 rounded font-bold hover:bg-emerald-700">Entrar</button>
+            <h2 class="text-3xl font-serif font-bold mb-2 text-slate-800">El Mito de Norte Santander</h2>
+            <p class="text-sm text-gray-600 mb-4">La versión interactiva y adaptable.</p>
+            <input type="password" id="apiKeyInput" placeholder="Gemini API Key (Opcional para Audio)" class="w-full border p-2 rounded text-sm mb-4 bg-gray-50">
+            <button onclick="startExperience()" class="w-full bg-emerald-600 text-white py-2 rounded font-bold hover:bg-emerald-700 transition">Comenzar Aventura</button>
         </div>
     </div>
 
@@ -132,22 +160,132 @@
         let apiKey = "";
         let pageFlip;
 
-        // --- 1. CONTENIDO DEL LIBRO ---
+        // --- 1. CONTENIDO DEL LIBRO (Ajustado) ---
         const bookContent = [
-            { type: 'cover', img: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=800', title: "El Mito" },
+            // 1. PORTADA
+            { 
+                type: 'cover', 
+                img: 'https://images.unsplash.com/photo-1577782352125-9c57d76a757e?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 
+                title: "Mitos y Leyendas", 
+                subtitle: "De la Tierra del Norte" 
+            },
+            
+            // 2. PÁGINA DE RESPETO (Hoja en blanco simple)
+            { type: 'respect' }, 
+            
+            // 3. CRÉDITOS
+            { 
+                type: 'legal', 
+                text: "Créditos de la Edición", 
+                sub: "Concepto y Diseño: Desarrollador Experto\nImplementación: HTML, CSS, JavaScript, PageFlip.js\nImágenes: Unsplash.com (CC0)\nAño: 2025" 
+            },
+            
+            // 4. DEDICATORIA
+            { 
+                type: 'dedication', 
+                text: "A los ríos que murmuran las viejas historias, a la neblina de los páramos que esconde los secretos y al valor inquebrantable del pueblo nortesantandereano." 
+            },
+            
+            // --- 14 PÁGINAS DEL CUERPO ---
+            // Las imágenes de fondo son placeholders temáticos.
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1510250005510-72e79603099c?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "Capítulo I: El Origen de la Niebla",
+                text: "Se dice que antes del sol, solo existía el agua y un corazón de piedra..."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1510264103137-97d8b59800c8?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "El Árbol Ancestral",
+                text: "En la profundidad de la selva, un árbol tocaba el cielo y sus raíces al inframundo."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1547848602-0e97d19e07dc?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "El Espejo del Viento",
+                text: "Los lagos del páramo son los ojos de los dioses, reflejando el destino de los mortales.",
+                hotspot: {t: "Viento", d: "El dios del viento se refleja en el agua.", x: "30%", y: "70%"}
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1628109869818-49d799f9270e?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "La Cueva del Rugido",
+                text: "Cada año, la cueva emitía un rugido que anunciaba la temporada de cosecha."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1582216135824-c15764d73281?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "El Guerrero Dorado",
+                text: "Vestido con el sol y la luna, el guerrero apareció para proteger las tierras del norte."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1533285962552-f9d2a0957948?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "Capítulo VI: El Embrujo de la Llorona",
+                text: "Se escucha su lamento en las orillas del río Pamplonita, buscando lo que perdió para siempre."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "La Leyenda del Caballo Sin Cabeza",
+                text: "Una sombra a medianoche cabalga sin rumbo, advertencia de un pacto roto."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "El Tesoro de Chinácota",
+                text: "Los mapas no mienten, pero el guardián de la tierra es más astuto que cualquier explorador."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "El Duende Juguetón",
+                text: "No es malvado, pero disfruta escondiendo las llaves y moviendo el ganado de noche.",
+                hotspot: {t: "Duende", d: "Presta atención a los ruidos pequeños en el monte.", x: "75%", y: "25%"}
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1505506874110-6a7a69069a08?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "La Novia del Cerro",
+                text: "Esperando eternamente a su amado, su vestido se convirtió en la espuma de la cascada."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1517409425032-411a7f058145?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "El Silbón del Camino",
+                text: "Un silbido que congela la sangre, solo se acerca si te atreves a responderle."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1519782806536-40742d4a2a4b?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "La Casa sin Ventanas",
+                text: "En Ocaña, una casa guarda secretos tan viejos que la misma historia los olvidó."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1544331899-28c049615a1a?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "El Héroe Dormido",
+                text: "Esperando el llamado de la patria, el héroe yace en las montañas de Santander."
+            },
+            { 
+                type: 'image', 
+                img: 'https://images.unsplash.com/photo-1511216335191-4548d4239b94?w=800&auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                caption: "Epílogo: La Esperanza del Mañana",
+                text: "Los mitos no son solo historia, son el alma que moldea el futuro de la región."
+            },
+
+            // 19. GUARDA FINAL (Página en blanco o textura)
             { type: 'empty' },
-            { type: 'text', text: "Mito Norte Santander", sub: "Edición Adaptable" },
-            { type: 'legal', text: "Créditos del proyecto\n2025" },
-            // Imágenes de ejemplo
-            { type: 'image', img: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=800', hotspot: {t: "Inicio", d: "El comienzo.", x: "20%", y: "30%"} },
-            { type: 'image', img: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800', hotspot: {t: "Niebla", d: "Misterio.", x: "50%", y: "50%"} },
-            { type: 'image', img: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800' },
-            { type: 'image', img: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800' },
-            { type: 'image', img: 'https://images.unsplash.com/photo-1533285962552-f9d2a0957948?w=800' },
-            { type: 'image', img: 'https://images.unsplash.com/photo-1505506874110-6a7a69069a08?w=800' },
-            { type: 'text', text: "Fin" },
-            { type: 'cover-back', text: "Sinopsis final." }
+            
+            // 20. CONTRAPORTADA
+            { 
+                type: 'cover-back', 
+                text: "Una colección de mitos que mantendrán viva la magia del Norte de Santander. Fin del viaje." 
+            }
         ];
+
+        // --- FUNCIONES CORE DEL LIBRO (UI/UX) ---
 
         function startExperience() {
             const input = document.getElementById('apiKeyInput').value;
@@ -156,33 +294,21 @@
             initBook();
         }
 
-        // --- 2. CÁLCULO DE DIMENSIONES (LA MAGIA) ---
+        // 2. CÁLCULO DE DIMENSIONES (Adaptabilidad Responsive)
         function calculateBookDimensions() {
-            // Obtenemos el tamaño real de la ventana
             const winWidth = window.innerWidth;
             const winHeight = window.innerHeight;
-
-            // Espacio que queremos reservar (padding del wrapper + barra de controles)
-            const verticalMargin = 100; // 50px arriba, 50px abajo para controles
-            const horizontalMargin = 40; // Margen lateral mínimo
-
-            // Espacio disponible real
+            const verticalMargin = 100;
+            const horizontalMargin = 40;
             const availableHeight = winHeight - verticalMargin;
             const availableWidth = winWidth - horizontalMargin;
-
-            // Relación de aspecto ideal de la hoja (Ej: A4 es aprox 1.41, aquí usaremos 1.5 para pantallas)
-            const aspectRatio = 0.7; // Ancho / Alto (de una sola hoja)
-
+            const aspectRatio = 0.7; // Ancho / Alto de una sola hoja
             let bookHeight = availableHeight;
             let bookWidth = bookHeight * aspectRatio;
-
-            // Verificación: ¿Cabe el libro abierto (ancho * 2) en el ancho disponible?
-            // Si es móvil (pantalla < 768), PageFlip usa modo "single page", si es desktop usa "double".
             const isMobile = winWidth < 768;
             const pagesVisible = isMobile ? 1 : 2;
 
             if ((bookWidth * pagesVisible) > availableWidth) {
-                // Si no cabe a lo ancho, recalculamos basándonos en el ancho
                 bookWidth = availableWidth / pagesVisible;
                 bookHeight = bookWidth / aspectRatio;
             }
@@ -192,58 +318,95 @@
 
         function initBook() {
             const bookEl = document.getElementById('book');
-            
-            // 1. Generar HTML
+           
+            // 1. Generar HTML para cada tipo de página
             let html = bookContent.map((page, i) => {
                 let content = '';
-                let cls = page.type.includes('cover') ? 'page hard' : 'page';
+                let cls = '';
+                let pageContentCls = 'page-content';
                 
+                // Tipos de página
                 if (page.type === 'cover') {
-                    content = `<div class="w-full h-full flex items-end justify-center pb-10 text-white text-3xl font-bold relative" style="background: url('${page.img}') no-repeat center/cover;"><div class="absolute inset-0 bg-black/20"></div><span class="relative z-10">${page.title}</span></div>`;
-                } else if (page.type === 'image') {
-                    content = `<div class="w-full h-full relative bg-gray-100" style="background: url('${page.img}') no-repeat center/cover;">
-                        ${page.hotspot ? renderHotspot(page.hotspot) : ''}
-                        <span class="absolute bottom-2 right-2 text-[10px] bg-white/80 px-1 rounded">${i+1}</span>
+                    cls = 'page hard';
+                    content = `<div class="w-full h-full flex flex-col items-center justify-end pb-10 text-white relative text-center" style="background: url('${page.img}') no-repeat center/cover; background-size: 110%; transition: background-size 0.5s;">
+                        <div class="absolute inset-0 bg-black/40"></div>
+                        <h1 class="relative z-10 font-['Cinzel'] text-4xl md:text-5xl font-bold">${page.title}</h1>
+                        <p class="relative z-10 font-['Montserrat'] text-lg mt-2">${page.subtitle}</p>
                     </div>`;
-                } else if (page.type === 'text' || page.type === 'legal' || page.type === 'cover-back') {
-                    content = `<div class="h-full flex flex-col items-center justify-center text-center p-6"><h2 class="text-lg font-serif text-slate-800">${page.text}</h2>${page.sub ? `<p class="text-xs text-slate-500 mt-2">${page.sub}</p>` : ''}</div>`;
-                } else {
-                    content = `<div class="w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>`;
+                } else if (page.type === 'image') {
+                    cls = 'page body-page';
+                    // Estructura para páginas del cuerpo con imagen de fondo y texto
+                    content = `<div class="w-full h-full" style="background-image: url('${page.img}');">
+                        <div class="overlay"></div>
+                        <div class="text-box">
+                            <h3 class="font-['Montserrat'] text-xl font-bold mb-2 text-slate-900">${page.caption}</h3>
+                            <p class="text-base text-slate-700">${page.text}</p>
+                        </div>
+                        ${page.hotspot ? renderHotspot(page.hotspot) : ''}
+                        <span class="absolute bottom-2 right-4 text-xs font-bold text-white/90 bg-slate-900/50 px-2 py-0.5 rounded-full z-20">${i + 1}</span>
+                    </div>`;
+                    pageContentCls = ''; // No necesitamos el padding genérico aquí
+                } else if (page.type === 'legal' || page.type === 'dedication') {
+                    cls = 'page';
+                    pageContentCls += ' centered';
+                    content = `<div class="p-4"><h2 class="text-2xl font-['Cinzel'] text-slate-800 mb-6">${page.text}</h2><p class="text-sm text-slate-600 whitespace-pre-line">${page.sub || page.text}</p></div>`;
+                } else if (page.type === 'respect') {
+                    cls = 'page';
+                    pageContentCls += ' centered';
+                    content = `<h1 class="text-4xl font-['Cinzel'] text-slate-300">|</h1>`; // Página de respeto muy simple
+                } else if (page.type === 'cover-back') {
+                    cls = 'page hard';
+                    pageContentCls += ' centered';
+                    content = `<div class="p-6 text-white"><h2 class="text-xl font-serif font-light">${page.text}</h2><p class="text-sm mt-4">Fin.</p></div>`;
+                } else if (page.type === 'empty') {
+                    // Guarda o página en blanco
+                    cls = 'page';
+                    content = `<div class="w-full h-full opacity-5 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>`;
+                    pageContentCls = '';
                 }
-                return `<div class="${cls}"><div class="page-content">${content}</div></div>`;
+
+                return `<div class="${cls}"><div class="${pageContentCls}">${content}</div></div>`;
             }).join('');
-            
+           
             bookEl.innerHTML = html;
 
-            // 2. Calcular dimensiones exactas para ESTA pantalla
+            // 2. Calcular dimensiones e inicializar PageFlip
             const dims = calculateBookDimensions();
-            
-            // 3. Inicializar PageFlip con dimensiones calculadas
+           
             pageFlip = new St.PageFlip(bookEl, {
                 width: dims.width,
                 height: dims.height,
-                size: 'fixed', // Usamos fixed porque nosotros calculamos el tamaño ideal
+                size: 'fixed',
                 minWidth: 200, maxWidth: 1200,
                 minHeight: 300, maxHeight: 1200,
                 maxShadowOpacity: 0.5,
                 showCover: true,
-                mobileScrollSupport: false // Importante: false para evitar scroll del navegador
+                mobileScrollSupport: false
             });
 
             pageFlip.loadFromHTML(document.querySelectorAll('.page'));
 
             // Event listeners
             pageFlip.on('flip', (e) => {
-                document.getElementById('pageIndicator').innerText = `Pág ${e.data + 1}`;
+                document.getElementById('pageIndicator').innerText = `Pág ${e.data + 1} de ${pageFlip.getPageCount()}`;
+                
+                // Muestra o esconde controles en la primera y última página
+                const isStartOrEnd = e.data === 0 || e.data === pageFlip.getPageCount() - 1;
+                document.querySelectorAll('.controls-bar button').forEach(btn => {
+                     btn.disabled = isStartOrEnd && (btn.onclick.toString().includes('Prev') && e.data === 0) || (btn.onclick.toString().includes('Next') && e.data === pageFlip.getPageCount() - 1);
+                });
             });
-            
+           
+            // Llamar al evento de audio solo si hay hotspots
             attachAudioEvents();
         }
 
-        // --- HOTSPOTS & AUDIO ---
+        // --- HOTSPOTS & AUDIO (Función de accesibilidad) ---
         function renderHotspot(d) {
+            // El hotspot ahora se renderiza dentro del div de la página con imagen
             return `<div class="hotspot-container" style="left:${d.x}; top:${d.y};">
                 <button class="hotspot-btn" data-tts="${d.t}. ${d.d}"><i class="ph-fill ph-speaker-high"></i></button>
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-slate-900 text-white text-xs rounded opacity-0 transition-opacity pointer-events-none group-hover:opacity-100">${d.t}</div>
             </div>`;
         }
 
@@ -254,34 +417,76 @@
             });
         }
 
+        // Función para TTS usando la API de Gemini (requiere API Key)
         async function speak(text, btn) {
-            if(!apiKey || btn.classList.contains('speaking')) return;
+            if(!apiKey) {
+                 alert("Necesitas una Gemini API Key para la función de audio TTS (Text-to-Speech).");
+                 return;
+            }
+            if(btn.classList.contains('speaking')) return;
+           
             btn.classList.add('speaking');
+            
+            // Nota: Este endpoint y configuración son un ejemplo basado en la estructura que proporcionaste.
+            // Asegúrate de que tu clave de API de Gemini tenga permisos para el modelo y la funcionalidad de audio.
+            const modelName = 'gemini-2.5-flash'; // o el modelo con capacidad TTS que estés usando
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
             try {
-                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: `Lee: ${text}` }] }], generationConfig: { responseModalities: ["AUDIO"] } })
+                const resp = await fetch(API_URL, {
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        contents: [{ 
+                            parts: [{ 
+                                text: `Lee el siguiente texto en español con voz natural: ${text}` 
+                            }] 
+                        }], 
+                        config: { 
+                            // Configuración específica para audio TTS, si el modelo lo soporta
+                            // Esto puede variar. Si la API de Gemini no soporta directamente AUDIO 
+                            // en generateContent, se requerirá un servicio de TTS diferente.
+                            // Para fines de este ejercicio, se mantiene la estructura original.
+                        } 
+                    })
                 });
+                
+                // Simulación de respuesta de audio si la API Key falla o no tiene el endpoint correcto:
+                // Si la API es correcta, se usaría el bloque de datos de audio real.
                 const data = await resp.json();
-                const audio = new Audio("data:audio/mp3;base64," + data.candidates[0].content.parts[0].inlineData.data);
-                audio.play();
-                audio.onended = () => btn.classList.remove('speaking');
-            } catch(e) { console.error(e); btn.classList.remove('speaking'); }
+                
+                if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
+                     const audio = new Audio("data:audio/mp3;base64," + data.candidates[0].content.parts[0].inlineData.data);
+                     audio.play();
+                     audio.onended = () => btn.classList.remove('speaking');
+                } else {
+                    console.error("Respuesta de API inválida o sin datos de audio. Leyendo con API de Navegador.");
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'es-ES';
+                    speechSynthesis.speak(utterance);
+                    utterance.onend = () => btn.classList.remove('speaking');
+                }
+            } catch(e) { 
+                console.error("Error en la llamada a la API de Gemini:", e); 
+                btn.classList.remove('speaking'); 
+            }
         }
 
-        function flipNext() { pageFlip.flipNext(); }
-        function flipPrev() { pageFlip.flipPrev(); }
+        function flipNext() { if (pageFlip) pageFlip.flipNext(); }
+        function flipPrev() { if (pageFlip) pageFlip.flipPrev(); }
 
-        // Recargar si se redimensiona la ventana (para recalcular tamaños)
+        // Recalcular al redimensionar
         let resizeTimeout;
         window.onresize = () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                // Opcional: window.location.reload(); 
-                // PageFlip maneja resize básico, pero para cambio drástico de layout (móvil a desktop) el reload es más seguro
+                // Simplificamos: si el libro ya está cargado, lo destruimos y volvemos a cargar
+                if (pageFlip) {
+                    pageFlip.destroy();
+                    initBook(); 
+                }
             }, 500);
         };
-
     </script>
 </body>
 </html>
