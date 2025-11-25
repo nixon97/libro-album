@@ -2,379 +2,253 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- 
-      CRÍTICO para diseño responsive en móviles: 
-      Evita el zoom y bloquea la escalabilidad del usuario para
-      mantener el control total de la UI del libro.
-    -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Libro Álbum Pedagógico | Interactivo</title>
-   
-    <!-- Carga de Tailwind CSS (Framework de UI) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 
-      Carga de Fuentes:
-      - Cinzel: Serif elegante para títulos (Créditos, Dedicatoria).
-      - Lora: Serif legible para texto (Modal).
-      - Montserrat: Sans-serif moderna para texto secundario (Créditos).
-    -->
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
-    
-    <!-- Carga de Phosphor Icons (para los botones de control) -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <!-- Librería PageFlip para el efecto 3D de pasar página -->
-    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Libro Álbum Interactivo</title>
     <style>
-        /* --- ESTILOS GENERALES Y TEXTURAS --- */
-        :root {
-            /* Textura de papel sutil para páginas interiores */
-            --paper-texture: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-            /* Textura más rugosa para las guardas (NUEVA) */
-            --guard-texture: url("https://www.transparenttextures.com/patterns/light-sketch.png");
-        }
-
-        body {
-            /* Fondo oscuro del "escritorio" para resaltar el libro */
-            background-color: #1e293b; 
-            background-image: radial-gradient(#334155 1px, transparent 1px);
-            background-size: 32px 32px;
-            font-family: 'Lora', serif; /* Fuente por defecto del libro */
-            margin: 0;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden; /* CRÍTICO: Evita el scroll del navegador */
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* WRAPPER PRINCIPAL: Centra el libro y reserva espacio para controles */
-        .wrapper {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            position: relative;
-            perspective: 1500px;
-            padding-bottom: 60px; /* Espacio para la barra de control inferior */
-        }
-
-        /* EL LIBRO (Contenedor de PageFlip) */
-        .stf__wrapper {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        /* --- ESTILOS DE PÁGINA --- */
-
-        /* Estilo base de todas las páginas */
-        .page {
-            background-color: #fcf8f3; 
-            background-image: var(--paper-texture);
-            border: 1px solid #cbd5e1;
-            overflow: hidden;
-            background-size: cover;
-            background-position: center;
-        }
-
-        /* Sombreado del lomo para dar profundidad */
-        .page.-left { border-right: none; box-shadow: inset -10px 0 20px -10px rgba(0,0,0,0.2); }
-        .page.-right { border-left: none; box-shadow: inset 10px 0 20px -10px rgba(0,0,0,0.2); }
-
-        /* Estilos de Páginas Duras (Tapa y Contratapa) */
-        .hard {
-            background-color: #f1f5f9; /* Color base si la imagen no carga */
-            border: solid 1px #94a3b8;
-        }
-
-        /* Contenido de la Página (Default)
-          IMPORTANTE: Sin padding por defecto para permitir imágenes full-bleed.
+        /* ===================================================================
+        ESTILOS CSS PARA EL LIBRO
+        =================================================================== 
         */
-        .page-content {
-            width: 100%; height: 100%;
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex; /* Centrar el libro en la pantalla */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Contenedor principal del libro */
+        .book-container {
+            position: relative;
+            width: 300px; /* Ancho de una página */
+            height: 450px; /* Altura de una página (formato vertical) */
+            perspective: 1500px; /* Profundidad 3D para la rotación */
+            transform-style: preserve-3d;
+        }
+
+        /* Estilo para cada página */
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-origin: left;
+            transition: transform 0.6s ease-in-out;
+            backface-visibility: hidden;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background-color: #fff;
             display: flex;
             flex-direction: column;
-            position: relative; /* Clave para posicionar el hotspot */
-            padding: 0; /* Sin padding por defecto */
-        }
-        
-        /* --- ESTILOS DE PÁGINAS ESPECÍFICOS (DIAGRAMACIÓN PROFESIONAL) --- */
-        
-        /* 1. Créditos (Legal) - AJUSTADO */
-        .page-content.legal-page {
-            font-family: 'Montserrat', sans-serif;
             justify-content: center;
             align-items: center;
-            padding: 2rem 1.5rem;
-        }
-        .legal-box {
-            width: 100%;
-            max-width: 320px; /* Ancho de columna de texto (Ajustado) */
-        }
-        .legal-box h2 {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            font-size: 1.25rem; /* 20px (Ajustado) */
-            color: #1e293b;
-            border-bottom: 1px solid #cbd5e1;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-            letter-spacing: 0.05em; /* Espaciado de letra elegante */
-        }
-        .legal-box p {
-            font-size: 0.8rem; /* 13px (Ajustado para 'fine print') */
-            line-height: 1.65; /* (Ajustado) */
-            color: #475569;
-            white-space: pre-line; /* Respeta los saltos de línea del JS */
-        }
-        
-        /* 2. Dedicatoria - AJUSTADO */
-        .page-content.dedication-page {
-            justify-content: center;
-            align-items: center;
+            overflow: hidden;
             text-align: center;
-            padding: 4rem 3rem; /* Más "aire" (Ajustado) */
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
         }
-        .dedication-page p {
-            font-family: 'Lora', serif;
-            font-style: italic;
-            font-size: 1.125rem; /* 18px */
-            color: #334155;
-            max-width: 350px;
-            line-height: 1.8; /* Más interlineado (Ajustado) */
-        }
-        
-        /* 3. Guardas (Endpapers) - AJUSTADO */
-        .page-content.guard-page {
-            background-color: #e0e7ff; /* Color lila pálido */
-            background-image: var(--guard-texture); /* Nueva textura */
-            opacity: 0.8; /* (Ajustado) */
-        }
-        
-        /* 4. Contraportada (Reflexión) - AJUSTADO */
-        .reflection-box {
+
+        /* Estilo de la imagen de fondo de las páginas */
+        .page-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             position: absolute;
-            bottom: 1.5rem;
-            left: 1.5rem;
-            right: 1.5rem;
-            background: rgba(0, 0, 0, 0.5); /* Más sutil */
-            backdrop-filter: blur(8px); /* Más desenfoque */
-            padding: 1rem 1.25rem;
-            border-radius: 8px;
-            color: #f1f5f9;
-            font-style: italic;
-            font-size: 0.875rem; /* 14px */
+            z-index: 1;
+        }
+
+        /* Superposición oscura para el texto en las portadas */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+
+        /* Contenido de texto en las páginas */
+        .page-content {
+            position: relative;
+            z-index: 3;
+            color: white;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Estilo para la portada (tapa frontal) */
+        #page-0 {
+            transform: rotateY(0deg);
+            z-index: 21; /* Asegura que la portada esté al frente */
+            cursor: pointer;
+        }
+
+        /* Estilo para la contraportada (tapa trasera) */
+        #page-20 {
+            background-color: #111; /* Color oscuro para contraste */
+            color: #ccc;
+            transform: rotateY(180deg); /* La contraportada inicia girada */
+            left: 0;
+            position: absolute;
+        }
+
+        /* Clases para el giro de páginas */
+        .flipped {
+            transform: rotateY(-180deg) !important;
+        }
+        
+        /* Clase para ocultar las páginas ya giradas y evitar superposición visual */
+        .hidden-flipped {
+            z-index: -1;
+        }
+
+        /* Estilos específicos del contenido */
+        .page-legal, .page-dedication {
+            background-color: #f7f7f7;
+            color: #333;
+            font-size: 14px;
             line-height: 1.6;
         }
-        
-        /* --- HOTSPOT PEDAGÓGICO (El ícono llamativo) --- */
 
-        /* Contenedor del hotspot (para el 'group-hover') */
-        .pedagogical-container {
-            position: absolute;
-            z-index: 50;
-            top: 1rem; /* 16px */
-            right: 1rem; /* 16px */
-            /* 'group' se añade vía JS/HTML */
+        .page-respect, .page-guard {
+            background-color: #fefefe;
         }
 
-        .pedagogical-btn {
-            /* Ya no necesita position: absolute */
-            position: relative;
-            z-index: 2; /* Para estar sobre la animación */
-            width: 40px;
-            height: 40px;
-            background-color: #06b6d4; /* Color Cian (Llamativo) */
-            color: white;
-            border: 2px solid white;
+        .page-guard {
+             background-color: #d1d1d1; /* Un color neutro para las guardas */
+             box-shadow: none;
+        }
+        
+        .page-respect {
+            background-color: #fff; /* Página de respeto debe ser blanca pura */
+        }
+        
+        .page-cover-back .page-content {
+            font-style: italic;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        /* Hotspot (punto interactivo) */
+        .hotspot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.8);
             border-radius: 50%;
-            font-size: 1.5rem; /* 24px */
-            font-weight: 700;
-            font-family: 'Montserrat', sans-serif;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            
-            /* Centrado del icono (?) */
             display: flex;
-            align-items: center;
             justify-content: center;
-            
+            align-items: center;
             cursor: pointer;
-            transition: transform 0.2s ease-out;
-            
-            /* Animación de Pulso (Llamativo) */
-            box-shadow: 0 0 20px 5px rgba(6, 182, 212, 0.5);
-            animation: pulse-cyan 2s infinite cubic-bezier(0.66, 0, 0, 1);
-        }
-        
-        .pedagogical-btn:hover {
-            transform: scale(1.15);
+            z-index: 10;
+            font-size: 18px;
+            color: #333;
         }
 
-        /* El Tooltip (se muestra en hover) */
-        .pedagogical-tooltip {
+        .hotspot-info {
             position: absolute;
-            bottom: 110%; /* Encima del botón */
+            bottom: 100%;
             right: 0;
-            
-            background-color: #1e293b; /* Color oscuro */
+            width: 200px;
+            background-color: #333;
             color: white;
-            padding: 0.5rem 0.75rem; /* 8px 12px */
-            border-radius: 6px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.875rem; /* 14px */
-            font-weight: 500;
-            white-space: nowrap; /* Para que no se parta el título */
-            
-            /* Oculto por defecto */
+            padding: 10px;
+            border-radius: 5px;
+            text-align: left;
             opacity: 0;
             visibility: hidden;
-            transform: translateY(10px); /* Sube al aparecer */
-            transition: all 0.2s ease-out;
-            pointer-events: none; /* No interfiere con el clic */
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            font-size: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        
-        /* Mostrar en hover (usando 'group-hover' del div contenedor) */
-        .group:hover .pedagogical-tooltip {
+
+        .hotspot:hover .hotspot-info {
             opacity: 1;
             visibility: visible;
-            transform: translateY(0);
+            bottom: calc(100% + 10px);
         }
 
-        /* Animación del Hotspot */
-        @keyframes pulse-cyan {
-            0% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7);
-            }
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 15px rgba(6, 182, 212, 0);
-            }
-            100% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(6, 182, 212, 0);
-            }
+        .hotspot-info h4 {
+            margin-top: 0;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+            font-size: 14px;
         }
-        
-        /* --- MODAL PEDAGÓGICO (Ventana de explicación) --- */
-        #pedagogicalModal {
+
+        /* Controles de navegación */
+        .nav-button {
             position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            display: none; /* Oculto por defecto */
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem 2rem;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            border-top: 5px solid #06b6d4; /* Acento cian */
-        }
-        .modal-content h2 {
-            font-family: 'Cinzel', serif;
-            font-size: 1.75rem; /* 28px */
-            color: #1e293b;
-            margin-bottom: 0.75rem;
-        }
-        .modal-content p {
-            font-family: 'Lora', serif;
-            font-size: 1rem; /* 16px */
-            color: #334155;
-            line-height: 1.7;
-            margin-bottom: 1.5rem;
-        }
-        .modal-content button {
-            width: 100%;
-            background: #334155;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 15px;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
             color: white;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-        .modal-content button:hover {
-            background: #1e293b;
-        }
-
-
-        /* --- CONTROLES DE NAVEGACIÓN --- */
-        .controls-bar {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            border: none;
+            cursor: pointer;
             z-index: 100;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            padding: 0.5rem 1.5rem;
-            border-radius: 99px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            transition: background-color 0.3s;
         }
+
+        .nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        #prev-button {
+            left: 20px;
+        }
+
+        #next-button {
+            right: 20px;
+        }
+
+        .disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
     </style>
 </head>
 <body>
 
-    <!-- 1. El Libro (Contenedor HTML vacío que llenará JS) -->
-    <div class="wrapper">
-        <div id="book">
-            <!-- Las páginas se generan aquí por JavaScript -->
-        </div>
-    </div>
+    <button id="prev-button" class="nav-button">←</button>
 
-    <!-- 2. Barra de Controles (Navegación) -->
-    <div class="controls-bar">
-        <button onclick="flipPrev()" class="p-2 rounded-full hover:bg-gray-200 transition"><i class="ph-bold ph-caret-left text-xl text-gray-800"></i></button>
-        <span id="pageIndicator" class="text-xs font-bold text-gray-500 uppercase tracking-widest w-24 text-center">Portada</span>
-        <button onclick="flipNext()" class="p-2 rounded-full hover:bg-gray-200 transition"><i class="ph-bold ph-caret-right text-xl text-gray-800"></i></button>
-    </div>
+    <div class="book-container" id="book-container">
+        </div>
 
-    <!-- 3. Modal de Inicio (Bienvenida) -->
-    <div id="startModal" class="fixed inset-0 bg-black/80 z-[2000] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-2xl">
-            <h2 class="text-3xl font-serif font-bold mb-2 text-slate-800" style="font-family: 'Cinzel', serif;">Libro Álbum</h2>
-            <p class="text-sm text-gray-600 mb-6">Una experiencia pedagógica interactiva.</p>
-            <button onclick="startExperience()" class="w-full bg-cyan-600 text-white py-2 rounded font-bold hover:bg-cyan-700 transition">Comenzar</button>
-        </div>
-    </div>
-    
-    <!-- 4. Modal Pedagógico (Oculto por defecto) -->
-    <div id="pedagogicalModal">
-        <div class="modal-content">
-            <h2 id="modalTitle">Título de la Sección</h2>
-            <p id="modalText">Explicación de la parte del libro...</p>
-            <button id="closeModalBtn">Entendido</button>
-        </div>
-    </div>
+    <button id="next-button" class="nav-button">→</button>
 
     <script>
-        let pageFlip; // Variable global para el objeto del libro
-        
-        // El placeholder de URL única ya no es necesario, las URLs están en el contenido.
-        
-        // --- 1. CONTENIDO DEL LIBRO (La "Fuente de Verdad") ---
-        // Se ha ajustado para permitir una imagen diferente en cada página
-        // y se han añadido comentarios claros para su reemplazo.
+        /* ===================================================================
+        CONTENIDO Y LÓGICA JAVASCRIPT
+        =================================================================== 
+        */
+
+        const bookContainer = document.getElementById('book-container');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        let currentPage = 0; // Índice de la página actualmente visible (0 a 20)
+
+        // ------------------------------------------------------------------
+        // ARRAY DE CONTENIDO DEL LIBRO (CON LAS NUEVAS IMÁGENES)
+        // ------------------------------------------------------------------
         const bookContent = [
             // ------------------------------------------------------------------
             // PÁGINA 1: Portada (Tapa Dura Frontal - índice 0)
-            // Reemplaza el enlace a Unsplash por la imagen de tu portada.
             // ------------------------------------------------------------------
             { 
                 type: 'cover', 
-                img: 'https://cdn.luna.com.uy/eternacadencia.com.ar/files/tmp/compressed/normal/enwzl4dnsddgwta5gac3.jpg', // IMAGEN DE LA PORTADA
+                img: 'https://images.unsplash.com/photo-1549414605-e3d08f7d9830?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Nueva Portada: Niño con libro en un mundo mágico
                 hotspot: {
                     title: 'La Portada',
                     text: 'Es la "cara" del libro. Debe incluir el título y el nombre del autor e ilustrador. La imagen es lo más importante, ya que nos da una pista sobre la historia.'
@@ -391,7 +265,7 @@
             },
             
             // PÁGINA 3: Página de Respeto (Blanca)
-            { type: 'respect' }, // No lleva imagen.
+            { type: 'respect' },
             
             // PÁGINA 4: Créditos
             { 
@@ -415,41 +289,40 @@
             },
             
             // ------------------------------------------------------------------
-            // PÁGINA 6 a 19: Cuerpo del Libro (Reemplaza los enlaces por tus ilustraciones)
+            // PÁGINA 6 a 19: Cuerpo del Libro (Ilustraciones de la Historia)
             // ------------------------------------------------------------------
             { 
-                // PÁGINA 6: Inicio de la Historia (primera página ilustrada)
+                // PÁGINA 6: Introducción - El mundo del personaje
                 type: 'body',
-                img: 'https://source.unsplash.com/800x1200?story,castle', // IMAGEN DE LA PÁGINA 6
+                img: 'https://images.unsplash.com/photo-1536440136659-1eef628c688d?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Casa pequeña, ambiente cálido
                 hotspot: { 
                     title: 'Páginas de Cuerpo',
                     text: 'Es donde la historia se desarrolla. En un libro álbum, la ilustración es la protagonista y debe ocupar la mayor parte del espacio, contando la historia visualmente.'
                 }
             },
-            { type: 'body', img: 'https://lh3.googleusercontent.com/proxy/oZ84KkPQtrG4pDjqUMIa1G_-fZfzNOZknL8Q7rYcu-Ewg7QeRTodBBC0VAyGC8N6IvHWCIIABbtZ_HhqTa2QhDPVpN_XFn08g5O3obQLYACJsJjxqbau8GTLOHyqCnLxKtbilPMuPG8J5A/800x1200?story,forest' },    // IMAGEN DE LA PÁGINA 7
-            { type: 'body', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7XFoPYo_bv3I97twpqQlBMXw4OBko9rd2Vg&s/800x1200?story,river' },     // IMAGEN DE LA PÁGINA 8
-            { type: 'body', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7XFoPYo_bv3I97twpqQlBMXw4OBko9rd2Vg&s' }, // IMAGEN DE LA PÁGINA 9
-            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,town' },      // IMAGEN DE LA PÁGINA 10
-            { type: 'body', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7XFoPYo_bv3I97twpqQlBMXw4OBko9rd2Vg&s' },   // IMAGEN DE LA PÁGINA 11
-            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,kids' },      // IMAGEN DE LA PÁGINA 12
-            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,magic' },     // IMAGEN DE LA PÁGINA 13
-            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,sun' },       // IMAGEN DE LA PÁGINA 14
-            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,night' },     // IMAGEN DE LA PÁGINA 15
-            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,house' },     // IMAGEN DE LA PÁGINA 16
-            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,garden' },    // IMAGEN DE LA PÁGINA 17
-            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,journey' },   // IMAGEN DE LA PÁGINA 18
-            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,friends' },   // IMAGEN DE LA PÁGINA 19
+            { type: 'body', img: 'https://images.unsplash.com/photo-1522075782449-0d603a1b80e7?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },   // PÁGINA 7: El personaje principal
+            { type: 'body', img: 'https://images.unsplash.com/photo-1524334336214-411a09d3c509?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },     // PÁGINA 8: Viaje, camino en el bosque
+            { type: 'body', img: 'https://images.unsplash.com/photo-1562916174-569614741366?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }, // PÁGINA 9: Encuentro con un amigo/obstáculo
+            { type: 'body', img: 'https://images.unsplash.com/photo-1517400326588-3485c2b29156?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },      // PÁGINA 10: La aventura continúa (globo)
+            { type: 'body', img: 'https://images.unsplash.com/photo-1502691887640-192e276f5784?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },    // PÁGINA 11: Escena nocturna
+            { type: 'body', img: 'https://images.unsplash.com/photo-1447045437887-a36c561a3577?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },      // PÁGINA 12: Personajes en un mercado
+            { type: 'body', img: 'https://images.unsplash.com/photo-1519782806253-fd6c568f2378?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },     // PÁGINA 13: Momento de reflexión/magia
+            { type: 'body', img: 'https://images.unsplash.com/photo-1522046465490-b18408f61596?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },        // PÁGINA 14: Escena en el mar/agua
+            { type: 'body', img: 'https://images.unsplash.com/photo-1528646270685-30b12b598d1a?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },      // PÁGINA 15: Bosque y animales
+            { type: 'body', img: 'https://images.unsplash.com/photo-1536737527633-9111c1d76378?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },      // PÁGINA 16: Vista de la ciudad/reino
+            { type: 'body', img: 'https://images.unsplash.com/photo-1516086822262-55cf5575510f?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },   // PÁGINA 17: Momento de celebración
+            { type: 'body', img: 'https://images.unsplash.com/photo-1522067755866-c958afb525f2?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },  // PÁGINA 18: El final del viaje/regreso
+            { type: 'body', img: 'https://images.unsplash.com/photo-1520696956667-27b233a5933a?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },   // PÁGINA 19: Momento de paz/final
             
             // PÁGINA 20: Guardas (Interior de Contratapa)
             { type: 'guard' }, 
             
             // ------------------------------------------------------------------
             // PÁGINA 21: Contraportada (Tapa Dura Trasera - índice 20)
-            // Reemplaza el enlace a Unsplash por la imagen de tu contraportada.
             // ------------------------------------------------------------------
             { 
                 type: 'cover-back', 
-                img: 'https://source.unsplash.com/800x1200?book,backcover', // IMAGEN DE LA CONTRAPORTADA
+                img: 'https://images.unsplash.com/photo-1512850183-6c7997f81468?q=80&w=800&h=1200&fit=crop&auto=format&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Nueva Contraportada: Ilustración tranquila de un árbol
                 reflection: 'Las mejores historias no terminan en la última página, sino que comienzan en tu imaginación.',
                 hotspot: {
                     title: 'La Contraportada',
@@ -458,245 +331,147 @@
             }
         ];
 
-        // --- 2. FUNCIONES DEL LIBRO ---
+        // ------------------------------------------------------------------
+        // FUNCIONES PRINCIPALES
+        // ------------------------------------------------------------------
 
-        function startExperience() {
-            document.getElementById('startModal').style.display = 'none';
-            initBook();
-        }
+        // Crea el elemento DOM de una página
+        function createPageElement(content, index) {
+            const page = document.createElement('div');
+            page.className = `page page-${content.type}`;
+            page.id = `page-${index}`;
+            page.style.zIndex = bookContent.length - index;
 
-        // Calcula las dimensiones óptimas del libro para la pantalla
-        function calculateBookDimensions() {
-            const wrapper = document.querySelector('.wrapper');
-            const winWidth = wrapper.clientWidth;
-            const winHeight = wrapper.clientHeight;
-
-            const verticalMargin = 60; // Margen vertical total (arriba/abajo)
-            const horizontalMargin = 40; // Margen lateral total
-
-            const availableHeight = winHeight - verticalMargin;
-            const availableWidth = winWidth - horizontalMargin;
-
-            // Relación de aspecto de una página de libro álbum (más vertical)
-            const aspectRatio = 0.75; // Ancho / Alto (Ej: 800 ancho / 1066 alto)
-
-            let bookHeight = availableHeight;
-            let bookWidth = bookHeight * aspectRatio;
-
-            const isMobile = winWidth < 768;
-            const pagesVisible = isMobile ? 1 : 2;
-
-            if ((bookWidth * pagesVisible) > availableWidth) {
-                bookWidth = availableWidth / pagesVisible;
-                bookHeight = bookWidth / aspectRatio;
+            // Contenido visual (imagen)
+            if (content.img) {
+                const img = document.createElement('img');
+                img.className = 'page-image';
+                img.src = content.img;
+                page.appendChild(img);
+                
+                // Overlay para que el texto se vea mejor en la tapa
+                if (content.type.startsWith('cover')) {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'overlay';
+                    page.appendChild(overlay);
+                }
             }
 
-            return { width: Math.floor(bookWidth), height: Math.floor(bookHeight) };
+            // Contenido de texto
+            const textContent = document.createElement('div');
+            textContent.className = 'page-content';
+            
+            if (content.type === 'cover') {
+                textContent.innerHTML = `<h1>TÍTULO DEL LIBRO</h1><h2>Autor</h2><p>Ilustrador</p>`;
+                textContent.style.color = 'white';
+            } else if (content.type === 'legal') {
+                textContent.innerHTML = `<h3>${content.title}</h3><p>${content.text.replace(/\n/g, '<br>')}</p>`;
+                textContent.style.color = '#333';
+            } else if (content.type === 'dedication') {
+                textContent.innerHTML = `<p style="font-style: italic; font-size: 18px;">${content.text}</p>`;
+                textContent.style.color = '#333';
+            } else if (content.type === 'cover-back') {
+                textContent.innerHTML = `<p>${content.reflection}</p>`;
+            } else if (content.type === 'body') {
+                // Aquí podrías añadir el texto narrativo de la página de la historia
+                textContent.innerHTML = `<p style="color: black; background-color: rgba(255,255,255,0.7); padding: 5px; border-radius: 3px;">El texto narrativo va aquí...</p>`;
+            }
+            
+            page.appendChild(textContent);
+
+
+            // Hotspot
+            if (content.hotspot) {
+                const hotspot = document.createElement('div');
+                hotspot.className = 'hotspot';
+                hotspot.innerHTML = 'ⓘ';
+                
+                const info = document.createElement('div');
+                info.className = 'hotspot-info';
+                info.innerHTML = `<h4>${content.hotspot.title}</h4><p>${content.hotspot.text}</p>`;
+                
+                hotspot.appendChild(info);
+                page.appendChild(hotspot);
+            }
+
+            return page;
         }
 
-        // Inicializa el libro: genera el HTML y carga PageFlip
-        function initBook() {
-            const bookEl = document.getElementById('book');
-           
-            // 1. Generar HTML del libro desde el array `bookContent`
-            let html = bookContent.map((page, i) => {
-                let content = '';
-                let pageClasses = 'page';
-                let contentClasses = 'page-content';
-                let style = '';
-                // Fallback de color por si la imagen falla
-                let fallbackStyle = 'background-color: #f1f5f9;'; 
+        // Inicializa el libro creando todas las páginas
+        function initializeBook() {
+            bookContent.forEach((content, index) => {
+                const page = createPageElement(content, index);
+                bookContainer.appendChild(page);
+            });
+            updateNavigationButtons();
+        }
 
-                // Asignar clases de Tapa Dura
-                if (page.type === 'cover' || page.type === 'cover-back') {
-                    pageClasses += ' hard';
-                }
-
-                // Renderizar contenido según el tipo de página
-                switch (page.type) {
-                    case 'cover':
-                    case 'body':
-                        // Lee la URL de imagen específica para esta página
-                        style = `background-image: url('${page.img}'); ${fallbackStyle}`;
-                        break;
-                    case 'cover-back':
-                        // Lee la URL de imagen específica para esta página
-                        style = `background-image: url('${page.img}'); ${fallbackStyle}`;
-                        content = `<div class="reflection-box">${page.reflection}</div>`;
-                        break;
-                    case 'guard':
-                        contentClasses += ' guard-page';
-                        break;
-                    case 'respect':
-                        contentClasses += ' bg-gray-50'; // Página en blanco simple
-                        break;
-                    case 'legal':
-                        contentClasses += ' legal-page';
-                        content = `<div class="legal-box">
-                                       <h2>${page.title}</h2>
-                                       <p>${page.text}</p>
-                                   </div>`;
-                        break;
-                    case 'dedication':
-                        contentClasses += ' dedication-page';
-                        content = `<p>${page.text}</p>`;
-                        break;
+        // Gira las páginas hacia adelante
+        function nextPage() {
+            if (currentPage < bookContent.length - 2) { // Permitir girar hasta la penúltima página (para ver la contraportada)
+                const pageToFlip = document.getElementById(`page-${currentPage}`);
+                const nextPageElement = document.getElementById(`page-${currentPage + 1}`);
+                
+                if (pageToFlip) {
+                    pageToFlip.classList.add('flipped');
+                    // Oculta la página girada un momento después del inicio de la transición
+                    setTimeout(() => {
+                        pageToFlip.classList.add('hidden-flipped');
+                    }, 300); 
                 }
                 
-                // Añadir el Hotspot Pedagógico si existe en la página
-                if (page.hotspot) {
-                    content += renderHotspot(page.hotspot);
+                // La página siguiente se convierte en la activa visualmente
+                if (nextPageElement) {
+                     nextPageElement.classList.remove('hidden-flipped');
                 }
 
-                return `<div class="${pageClasses}" style="${style}">
-                            <div class="${contentClasses}">${content}</div>
-                        </div>`;
-            }).join('');
-           
-            bookEl.innerHTML = html;
-
-            // 2. Calcular dimensiones e inicializar PageFlip
-            const dims = calculateBookDimensions();
-           
-            pageFlip = new St.PageFlip(bookEl, {
-                width: dims.width,
-                height: dims.height,
-                size: 'fixed', // Usamos 'fixed' porque calculamos nosotros el tamaño
-                minWidth: 200, maxWidth: 1200,
-                minHeight: 300, maxHeight: 1600,
-                maxShadowOpacity: 0.5,
-                showCover: true,
-                mobileScrollSupport: false // Desactivamos scroll para usar el gesto de flip
-            });
-
-            pageFlip.loadFromHTML(document.querySelectorAll('.page'));
-
-            // 3. Añadir Listeners (eventos)
-            pageFlip.on('flip', (e) => {
-                updatePageIndicator(e.data);
-            });
-            
-            // Actualizar indicador al inicio
-            updatePageIndicator(0);
-            
-            // Conectar botones del modal y hotspots
-            attachModalListeners(); 
-
-        } // <-- Fin de initBook
-
-        // --- 3. FUNCIONES DE HOTSPOT Y MODAL (REFACTORIZADAS) ---
-        
-        // Genera el HTML para el botón del hotspot y el tooltip
-        function renderHotspot(hotspot) {
-            // Escapar las comillas para atributos HTML
-            const safeTitle = hotspot.title.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-            const safeText = hotspot.text.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-            
-            // Contenedor 'group' para el hover
-            return `<div class="pedagogical-container group">
-                        
-                        <!-- El Tooltip (se muestra en hover) -->
-                        <span class="pedagogical-tooltip">${hotspot.title}</span>
-                        
-                        <!-- El Botón (ahora usa data-attributes) -->
-                        <button 
-                            class="pedagogical-btn" 
-                            data-title="${safeTitle}"
-                            data-text="${safeText}"
-                        >?</button>
-                    </div>`;
-        }
-        
-        /** * Asigna todos los listeners para los modales.
-         * Se llama 1 sola vez después de que se crea el HTML del libro.
-         */
-        function attachModalListeners() {
-            // 1. Asignar listener a CADA botón pedagógico
-            document.querySelectorAll('.pedagogical-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const title = btn.getAttribute('data-title');
-                    const text = btn.getAttribute('data-text');
-                    showPedagogicalModal(title, text);
-                });
-            });
-
-            // 2. Asignar listener al botón de "Cerrar" del modal
-            document.getElementById('closeModalBtn').addEventListener('click', hidePedagogicalModal);
-            
-            // 3. Asignar listener para cerrar el modal al hacer clic fuera
-            document.getElementById('pedagogicalModal').addEventListener('click', (e) => {
-                if (e.target.id === 'pedagogicalModal') {
-                    hidePedagogicalModal();
-                }
-            });
-        }
-        
-        // Muestra el modal con el contenido pedagógico
-        function showPedagogicalModal(title, text) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalText').innerText = text;
-            document.getElementById('pedagogicalModal').style.display = 'flex';
-        }
-        
-        // Oculta el modal
-        function hidePedagogicalModal() {
-            document.getElementById('pedagogicalModal').style.display = 'none';
-        }
-
-        // --- 4. FUNCIONES DE NAVEGACIÓN (UI) ---
-
-        function flipNext() { if (pageFlip) pageFlip.flipNext(); }
-        function flipPrev() { if (pageFlip) pageFlip.flipPrev(); }
-        
-        // Actualiza el texto del indicador de página (Ej: "Pág 2-3")
-        function updatePageIndicator(currentPage) {
-            const indicator = document.getElementById('pageIndicator');
-            if (!pageFlip) return; // Chequeo de seguridad
-            
-            const total = pageFlip.getPageCount();
-            
-            if (currentPage === 0) {
-                indicator.innerText = 'Portada';
-            } else if (currentPage >= total - 1) { // Contraportada
-                indicator.innerText = 'Final';
-            } else {
-                // Detectamos si es vista móvil o si la librería se configuró para una sola página
-                const settings = pageFlip.getSettings();
-                const isMobileView = window.innerWidth < 768 || (settings.width < settings.maxWidth / 1.5);
-                
-                if (isMobileView || currentPage === 1) { // Vista móvil o las primeras páginas
-                    indicator.innerText = `Pág ${currentPage}`;
-                } else {
-                    // En Desktop (modo spread)
-                    let left, right;
-                    if (currentPage % 2 === 0) { // Página derecha (2, 4, ...)
-                        left = currentPage - 1;
-                        right = currentPage;
-                    } else { // Página izquierda (3, 5, ...)
-                        left = currentPage;
-                        right = currentPage + 1;
-                    }
-                    
-                    indicator.innerText = `Pág ${left}-${right}`;
-                }
+                currentPage += 2; // Avanzamos dos páginas (par e impar)
+                updateNavigationButtons();
             }
         }
 
-        // --- 5. MANEJO DE REDIMENSIONAMIENTO DE VENTANA ---
-        
-        // Recalcular si se redimensiona la ventana (ej: girar el móvil)
-        let resizeTimeout;
-        window.onresize = () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                if (pageFlip) {
-                    // Destruimos la instancia anterior y la creamos de nuevo
-                    // con las nuevas dimensiones.
-                    pageFlip.destroy();
-                    initBook(); 
+        // Gira las páginas hacia atrás
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage -= 2; // Retrocedemos dos páginas (par e impar)
+
+                const pageToUnflip = document.getElementById(`page-${currentPage}`);
+                const prevPageElement = document.getElementById(`page-${currentPage - 1}`);
+
+                if (pageToUnflip) {
+                    // Muestra la página antes de la transición inversa
+                    pageToUnflip.classList.remove('hidden-flipped');
+                    setTimeout(() => {
+                        pageToUnflip.classList.remove('flipped');
+                    }, 50); // Pequeño retardo para asegurar que la clase flipped se quita
                 }
-            }, 300); // Espera 300ms antes de recalcular
-        };
+                
+                if (prevPageElement) {
+                    prevPageElement.classList.remove('hidden-flipped');
+                }
+
+                updateNavigationButtons();
+            }
+        }
+
+        // Habilita o deshabilita los botones de navegación
+        function updateNavigationButtons() {
+            prevButton.disabled = currentPage === 0;
+            nextButton.disabled = currentPage >= bookContent.length - 1;
+
+            prevButton.classList.toggle('disabled', prevButton.disabled);
+            nextButton.classList.toggle('disabled', nextButton.disabled);
+        }
+
+        // Event Listeners
+        nextButton.addEventListener('click', nextPage);
+        prevButton.addEventListener('click', prevPage);
+        
+        // Agregar listener para la portada (página 0)
+        document.addEventListener('DOMContentLoaded', () => {
+             initializeBook();
+             document.getElementById('page-0').addEventListener('click', nextPage);
+        });
 
     </script>
 </body>
