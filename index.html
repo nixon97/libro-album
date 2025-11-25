@@ -3,549 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revista Digital: Libro Álbum Interactivo</title>
-    <!-- Fuentes para tipografía elegante -->
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    <!-- Iconos para UI -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Libro Álbum Digital Pedagógico</title>
+    
+    <!-- Fuentes Elegantes: Cinzel (Títulos clásicos), Merriweather (Lectura), Lato (UI) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Iconos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
         /* --- VARIABLES & RESET --- */
         :root {
-            --book-width: 440px;  /* Ancho de una sola página */
-            --book-height: 580px; /* Alto del libro */
+            --book-width: 460px;
+            --book-height: 600px;
             --bg-color: #eef2f3;
+            --paper-texture: #fdfbf7;
             --text-color: #2c3e50;
-            --paper-color: #fdfbf7;
-            --shadow-soft: 0 4px 6px rgba(0,0,0,0.1);
-            --shadow-deep: 0 20px 40px rgba(0,0,0,0.2);
-            --accent-color: #5d4037; /* Marrón tierra suave */
-            --tooltip-bg: rgba(255, 255, 255, 0.95);
+            --accent-color: #8d6e63; /* Marrón elegante */
+            --gold-color: #d4af37;
+            --shadow-spine: rgba(0,0,0,0.15);
+            --tooltip-bg: rgba(255, 255, 255, 0.98);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Lato', sans-serif;
             background-color: var(--bg-color);
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* Evita scroll en el body principal */
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--text-color);
         }
 
-        /* --- UI: SIDEBAR --- */
+        /* --- UI EXTERNA --- */
         .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 60px;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid #ddd;
-            z-index: 100;
-            box-shadow: var(--shadow-soft);
+            position: fixed; left: 0; top: 0; bottom: 0; width: 50px;
+            background: #fff; border-right: 1px solid #ddd;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; box-shadow: 2px 0 10px rgba(0,0,0,0.05);
         }
-
         .project-title {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            transform: rotate(180deg);
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #888;
-            font-size: 14px;
+            writing-mode: vertical-rl; transform: rotate(180deg);
+            font-family: 'Cinzel', serif; font-weight: 700; color: #888;
+            letter-spacing: 3px; font-size: 12px;
         }
 
-        /* --- UI: TOP CONTROLS --- */
         .top-controls {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 100;
+            position: fixed; top: 20px; right: 20px; z-index: 100;
+            display: flex; gap: 10px;
         }
-
         .btn-icon {
-            background: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: var(--shadow-soft);
-            color: #555;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: white; border: none; width: 35px; height: 35px;
+            border-radius: 50%; cursor: pointer; color: #555;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s;
         }
+        .btn-icon:hover { color: var(--accent-color); transform: scale(1.1); }
 
-        .btn-icon:hover {
-            transform: translateY(-2px);
-            color: var(--accent-color);
-        }
-
-        /* --- STAGE & BOOK CONTAINER --- */
+        /* --- ESCENARIO 3D --- */
         #stage {
-            perspective: 2000px; /* Profundidad 3D esencial */
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            perspective: 2500px;
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
             transition: transform 0.5s ease;
-            width: 100%;
-            height: 100%;
         }
 
         .book {
             position: relative;
-            width: var(--book-width); /* Ancho inicial (cerrado) */
+            width: var(--book-width);
             height: var(--book-height);
             transform-style: preserve-3d;
-            transition: transform 0.6s ease;
+            transition: transform 0.6s ease-in-out;
         }
+        .book.opened { transform: translateX(50%); }
 
-        /* Cuando el libro está abierto, desplazamos el contenedor para centrar la doble página */
-        .book.opened {
-            transform: translateX(50%); /* Mueve el eje al centro */
-        }
-
-        /* --- NAVIGATION ARROWS --- */
-        .nav-btn {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            background: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            box-shadow: var(--shadow-soft);
-            cursor: pointer;
-            z-index: 90;
-            color: #333;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-            opacity: 0.7;
-        }
-
-        .nav-btn:hover {
-            opacity: 1;
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .prev-btn { left: 80px; }
-        .next-btn { right: 40px; }
-
-        .nav-btn:disabled {
-            opacity: 0.2;
-            cursor: not-allowed;
-            transform: translateY(-50%);
-        }
-
-        /* --- PAGE STRUCTURE (THE FLIP MECHANISM) --- */
-        /* Una 'paper' es una hoja física con dos caras */
+        /* --- HOJAS (PAPERS) --- */
         .paper {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            transform-origin: left center; /* El punto de pivote es el lomo (izquierda) */
-            transition: transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1); /* Efecto fluido */
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            transform-origin: left center;
+            transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
             transform-style: preserve-3d;
-            z-index: 1;
         }
+        .paper.flipped { transform: rotateY(-180deg); z-index: 0; }
 
-        /* Lógica de Z-Index para apilar correctamente */
-        .paper.flipped {
-            transform: rotateY(-180deg);
-            z-index: 0; /* Al voltear, se va al fondo de la pila izquierda */
-        }
-
-        /* Las caras de la hoja */
+        /* --- CARAS DE LA HOJA --- */
         .front, .back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background-color: var(--paper-color);
-            backface-visibility: hidden; /* Oculta la cara trasera cuando no se ve */
-            border-radius: 4px 8px 8px 4px; /* Bordes redondeados externos */
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            background-color: var(--paper-texture);
+            backface-visibility: hidden;
             overflow: hidden;
-            box-shadow: inset 5px 0 10px rgba(0,0,0,0.02); /* Sombra sutil interna */
+            border-radius: 2px 5px 5px 2px; /* Bordes sutiles */
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05); /* Textura papel */
+        }
+        .front { z-index: 2; border-right: 1px solid rgba(0,0,0,0.1); }
+        .back { 
+            z-index: 1; transform: rotateY(180deg); 
+            border-left: 1px solid rgba(0,0,0,0.1);
+            border-radius: 5px 2px 2px 5px; 
         }
 
-        /* La cara Front es la página derecha inicial */
-        .front {
-            z-index: 2;
-        }
-
-        /* La cara Back es la página izquierda cuando se voltea */
-        .back {
-            z-index: 1;
-            transform: rotateY(180deg); /* Ya está rotada para verse al girar la hoja */
-            border-radius: 8px 4px 4px 8px;
-            box-shadow: inset -5px 0 10px rgba(0,0,0,0.02);
-        }
-
-        /* Sombra central (Spine) */
+        /* Sombras del lomo (Spine) */
         .front::after {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0; width: 30px;
-            background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 25px;
+            background: linear-gradient(to right, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
             pointer-events: none;
         }
         .back::after {
-            content: '';
-            position: absolute;
-            right: 0; top: 0; bottom: 0; width: 30px;
-            background: linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
+            content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 25px;
+            background: linear-gradient(to left, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
             pointer-events: none;
         }
 
-        /* --- CONTENT STYLING --- */
-        .page-content {
-            width: 100%;
-            height: 100%;
-            padding: 40px; /* Margen amplio editorial */
-            display: flex;
-            flex-direction: column;
-            position: relative;
+        /* --- ESTILOS DE PÁGINA ESPECÍFICOS --- */
+
+        /* 1. Páginas de Imagen (Portada, Cuerpo) */
+        .image-page {
             background-size: cover;
             background-position: center;
         }
+        /* Sin texto superpuesto en body/cover */
+        .image-page .content-wrapper { display: none; }
 
-        /* Capa blanca semitransparente para legibilidad sobre fondos */
-        .content-overlay {
-            background: rgba(255,255,255,0.85);
-            padding: 20px;
-            width: 100%;
-            height: 100%;
-            border-radius: 2px;
+        /* 2. Páginas de Texto (Créditos, Dedicatoria, Respeto) */
+        .text-page {
+            background-color: #fffefae6; /* Crema muy suave */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            padding: 60px;
             text-align: center;
-            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .text-page h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--accent-color);
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .text-page h2::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 1px; background: var(--gold-color);
         }
 
-        h1, h2, h3 { font-family: 'Merriweather', serif; color: var(--accent-color); margin-bottom: 15px; }
-        p { line-height: 1.8; font-size: 0.95rem; color: #4a4a4a; margin-bottom: 1rem; }
-        .page-number { position: absolute; bottom: 20px; font-size: 0.8rem; color: #888; font-family: 'Merriweather', serif; }
-        .front .page-number { right: 25px; }
-        .back .page-number { left: 25px; }
+        .text-page p {
+            font-family: 'Merriweather', serif;
+            font-size: 0.95rem;
+            line-height: 2;
+            color: #555;
+            font-style: italic;
+        }
 
-        /* Estilos específicos de secciones */
-        .cover-page .content-overlay { border: 4px double var(--accent-color); background: rgba(255,255,255,0.9); }
-        .cover-page h1 { font-size: 2.5rem; margin-top: 20px; }
-        .endpaper { background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=600'); opacity: 0.8; }
-        .endpaper .content-overlay { background: rgba(255,255,255,0.4); border: none; }
+        .legal-text { font-size: 0.75rem !important; color: #888 !important; font-style: normal !important; }
 
-        /* --- EDUCATIONAL TOOLTIP SYSTEM --- */
-        .edu-icon {
+        /* 3. Guardas (Patrón) */
+        .endpaper {
+            /* Patrón de puntos/geométrico elegante */
+            background-color: #fdfbf7;
+            background-image: radial-gradient(#d7ccc8 1px, transparent 1px), radial-gradient(#d7ccc8 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        /* --- ELEMENTOS PEDAGÓGICOS (TOOLTIPS) --- */
+        .edu-hotspot {
             position: absolute;
-            top: 25px;
-            right: 25px;
-            width: 24px;
-            height: 24px;
-            cursor: help;
-            color: #FFD700; /* Dorado */
-            font-size: 1.2rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            top: 20px; right: 20px;
+            width: 30px; height: 30px;
+            background: var(--gold-color);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
+            cursor: pointer;
             z-index: 50;
-            animation: pulse 2s infinite;
+            animation: pulse-gold 2s infinite;
         }
+        .back .edu-hotspot { right: auto; left: 20px; }
 
-        .back .edu-icon { right: auto; left: 25px; } /* Ajuste para página izquierda */
+        .edu-hotspot i { font-size: 0.9rem; }
 
-        .edu-tooltip {
+        .edu-bubble {
             position: absolute;
-            top: 35px;
-            right: 0;
-            width: 280px;
-            background: var(--tooltip-bg);
-            backdrop-filter: blur(5px);
+            top: 55px; right: -10px;
+            width: 260px;
+            background: white;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: var(--shadow-deep);
-            border-left: 4px solid var(--accent-color);
-            font-size: 0.85rem;
-            text-align: left;
-            opacity: 0;
-            visibility: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-top: 3px solid var(--gold-color);
+            opacity: 0; visibility: hidden;
             transform: translateY(10px);
             transition: all 0.3s ease;
-            pointer-events: none;
             z-index: 60;
-            color: #333;
+            text-align: left;
+            pointer-events: none;
         }
 
-        .edu-tooltip h4 {
-            color: var(--accent-color);
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .edu-bubble::before {
+            content: ''; position: absolute; top: -6px; right: 20px;
+            width: 12px; height: 12px; background: white;
+            transform: rotate(45deg); border-top: 3px solid var(--gold-color); border-left: 3px solid var(--gold-color);
         }
 
-        .edu-icon:hover + .edu-tooltip {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
+        .back .edu-bubble { right: auto; left: -10px; border-top: 3px solid var(--gold-color); }
+        .back .edu-bubble::before { right: auto; left: 20px; }
+
+        .edu-hotspot:hover + .edu-bubble {
+            opacity: 1; visibility: visible; transform: translateY(0);
         }
 
-        .back .edu-tooltip { right: auto; left: 0; border-left: none; border-right: 4px solid var(--accent-color); }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
+        .edu-bubble h4 {
+            font-family: 'Cinzel', serif; color: var(--accent-color);
+            font-size: 0.85rem; margin-bottom: 5px;
+            border-bottom: 1px solid #eee; padding-bottom: 5px;
+        }
+        .edu-bubble p {
+            font-family: 'Lato', sans-serif; font-size: 0.8rem; line-height: 1.4; color: #666;
         }
 
-        /* --- RESPONSIVE ADJUSTMENTS --- */
-        @media (max-width: 1000px) {
-            :root { --book-width: 350px; --book-height: 480px; }
+        @keyframes pulse-gold {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+
+        /* --- BOTONES NAVEGACIÓN --- */
+        .nav-btn {
+            position: fixed; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.8); border: none;
+            width: 50px; height: 50px; border-radius: 50%;
+            cursor: pointer; z-index: 90; transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .nav-btn:hover:not(:disabled) { background: white; transform: translateY(-50%) scale(1.1); color: var(--accent-color); }
+        .nav-btn:disabled { opacity: 0.3; cursor: default; }
+        .prev-btn { left: 70px; }
+        .next-btn { right: 70px; }
+
+        @media (max-width: 1100px) {
+            :root { --book-width: 350px; --book-height: 500px; }
+            .prev-btn { left: 20px; } .next-btn { right: 20px; }
             .sidebar { display: none; }
-            .prev-btn { left: 20px; }
-            .next-btn { right: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar con nombre del proyecto -->
     <div class="sidebar">
-        <div class="project-title">Libro Álbum Pedagógico - Edición Digital</div>
+        <div class="project-title">Libro Álbum Digital</div>
     </div>
 
-    <!-- Controles Superiores -->
     <div class="top-controls">
         <button class="btn-icon" onclick="toggleZoom()" title="Zoom"><i class="fas fa-search-plus"></i></button>
         <button class="btn-icon" onclick="toggleFullScreen()" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
     </div>
 
-    <!-- Botón Anterior -->
     <button class="nav-btn prev-btn" id="prevBtn" onclick="goPrev()"><i class="fas fa-chevron-left"></i></button>
 
-    <!-- Escenario del Libro -->
     <div id="stage">
         <div class="book" id="book">
-            <!-- El contenido se genera dinámicamente con JS para mantener el HTML limpio -->
+            <!-- Contenido generado por JS -->
         </div>
     </div>
 
-    <!-- Botón Siguiente -->
     <button class="nav-btn next-btn" id="nextBtn" onclick="goNext()"><i class="fas fa-chevron-right"></i></button>
 
     <script>
-        // --- CONFIGURACIÓN DEL CONTENIDO DEL LIBRO ---
-        // Definimos las "Hojas" (Papers). Cada Paper tiene Front (Derecha) y Back (Izquierda al voltear).
-        // Total páginas lógicas solicitadas: Portada, Guardas, Respeto, Creditos, Dedicatoria, 14 cuerpo, Guardas, Contra.
-        
+        /*
+         * ESTRUCTURA DE DATOS DEL LIBRO
+         * type: 'image-page' (solo fondo, sin texto), 'text-page' (diseño editorial), 'endpaper' (patrón)
+         */
         const bookData = [
+            // HOJA 1: Portada (Imagen Limpia) + Guarda Delantera
             {
-                // PAPER 1: Front=Portada, Back=Guarda Delantera (Izq)
                 front: {
-                    type: "cover-page",
-                    bg: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=600",
-                    title: "El Eco de las Montañas",
-                    text: "Autor: Gemini Creative<br>Ilustraciones: IA Generativa",
-                    tooltipTitle: "La Portada",
-                    tooltipText: "Es la cara principal del libro. Su función es atraer al lector, presentar el título, el autor y sugerir el tono de la obra mediante la ilustración."
+                    type: "image-page",
+                    bg: "https://images.unsplash.com/photo-1518182170546-0766ce6fec56?auto=format&fit=crop&q=80&w=800", // Paisaje etéreo
+                    tooltip: { title: "La Portada", text: "Es la cara del libro. En el libro álbum, la imagen es protagonista desde aquí, invitando a entrar en la atmósfera sin necesidad de mucho texto." }
                 },
                 back: {
                     type: "endpaper",
-                    bg: "none", // Usamos patrón CSS en clase endpaper
-                    title: "",
-                    text: "",
-                    tooltipTitle: "Guardas (Delanteras)",
-                    tooltipText: "Hojas de papel que unen el cuerpo del libro con las tapas. Suelen tener un color o diseño diferente y marcan la transición al interior."
+                    tooltip: { title: "Guardas Delanteras", text: "Hojas de papel decorativo que unen la tapa con el cuerpo del libro. Su diseño (patrones o colores) marca el tono estético." }
                 }
             },
+            // HOJA 2: Guarda + Hoja de Respeto (Texto elegante)
             {
-                // PAPER 2: Front=Guarda Delantera (Der), Back=Hoja de Respeto
                 front: {
                     type: "endpaper",
-                    bg: "none",
-                    title: "",
-                    text: "",
-                    tooltipTitle: "Guardas (Continuación)",
-                    tooltipText: "Las guardas son dobles. Esta parte completa la experiencia visual de entrada antes de llegar al contenido textual."
+                    tooltip: { title: "Guardas (Continuación)", text: "Sirven de transición visual. En ediciones de lujo, suelen tener gramaje alto y texturas especiales." }
                 },
                 back: {
-                    type: "respect-page",
-                    bg: "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&q=80&w=600",
-                    title: "El Eco de las Montañas",
+                    type: "text-page",
+                    title: "El Susurro del Bosque",
                     text: "(Hoja de Respeto)",
-                    tooltipTitle: "Hoja de Respeto",
-                    tooltipText: "También llamada portadilla. Lleva solo el título del libro, en un cuerpo de letra menor. Sirve de cortesía y protección a la portada interior."
+                    tooltip: { title: "Hoja de Respeto", text: "Página de cortesía antes del contenido. Deja respirar al lector y presenta el título de forma sutil y elegante." }
                 }
             },
+            // HOJA 3: Créditos + Dedicatoria
             {
-                // PAPER 3: Front=Créditos, Back=Dedicatoria
                 front: {
-                    type: "credits-page",
-                    bg: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=600",
-                    title: "Créditos Legales",
-                    text: "© 2023 Editorial Digital<br>Edición: 1.ª Edición<br>Diseño: CSS3 Experts<br>ISBN: 978-0-000-00000-0<br>Impreso en la Web",
-                    tooltipTitle: "Página de Créditos",
-                    tooltipText: "Contiene la información legal: copyright, año de edición, traductor, editorial e ISBN. Es el 'carnet de identidad' del libro."
+                    type: "text-page",
+                    title: "Créditos",
+                    text: "<span class='legal-text'>Primera Edición Digital, 2024<br>Ilustraciones: Nature Collection<br>Diseño y Maquetación: Front-End Expert<br>ISBN: 978-0-123-45678-9<br>Todos los derechos reservados.</span>",
+                    tooltip: { title: "Página Legal", text: "Contiene el 'copyright', créditos de autores, ilustradores y datos de edición. Es fundamental para la identidad bibliográfica." }
                 },
                 back: {
-                    type: "dedication-page",
-                    bg: "https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&q=80&w=600",
+                    type: "text-page",
                     title: "Dedicatoria",
-                    text: "<i>Para aquellos que buscan<br>la belleza en lo simple.</i>",
-                    tooltipTitle: "Dedicatoria",
-                    tooltipText: "Un espacio breve y emotivo donde el autor ofrece su obra a una o varias personas especiales. Suele ir en página impar (derecha), pero aquí adaptamos por espacio."
+                    text: "<i>A la naturaleza,<br>que siempre cuenta las mejores historias<br>sin decir una sola palabra.</i>",
+                    tooltip: { title: "Dedicatoria", text: "Espacio íntimo donde el autor ofrenda su trabajo. Se diagrama con amplios espacios en blanco para dar solemnidad." }
                 }
             },
-            // --- CUERPO DEL LIBRO (14 Páginas = 7 Hojas) ---
-            // Generaremos 7 papers para el cuerpo
+            // HOJA 4 a 10: CUERPO DEL LIBRO (Solo Imágenes, Narrativa Visual)
+            // Generaremos 14 páginas (7 hojas) de paisajes puros
         ];
 
-        // Añadir las 14 páginas de cuerpo (7 hojas físicas)
-        const storyParts = [
-            "El viaje comenzó al amanecer.", "Las nubes bajaron a saludar.",
-            "El bosque susurraba secretos.", "Encontró una piedra brillante.",
-            "El río cantaba canciones antiguas.", "Los pájaros guiaban el camino.",
-            "La montaña se alzaba majestuosa.", "El viento frío acariciaba su rostro.",
-            "Un refugio apareció en la niebla.", "El fuego calentó sus manos.",
-            "La noche trajo estrellas nuevas.", "El silencio era su compañero.",
-            "Al final, entendió el mensaje.", "La naturaleza es nuestro hogar."
+        // Imágenes de paisajes naturales estilo libro álbum (suaves, atmosféricos)
+        const landscapeImages = [
+            "1470071459604-3b5ec3a7fe05", // Niebla bosque
+            "1472214103451-9374bd1c798e", // Montañas
+            "1501854140884-074cf2b29752", // Bosque oscuro
+            "1441974231531-c6227db76b6e", // Bosque luz
+            "1426604966848-d7adac402bff", // Montaña azul
+            "1447752875204-b2f9798c19a3", // Arbol solitario
+            "1511497584788-876760111969", // Bosque otoño
+            "1504198458649-3128b932f49e", // Verde
+            "1465146344425-f00d5f5c8f07", // Helechos
+            "1475924156734-496f6cac6ec1", // Amanecer
+            "1502082553048-f009c37129b9", // Arbol vida
+            "1418065460487-3e41a6c84dc5", // Camino bosque
+            "1500964757637-c85e8a162699", // Vista aerea
+            "1518495973542-4542c06a5843"  // Textura hoja
         ];
 
-        // Imágenes aleatorias de naturaleza para el cuerpo
-        const natureImages = [
-            "1472214103451-9374bd1c798e", "1470071459604-3b5ec3a7fe05", "1447752875204-b2f9798c19a3", 
-            "1501854140884-074cf2b29752", "1441974231531-c6227db76b6e", "1479030160180-b1860951d6ec", "1519681393784-d120267933ba"
-        ];
-
-        for (let i = 0; i < 7; i++) {
+        for(let i=0; i<7; i++) {
             bookData.push({
                 front: {
-                    type: "body-page",
-                    bg: `https://images.unsplash.com/photo-${natureImages[i % natureImages.length]}?auto=format&fit=crop&q=80&w=600`,
-                    title: `Capítulo ${i + 1}`,
-                    text: storyParts[i * 2],
-                    tooltipTitle: "Cuerpo - Página Derecha",
-                    tooltipText: "El cuerpo es donde se desarrolla la narrativa. En el libro álbum, la imagen predomina y dialoga con el texto."
+                    type: "image-page",
+                    bg: `https://images.unsplash.com/photo-${landscapeImages[i*2]}?auto=format&fit=crop&q=80&w=800`,
+                    tooltip: { title: "Narrativa Visual (Derecha)", text: "En el libro álbum, la ilustración lleva el peso de la historia. Aquí se omite el texto para priorizar la lectura de la imagen." }
                 },
                 back: {
-                    type: "body-page",
-                    bg: `https://images.unsplash.com/photo-${natureImages[(i + 1) % natureImages.length]}?auto=format&fit=crop&q=80&w=600`,
-                    title: "",
-                    text: storyParts[(i * 2) + 1],
-                    tooltipTitle: "Cuerpo - Página Izquierda",
-                    tooltipText: "La doble página se concibe como una unidad visual. El diseño debe fluir de un lado a otro sin interrupciones bruscas."
+                    type: "image-page",
+                    bg: `https://images.unsplash.com/photo-${landscapeImages[(i*2)+1]}?auto=format&fit=crop&q=80&w=800`,
+                    tooltip: { title: "Narrativa Visual (Izquierda)", text: "La doble página funciona como un lienzo único. La ausencia de texto invita al lector a interpretar los detalles visuales." }
                 }
             });
         }
 
-        // --- FINAL DEL LIBRO ---
-        bookData.push(
-            {
-                // PAPER FINAL: Front=Guardas Finales, Back=Contraportada
-                front: {
-                    type: "endpaper",
-                    bg: "none",
-                    title: "",
-                    text: "",
-                    tooltipTitle: "Guardas (Finales)",
-                    tooltipText: "Cierran el bloque del libro, dando simetría a las guardas delanteras y estructura física a la encuadernación."
-                },
-                back: {
-                    type: "back-cover",
-                    bg: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=600", // Misma que portada o similar
-                    title: "Resumen",
-                    text: "Un viaje visual a través de paisajes soñados.<br><br>ISBN: 978-0-EX-AM-PLE",
-                    tooltipTitle: "Contraportada",
-                    tooltipText: "La parte trasera externa. Suele incluir una sinopsis, biografía breve del autor, código de barras y logotipo de la editorial."
-                }
+        // HOJA FINAL: Guardas + Contraportada
+        bookData.push({
+            front: {
+                type: "endpaper",
+                tooltip: { title: "Guardas Finales", text: "Cierran la estructura física del libro, proporcionando simetría con el inicio." }
+            },
+            back: {
+                type: "text-page", // Usamos text-page para diagramación limpia
+                title: "Sinopsis",
+                text: "Un recorrido visual por los rincones más silenciosos del mundo natural.<br><br><b>Editorial Digital</b>",
+                tooltip: { title: "Contraportada", text: "Cierre del libro. Incluye una breve reseña o frase final, el logo editorial y códigos. Debe ser sobria y clara." }
             }
-        );
+        });
 
-        // --- RENDERIZADO DEL DOM ---
+        // --- RENDERIZADO ---
         const bookContainer = document.getElementById('book');
-        let currentPaperIndex = -1; // -1 significa cerrado (portada visible)
-        // El índice representa cuántos papeles se han volteado a la izquierda.
+        let currentPaperIndex = -1;
 
         bookData.forEach((sheet, index) => {
-            const paperDiv = document.createElement('div');
-            paperDiv.className = 'paper';
-            paperDiv.id = `paper-${index}`;
-            // Z-Index inicial: Los papeles más arriba (índice bajo) deben estar encima cuando están a la derecha
-            paperDiv.style.zIndex = bookData.length - index;
+            const paper = document.createElement('div');
+            paper.className = 'paper';
+            paper.style.zIndex = bookData.length - index;
+            paper.id = `p-${index}`;
 
-            // Función para generar contenido HTML interno
-            const createFace = (faceData, isBack, globalIndex) => {
+            // Helper para crear caras
+            const createFace = (data, isBack) => {
+                let contentHTML = '';
+                
+                // Solo si es pagina de texto, agregamos titulo/parrafo
+                if(data.type === 'text-page') {
+                    contentHTML = `
+                        <h2>${data.title || ''}</h2>
+                        <p>${data.text || ''}</p>
+                    `;
+                }
+
+                // Estilo background
+                const bgStyle = data.bg ? `background-image: url('${data.bg}');` : '';
+
                 return `
-                <div class="${isBack ? 'back' : 'front'} ${faceData.type}" style="background-image: url('${faceData.bg}')">
-                    <div class="content-overlay">
-                        ${faceData.title ? `<h2>${faceData.title}</h2>` : ''}
-                        ${faceData.text ? `<p>${faceData.text}</p>` : ''}
-                        <span class="page-number">${globalIndex}</span>
+                <div class="${isBack ? 'back' : 'front'} ${data.type}" style="${bgStyle}">
+                    <div class="content-wrapper">${contentHTML}</div>
+                    
+                    <!-- Elemento Pedagógico -->
+                    <div class="edu-hotspot">
+                        <i class="fas fa-info"></i>
                     </div>
-                    <i class="fas fa-sparkles edu-icon"></i>
-                    <div class="edu-tooltip">
-                        <h4><i class="fas fa-info-circle"></i> ${faceData.tooltipTitle}</h4>
-                        <p>${faceData.tooltipText}</p>
+                    <div class="edu-bubble">
+                        <h4>${data.tooltip.title}</h4>
+                        <p>${data.tooltip.text}</p>
                     </div>
                 </div>`;
             };
 
-            // Numeración lógica de páginas (Portada es 0)
-            const frontPageNum = (index * 2) + 1;
-            const backPageNum = (index * 2) + 2;
-
-            paperDiv.innerHTML = createFace(sheet.front, false, frontPageNum) + createFace(sheet.back, true, backPageNum);
-            bookContainer.appendChild(paperDiv);
+            paper.innerHTML = createFace(sheet.front, false) + createFace(sheet.back, true);
+            bookContainer.appendChild(paper);
         });
 
         const papers = document.querySelectorAll('.paper');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
 
-        // --- LÓGICA DE NAVEGACIÓN (FLIP) ---
-
-        function updateZIndexes() {
-            // Recorremos todos los papeles para ajustar z-index según su estado
-            papers.forEach((paper, i) => {
-                if (i <= currentPaperIndex) {
-                    // El papel está volteado a la izquierda
-                    // En la pila izquierda, el último volteado (índice mayor) debe estar arriba
-                    paper.style.zIndex = i + 1;
+        // --- CONTROL NAVEGACIÓN ---
+        function updateState() {
+            papers.forEach((p, i) => {
+                if(i <= currentPaperIndex) {
+                    p.classList.add('flipped');
+                    p.style.zIndex = i + 1;
                 } else {
-                    // El papel está a la derecha
-                    // En la pila derecha, el primero (índice menor) debe estar arriba
-                    paper.style.zIndex = papers.length - i;
+                    p.classList.remove('flipped');
+                    p.style.zIndex = papers.length - i;
                 }
             });
 
-            // Ajuste de posición del libro para centrar la vista abierta
+            // Centrado dinámico
             if (currentPaperIndex >= 0 && currentPaperIndex < papers.length - 1) {
                 bookContainer.classList.add('opened');
             } else {
                 bookContainer.classList.remove('opened');
             }
 
-            // Estado de botones
             prevBtn.disabled = currentPaperIndex === -1;
             nextBtn.disabled = currentPaperIndex === papers.length - 1;
         }
@@ -553,51 +445,39 @@
         function goNext() {
             if (currentPaperIndex < papers.length - 1) {
                 currentPaperIndex++;
-                papers[currentPaperIndex].classList.add('flipped');
-                updateZIndexes();
+                updateState();
             }
         }
 
         function goPrev() {
             if (currentPaperIndex >= 0) {
-                papers[currentPaperIndex].classList.remove('flipped');
                 currentPaperIndex--;
-                updateZIndexes();
+                updateState();
             }
         }
 
-        // Navegación con teclado
+        // Teclado
         document.addEventListener('keydown', (e) => {
-            if (e.key === "ArrowRight") goNext();
-            if (e.key === "ArrowLeft") goPrev();
+            if(e.key === "ArrowRight") goNext();
+            if(e.key === "ArrowLeft") goPrev();
         });
 
-        // --- FUNCIONES DE UTILIDAD (ZOOM, FULLSCREEN) ---
-        let zoomLevel = 1;
+        // Zoom & Fullscreen
+        let zoom = 1;
         function toggleZoom() {
-            const stage = document.getElementById('stage');
-            if (zoomLevel === 1) {
-                zoomLevel = 1.25;
-            } else {
-                zoomLevel = 1;
-            }
-            stage.style.transform = `scale(${zoomLevel})`;
+            zoom = zoom === 1 ? 1.2 : 1;
+            document.getElementById('stage').style.transform = `scale(${zoom})`;
         }
 
         function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    alert(`Error al intentar pantalla completa: ${err.message}`);
-                });
+            if(!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(e=>console.log(e));
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+                document.exitFullscreen();
             }
         }
 
-        // Inicializar
-        updateZIndexes();
+        updateState();
 
     </script>
 </body>
