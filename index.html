@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Libro Álbum Digital Pedagógico</title>
     
-    <!-- Fuentes Elegantes: Cinzel (Títulos clásicos), Merriweather (Lectura), Lato (UI) -->
+    <!-- Fuentes Elegantes -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <!-- Iconos -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -18,10 +18,10 @@
             --bg-color: #eef2f3;
             --paper-texture: #fdfbf7;
             --text-color: #2c3e50;
-            --accent-color: #8d6e63; /* Marrón elegante */
+            --accent-color: #5d4037;
             --gold-color: #d4af37;
-            --shadow-spine: rgba(0,0,0,0.15);
-            --tooltip-bg: rgba(255, 255, 255, 0.98);
+            --endpaper-bg: #e8f5e9; /* Verde Pastel Fondo */
+            --endpaper-dot: #a5d6a7; /* Verde Pastel Puntos */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -94,8 +94,8 @@
             background-color: var(--paper-texture);
             backface-visibility: hidden;
             overflow: hidden;
-            border-radius: 2px 5px 5px 2px; /* Bordes sutiles */
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.05); /* Textura papel */
+            border-radius: 2px 5px 5px 2px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
         }
         .front { z-index: 2; border-right: 1px solid rgba(0,0,0,0.1); }
         .back { 
@@ -104,7 +104,7 @@
             border-radius: 5px 2px 2px 5px; 
         }
 
-        /* Sombras del lomo (Spine) */
+        /* Sombras del lomo */
         .front::after {
             content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 25px;
             background: linear-gradient(to right, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
@@ -116,112 +116,78 @@
             pointer-events: none;
         }
 
-        /* --- ESTILOS DE PÁGINA ESPECÍFICOS --- */
+        /* --- ESTILOS DE PÁGINA --- */
 
-        /* 1. Páginas de Imagen (Portada, Cuerpo) */
+        /* 1. Imagen (Portada, Cuerpo, Contraportada) */
         .image-page {
             background-size: cover;
             background-position: center;
+            background-color: #fff;
         }
-        /* Sin texto superpuesto en body/cover */
         .image-page .content-wrapper { display: none; }
 
-        /* 2. Páginas de Texto (Créditos, Dedicatoria, Respeto) */
+        /* 2. Texto (Créditos, Dedicatoria, Respeto) */
         .text-page {
-            background-color: #fffefae6; /* Crema muy suave */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 60px;
-            text-align: center;
+            background-color: #fffefae6;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 60px; text-align: center;
         }
         
         .text-page h2 {
-            font-family: 'Cinzel', serif;
-            color: var(--accent-color);
-            font-size: 1.4rem;
-            margin-bottom: 25px;
-            position: relative;
-            padding-bottom: 15px;
+            font-family: 'Cinzel', serif; color: var(--accent-color);
+            font-size: 1.4rem; margin-bottom: 25px;
+            position: relative; padding-bottom: 15px;
         }
-        
         .text-page h2::after {
             content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
             width: 40px; height: 1px; background: var(--gold-color);
         }
-
         .text-page p {
-            font-family: 'Merriweather', serif;
-            font-size: 0.95rem;
-            line-height: 2;
-            color: #555;
-            font-style: italic;
+            font-family: 'Merriweather', serif; font-size: 0.95rem;
+            line-height: 2; color: #555; font-style: italic;
         }
-
         .legal-text { font-size: 0.75rem !important; color: #888 !important; font-style: normal !important; }
 
-        /* 3. Guardas (Patrón) */
+        /* 3. Guardas (Verde Pastel) */
         .endpaper {
-            /* Patrón de puntos/geométrico elegante */
-            background-color: #fdfbf7;
-            background-image: radial-gradient(#d7ccc8 1px, transparent 1px), radial-gradient(#d7ccc8 1px, transparent 1px);
+            background-color: var(--endpaper-bg);
+            background-image: radial-gradient(var(--endpaper-dot) 1.5px, transparent 1.5px), radial-gradient(var(--endpaper-dot) 1.5px, transparent 1.5px);
             background-size: 20px 20px;
             background-position: 0 0, 10px 10px;
         }
 
-        /* --- ELEMENTOS PEDAGÓGICOS (TOOLTIPS) --- */
+        /* --- ELEMENTOS PEDAGÓGICOS --- */
         .edu-hotspot {
-            position: absolute;
-            top: 20px; right: 20px;
-            width: 30px; height: 30px;
-            background: var(--gold-color);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: white;
-            box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
-            cursor: pointer;
-            z-index: 50;
+            position: absolute; top: 20px; right: 20px;
+            width: 30px; height: 30px; background: var(--gold-color);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; cursor: pointer; z-index: 50;
             animation: pulse-gold 2s infinite;
         }
         .back .edu-hotspot { right: auto; left: 20px; }
-
         .edu-hotspot i { font-size: 0.9rem; }
 
         .edu-bubble {
-            position: absolute;
-            top: 55px; right: -10px;
-            width: 260px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
+            position: absolute; top: 55px; right: -10px; width: 260px;
+            background: white; padding: 15px; border-radius: 8px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             border-top: 3px solid var(--gold-color);
-            opacity: 0; visibility: hidden;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
-            z-index: 60;
-            text-align: left;
-            pointer-events: none;
+            opacity: 0; visibility: hidden; transform: translateY(10px);
+            transition: all 0.3s ease; z-index: 60; text-align: left; pointer-events: none;
         }
-
         .edu-bubble::before {
             content: ''; position: absolute; top: -6px; right: 20px;
             width: 12px; height: 12px; background: white;
             transform: rotate(45deg); border-top: 3px solid var(--gold-color); border-left: 3px solid var(--gold-color);
         }
-
         .back .edu-bubble { right: auto; left: -10px; border-top: 3px solid var(--gold-color); }
         .back .edu-bubble::before { right: auto; left: 20px; }
-
-        .edu-hotspot:hover + .edu-bubble {
-            opacity: 1; visibility: visible; transform: translateY(0);
-        }
+        .edu-hotspot:hover + .edu-bubble { opacity: 1; visibility: visible; transform: translateY(0); }
 
         .edu-bubble h4 {
             font-family: 'Cinzel', serif; color: var(--accent-color);
-            font-size: 0.85rem; margin-bottom: 5px;
-            border-bottom: 1px solid #eee; padding-bottom: 5px;
+            font-size: 0.85rem; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 5px;
         }
         .edu-bubble p {
             font-family: 'Lato', sans-serif; font-size: 0.8rem; line-height: 1.4; color: #666;
@@ -275,34 +241,31 @@
     <button class="nav-btn next-btn" id="nextBtn" onclick="goNext()"><i class="fas fa-chevron-right"></i></button>
 
     <script>
-        /*
-         * ESTRUCTURA DE DATOS DEL LIBRO
-         * type: 'image-page' (solo fondo, sin texto), 'text-page' (diseño editorial), 'endpaper' (patrón)
-         */
         const bookData = [
-            // HOJA 1: Portada (Imagen Limpia) + Guarda Delantera
+            // HOJA 1: Portada (Imagen MONTAÑAS) + Guarda Delantera
             {
                 front: {
                     type: "image-page",
-                    bg: "https://images.unsplash.com/photo-1518182170546-0766ce6fec56?auto=format&fit=crop&q=80&w=800", // Paisaje etéreo
-                    tooltip: { title: "La Portada", text: "Es la cara del libro. En el libro álbum, la imagen es protagonista desde aquí, invitando a entrar en la atmósfera sin necesidad de mucho texto." }
+                    // URL específica de Montañas para la Portada
+                    bg: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800",
+                    tooltip: { title: "La Portada", text: "Es la cara del libro. En el libro álbum, la imagen es protagonista desde aquí." }
                 },
                 back: {
                     type: "endpaper",
-                    tooltip: { title: "Guardas Delanteras", text: "Hojas de papel decorativo que unen la tapa con el cuerpo del libro. Su diseño (patrones o colores) marca el tono estético." }
+                    tooltip: { title: "Guardas Delanteras", text: "Hojas de papel decorativo (verde pastel) que unen la tapa con el cuerpo." }
                 }
             },
-            // HOJA 2: Guarda + Hoja de Respeto (Texto elegante)
+            // HOJA 2: Guarda + Hoja de Respeto
             {
                 front: {
                     type: "endpaper",
-                    tooltip: { title: "Guardas (Continuación)", text: "Sirven de transición visual. En ediciones de lujo, suelen tener gramaje alto y texturas especiales." }
+                    tooltip: { title: "Guardas (Continuación)", text: "Transición visual suave hacia el contenido." }
                 },
                 back: {
                     type: "text-page",
-                    title: "El Susurro del Bosque",
+                    title: "El Susurro de las Cumbres",
                     text: "(Hoja de Respeto)",
-                    tooltip: { title: "Hoja de Respeto", text: "Página de cortesía antes del contenido. Deja respirar al lector y presenta el título de forma sutil y elegante." }
+                    tooltip: { title: "Hoja de Respeto", text: "Página de cortesía antes del contenido. Deja respirar al lector." }
                 }
             },
             // HOJA 3: Créditos + Dedicatoria
@@ -310,36 +273,27 @@
                 front: {
                     type: "text-page",
                     title: "Créditos",
-                    text: "<span class='legal-text'>Primera Edición Digital, 2024<br>Ilustraciones: Nature Collection<br>Diseño y Maquetación: Front-End Expert<br>ISBN: 978-0-123-45678-9<br>Todos los derechos reservados.</span>",
-                    tooltip: { title: "Página Legal", text: "Contiene el 'copyright', créditos de autores, ilustradores y datos de edición. Es fundamental para la identidad bibliográfica." }
+                    text: "<span class='legal-text'>Primera Edición Digital, 2024<br>Ilustraciones: Nature Collection<br>Diseño: Front-End Expert<br>ISBN: 978-0-123-45678-9<br>Todos los derechos reservados.</span>",
+                    tooltip: { title: "Página Legal", text: "Contiene el copyright y créditos de edición." }
                 },
                 back: {
                     type: "text-page",
                     title: "Dedicatoria",
-                    text: "<i>A la naturaleza,<br>que siempre cuenta las mejores historias<br>sin decir una sola palabra.</i>",
-                    tooltip: { title: "Dedicatoria", text: "Espacio íntimo donde el autor ofrenda su trabajo. Se diagrama con amplios espacios en blanco para dar solemnidad." }
+                    text: "<i>A la naturaleza,<br>que siempre cuenta las mejores historias.</i>",
+                    tooltip: { title: "Dedicatoria", text: "Espacio íntimo donde el autor ofrenda su trabajo." }
                 }
             },
-            // HOJA 4 a 10: CUERPO DEL LIBRO (Solo Imágenes, Narrativa Visual)
-            // Generaremos 14 páginas (7 hojas) de paisajes puros
+            // CUERPO DEL LIBRO (Imágenes)
         ];
 
-        // Imágenes de paisajes naturales estilo libro álbum (suaves, atmosféricos)
         const landscapeImages = [
-            "1470071459604-3b5ec3a7fe05", // Niebla bosque
-            "1472214103451-9374bd1c798e", // Montañas
-            "1501854140884-074cf2b29752", // Bosque oscuro
-            "1441974231531-c6227db76b6e", // Bosque luz
-            "1426604966848-d7adac402bff", // Montaña azul
-            "1447752875204-b2f9798c19a3", // Arbol solitario
-            "1511497584788-876760111969", // Bosque otoño
-            "1504198458649-3128b932f49e", // Verde
-            "1465146344425-f00d5f5c8f07", // Helechos
-            "1475924156734-496f6cac6ec1", // Amanecer
-            "1502082553048-f009c37129b9", // Arbol vida
-            "1418065460487-3e41a6c84dc5", // Camino bosque
-            "1500964757637-c85e8a162699", // Vista aerea
-            "1518495973542-4542c06a5843"  // Textura hoja
+            "1470071459604-3b5ec3a7fe05", "1472214103451-9374bd1c798e", 
+            "1501854140884-074cf2b29752", "1441974231531-c6227db76b6e", 
+            "1426604966848-d7adac402bff", "1447752875204-b2f9798c19a3", 
+            "1511497584788-876760111969", "1504198458649-3128b932f49e", 
+            "1465146344425-f00d5f5c8f07", "1475924156734-496f6cac6ec1", 
+            "1502082553048-f009c37129b9", "1418065460487-3e41a6c84dc5", 
+            "1500964757637-c85e8a162699", "1518495973542-4542c06a5843"
         ];
 
         for(let i=0; i<7; i++) {
@@ -347,27 +301,27 @@
                 front: {
                     type: "image-page",
                     bg: `https://images.unsplash.com/photo-${landscapeImages[i*2]}?auto=format&fit=crop&q=80&w=800`,
-                    tooltip: { title: "Narrativa Visual (Derecha)", text: "En el libro álbum, la ilustración lleva el peso de la historia. Aquí se omite el texto para priorizar la lectura de la imagen." }
+                    tooltip: { title: "Narrativa Visual", text: "Ilustración a página completa." }
                 },
                 back: {
                     type: "image-page",
                     bg: `https://images.unsplash.com/photo-${landscapeImages[(i*2)+1]}?auto=format&fit=crop&q=80&w=800`,
-                    tooltip: { title: "Narrativa Visual (Izquierda)", text: "La doble página funciona como un lienzo único. La ausencia de texto invita al lector a interpretar los detalles visuales." }
+                    tooltip: { title: "Narrativa Visual", text: "Ilustración a página completa." }
                 }
             });
         }
 
-        // HOJA FINAL: Guardas + Contraportada
+        // HOJA FINAL: Guardas + Contraportada (Imagen MONTAÑAS)
         bookData.push({
             front: {
                 type: "endpaper",
-                tooltip: { title: "Guardas Finales", text: "Cierran la estructura física del libro, proporcionando simetría con el inicio." }
+                tooltip: { title: "Guardas Finales", text: "Cierran la estructura física del libro." }
             },
             back: {
-                type: "text-page", // Usamos text-page para diagramación limpia
-                title: "Sinopsis",
-                text: "Un recorrido visual por los rincones más silenciosos del mundo natural.<br><br><b>Editorial Digital</b>",
-                tooltip: { title: "Contraportada", text: "Cierre del libro. Incluye una breve reseña o frase final, el logo editorial y códigos. Debe ser sobria y clara." }
+                type: "image-page",
+                // URL específica de Montañas (diferente a portada) para Contraportada
+                bg: "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&q=80&w=800",
+                tooltip: { title: "Contraportada", text: "Cierre del libro. Imagen final evocadora sin texto." }
             }
         });
 
@@ -381,29 +335,18 @@
             paper.style.zIndex = bookData.length - index;
             paper.id = `p-${index}`;
 
-            // Helper para crear caras
             const createFace = (data, isBack) => {
                 let contentHTML = '';
-                
-                // Solo si es pagina de texto, agregamos titulo/parrafo
                 if(data.type === 'text-page') {
-                    contentHTML = `
-                        <h2>${data.title || ''}</h2>
-                        <p>${data.text || ''}</p>
-                    `;
+                    contentHTML = `<h2>${data.title || ''}</h2><p>${data.text || ''}</p>`;
                 }
 
-                // Estilo background
                 const bgStyle = data.bg ? `background-image: url('${data.bg}');` : '';
 
                 return `
                 <div class="${isBack ? 'back' : 'front'} ${data.type}" style="${bgStyle}">
                     <div class="content-wrapper">${contentHTML}</div>
-                    
-                    <!-- Elemento Pedagógico -->
-                    <div class="edu-hotspot">
-                        <i class="fas fa-info"></i>
-                    </div>
+                    <div class="edu-hotspot"><i class="fas fa-info"></i></div>
                     <div class="edu-bubble">
                         <h4>${data.tooltip.title}</h4>
                         <p>${data.tooltip.text}</p>
@@ -419,7 +362,6 @@
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
 
-        // --- CONTROL NAVEGACIÓN ---
         function updateState() {
             papers.forEach((p, i) => {
                 if(i <= currentPaperIndex) {
@@ -431,7 +373,6 @@
                 }
             });
 
-            // Centrado dinámico
             if (currentPaperIndex >= 0 && currentPaperIndex < papers.length - 1) {
                 bookContainer.classList.add('opened');
             } else {
@@ -456,13 +397,11 @@
             }
         }
 
-        // Teclado
         document.addEventListener('keydown', (e) => {
             if(e.key === "ArrowRight") goNext();
             if(e.key === "ArrowLeft") goPrev();
         });
 
-        // Zoom & Fullscreen
         let zoom = 1;
         function toggleZoom() {
             zoom = zoom === 1 ? 1.2 : 1;
@@ -478,7 +417,6 @@
         }
 
         updateState();
-
     </script>
 </body>
 </html>
