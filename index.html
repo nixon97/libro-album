@@ -362,25 +362,26 @@
     <script>
         let pageFlip; // Variable global para el objeto del libro
         
-        // --- URL DE LA IMAGEN DE FONDO (AJUSTADA) ---
-        // Aquí puedes cambiar la imagen de fondo para todas las páginas
-        const PLACEHOLDER_IMG_URL = 'https://lh3.googleusercontent.com/proxy/oZ84KkPQtrG4pDjqUMIa1G_-fZfzNOZknL8Q7rYcu-Ewg7QeRTodBBC0VAyGC8N6IvHWCIIABbtZ_HhqTa2QhDPVpN_XFn08g5O3obQLYACJsJjxqbau8GTLOHyqCnLxKtbilPMuPG8J5A';
-        
+        // El placeholder de URL única ya no es necesario, las URLs están en el contenido.
         
         // --- 1. CONTENIDO DEL LIBRO (La "Fuente de Verdad") ---
-        // Textos pedagógicos actualizados
+        // Se ha ajustado para permitir una imagen diferente en cada página
+        // y se han añadido comentarios claros para su reemplazo.
         const bookContent = [
-            // 1. Portada
+            // ------------------------------------------------------------------
+            // PÁGINA 1: Portada (Tapa Dura Frontal - índice 0)
+            // Reemplaza el enlace a Unsplash por la imagen de tu portada.
+            // ------------------------------------------------------------------
             { 
                 type: 'cover', 
-                img: PLACEHOLDER_IMG_URL, 
+                img: 'https://lh3.googleusercontent.com/proxy/oZ84KkPQtrG4pDjqUMIa1G_-fZfzNOZknL8Q7rYcu-Ewg7QeRTodBBC0VAyGC8N6IvHWCIIABbtZ_HhqTa2QhDPVpN_XFn08g5O3obQLYACJsJjxqbau8GTLOHyqCnLxKtbilPMuPG8J5A', // IMAGEN DE LA PORTADA
                 hotspot: {
                     title: 'La Portada',
                     text: 'Es la "cara" del libro. Debe incluir el título y el nombre del autor e ilustrador. La imagen es lo más importante, ya que nos da una pista sobre la historia.'
                 }
             },
             
-            // 2. Guardas (Inicio)
+            // PÁGINA 2: Guardas (Interior de Tapa Dura - índice 1)
             { 
                 type: 'guard',
                 hotspot: {
@@ -389,10 +390,10 @@
                 }
             },
             
-            // 3. Página de Respeto (Simple)
-            { type: 'respect' },
+            // PÁGINA 3: Página de Respeto (Blanca)
+            { type: 'respect' }, // No lleva imagen.
             
-            // 4. Créditos
+            // PÁGINA 4: Créditos
             { 
                 type: 'legal', 
                 title: 'Créditos Editoriales',
@@ -403,7 +404,7 @@
                 }
             },
             
-            // 5. Dedicatoria
+            // PÁGINA 5: Dedicatoria
             { 
                 type: 'dedication', 
                 text: 'A todos los que se atreven a soñar con mundos dibujados.',
@@ -413,25 +414,42 @@
                 }
             },
             
-            // --- 6 a 19. Cuerpo del Libro (14 páginas) ---
-            // Generamos 14 páginas de cuerpo.
-            ...Array.from({ length: 14 }, (v, i) => ({
+            // ------------------------------------------------------------------
+            // PÁGINA 6 a 19: Cuerpo del Libro (Reemplaza los enlaces por tus ilustraciones)
+            // ------------------------------------------------------------------
+            { 
+                // PÁGINA 6: Inicio de la Historia (primera página ilustrada)
                 type: 'body',
-                img: `${PLACEHOLDER_IMG_URL},${i}`, // Añadimos el índice para variar la imagen de Unsplash
-                // El hotspot solo se añade a la PRIMERA página del cuerpo
-                hotspot: i === 0 ? { 
+                img: 'https://source.unsplash.com/800x1200?story,castle', // IMAGEN DE LA PÁGINA 6
+                hotspot: { 
                     title: 'Páginas de Cuerpo',
                     text: 'Es donde la historia se desarrolla. En un libro álbum, la ilustración es la protagonista y debe ocupar la mayor parte del espacio, contando la historia visualmente.'
-                } : null
-            })),
-
-            // 20. Guardas (Final)
-            { type: 'guard' },
+                }
+            },
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,forest' },    // IMAGEN DE LA PÁGINA 7
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,river' },     // IMAGEN DE LA PÁGINA 8
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,mountains' }, // IMAGEN DE LA PÁGINA 9
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,town' },      // IMAGEN DE LA PÁGINA 10
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,animals' },   // IMAGEN DE LA PÁGINA 11
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,kids' },      // IMAGEN DE LA PÁGINA 12
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,magic' },     // IMAGEN DE LA PÁGINA 13
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,sun' },       // IMAGEN DE LA PÁGINA 14
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,night' },     // IMAGEN DE LA PÁGINA 15
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,house' },     // IMAGEN DE LA PÁGINA 16
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,garden' },    // IMAGEN DE LA PÁGINA 17
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,journey' },   // IMAGEN DE LA PÁGINA 18
+            { type: 'body', img: 'https://source.unsplash.com/800x1200?story,friends' },   // IMAGEN DE LA PÁGINA 19
             
-            // 21. Contraportada
+            // PÁGINA 20: Guardas (Interior de Contratapa)
+            { type: 'guard' }, 
+            
+            // ------------------------------------------------------------------
+            // PÁGINA 21: Contraportada (Tapa Dura Trasera - índice 20)
+            // Reemplaza el enlace a Unsplash por la imagen de tu contraportada.
+            // ------------------------------------------------------------------
             { 
                 type: 'cover-back', 
-                img: PLACEHOLDER_IMG_URL, // Usa la misma imagen base
+                img: 'https://source.unsplash.com/800x1200?book,backcover', // IMAGEN DE LA CONTRAPORTADA
                 reflection: 'Las mejores historias no terminan en la última página, sino que comienzan en tu imaginación.',
                 hotspot: {
                     title: 'La Contraportada',
@@ -498,9 +516,11 @@
                 switch (page.type) {
                     case 'cover':
                     case 'body':
+                        // Lee la URL de imagen específica para esta página
                         style = `background-image: url('${page.img}'); ${fallbackStyle}`;
                         break;
                     case 'cover-back':
+                        // Lee la URL de imagen específica para esta página
                         style = `background-image: url('${page.img}'); ${fallbackStyle}`;
                         content = `<div class="reflection-box">${page.reflection}</div>`;
                         break;
@@ -559,16 +579,16 @@
             // Actualizar indicador al inicio
             updatePageIndicator(0);
             
-            // **CORRECCIÓN:** Conectar botones del modal y hotspots
+            // Conectar botones del modal y hotspots
             attachModalListeners(); 
 
-        } // <-- Esta es la llave que faltaba en la versión anterior.
+        } // <-- Fin de initBook
 
         // --- 3. FUNCIONES DE HOTSPOT Y MODAL (REFACTORIZADAS) ---
         
         // Genera el HTML para el botón del hotspot y el tooltip
         function renderHotspot(hotspot) {
-            // **CORRECCIÓN:** Escapar las comillas para atributos HTML
+            // Escapar las comillas para atributos HTML
             const safeTitle = hotspot.title.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
             const safeText = hotspot.text.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
             
@@ -587,8 +607,7 @@
                     </div>`;
         }
         
-        /** * **NUEVA FUNCIÓN**
-         * Asigna todos los listeners para los modales.
+        /** * Asigna todos los listeners para los modales.
          * Se llama 1 sola vez después de que se crea el HTML del libro.
          */
         function attachModalListeners() {
