@@ -196,10 +196,7 @@
             z-index: 200;
             display: flex;
             justify-content: space-between;
-            
-            /* AJUSTE: Permitir que los contenedores ocupen toda la altura para poder alinearse arriba/abajo */
-            align-items: stretch; 
-            
+            align-items: stretch; /* Importante para permitir alineaciones dinámicas */
             padding: 0 5px; 
         }
 
@@ -207,32 +204,34 @@
             width: 250px;
             display: flex;
             flex-direction: column;
-            /* AJUSTE: Eliminado el justify-content: center fijo */
             transition: opacity 0.5s ease-in-out;
+            /* Eliminamos justificaciones fijas aquí, las manejan las clases .align-top/bottom */
         }
 
-        /* --- IZQUIERDA: ALINEACIÓN INFERIOR --- */
+        /* CLASES DINÁMICAS DE POSICIÓN */
+        .align-bottom {
+            justify-content: flex-end;
+            padding-bottom: max(20px, calc(50vh - 280px));
+            padding-top: 0;
+        }
+
+        .align-top {
+            justify-content: flex-start;
+            padding-top: max(20px, calc(50vh - 280px));
+            padding-bottom: 0;
+        }
+
+        /* Configuraciones Específicas Izquierda/Derecha */
         .ped-label-left {
             margin-left: 5px; 
             text-align: right;
             align-items: flex-end;
-            
-            /* Alineación al fondo */
-            justify-content: flex-end; 
-            /* Cálculo para que quede a la altura de la base del libro (aprox 300px desde el centro) */
-            padding-bottom: max(20px, calc(50vh - 280px)); 
         }
 
-        /* --- DERECHA: ALINEACIÓN SUPERIOR --- */
         .ped-label-right {
             margin-right: 5px; 
             text-align: left;
             align-items: flex-start;
-            
-            /* Alineación arriba */
-            justify-content: flex-start; 
-            /* Cálculo para que quede a la altura del tope del libro */
-            padding-top: max(20px, calc(50vh - 280px)); 
         }
 
         .ped-cloud {
@@ -344,8 +343,8 @@
     <!-- ========================================================================= -->
     <div class="pedagogical-layer">
         
-        <!-- LADO IZQUIERDO: ALINEADO ABAJO -->
-        <div class="ped-label-container ped-label-left">
+        <!-- CONTENEDORES (Las clases de alineación se inyectarán por JS) -->
+        <div id="container-left" class="ped-label-container ped-label-left">
             <div id="cloud-left" class="ped-cloud">
                 <h3 id="title-left">Título</h3>
                 <p id="desc-left">Descripción...</p>
@@ -357,8 +356,7 @@
                  alt="Personaje Guía">
         </div>
 
-        <!-- LADO DERECHO: ALINEADO ARRIBA -->
-        <div class="ped-label-container ped-label-right">
+        <div id="container-right" class="ped-label-container ped-label-right">
             <div id="cloud-right" class="ped-cloud">
                 <h3 id="title-right">Título</h3>
                 <p id="desc-right">Descripción...</p>
@@ -692,6 +690,9 @@
         // =========================================================================
         
         function updatePedagogicalLabels() {
+            const containerLeft = document.getElementById('container-left');
+            const containerRight = document.getElementById('container-right');
+
             const cloudLeft = document.getElementById('cloud-left');
             const cloudRight = document.getElementById('cloud-right');
             const titleLeft = document.getElementById('title-left');
@@ -708,12 +709,39 @@
             charLeft.classList.remove('active');
             charRight.classList.remove('active');
 
-            // 2. Esperar y mostrar la info correcta
+            // 2. Esperar y mostrar la info correcta (y cambiar posición)
             setTimeout(() => {
                 let leftInfo = null;
                 let rightInfo = null;
 
-                // --- LOGICA EXACTA ---
+                // --- LÓGICA DE INTERCAMBIO DE POSICIONES (ALTERNAR) ---
+                // Si el índice es par: Izq=Abajo, Der=Arriba
+                // Si el índice es impar: Izq=Arriba, Der=Abajo
+                // (O viceversa, según como empiece la portada -1)
+                
+                // Index -1 (Impar): Izq Arriba / Der Abajo
+                // Index 0 (Par): Izq Abajo / Der Arriba 
+                // ... etc.
+
+                const isEven = (currentPaperIndex % 2 === 0);
+
+                if (isEven) {
+                    // CONFIGURACIÓN A (Par): Izquierda Abajo, Derecha Arriba
+                    containerLeft.classList.remove('align-top');
+                    containerLeft.classList.add('align-bottom');
+                    
+                    containerRight.classList.remove('align-bottom');
+                    containerRight.classList.add('align-top');
+                } else {
+                    // CONFIGURACIÓN B (Impar): Izquierda Arriba, Derecha Abajo
+                    containerLeft.classList.remove('align-bottom');
+                    containerLeft.classList.add('align-top');
+                    
+                    containerRight.classList.remove('align-top');
+                    containerRight.classList.add('align-bottom');
+                }
+
+                // --- LOGICA DE CONTENIDO ---
                 
                 if (currentPaperIndex === -1) {
                     rightInfo = { title: "La Portada", text: "Es la cara del libro. En el libro álbum, la imagen es protagonista desde aquí." };
