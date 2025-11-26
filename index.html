@@ -151,6 +151,22 @@
             background-position: 0 0, 10px 10px;
         }
 
+        /* --- ESTILO PARA NUMERACIÓN DE PÁGINAS --- */
+        .page-number {
+            position: absolute;
+            bottom: 20px;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            color: var(--text-color);
+            font-weight: bold;
+            pointer-events: none;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+            z-index: 10;
+        }
+        .front .page-number { right: 20px; }
+        .back .page-number { left: 20px; }
+
+
         /* --- BOTONES NAVEGACIÓN --- */
         .nav-btn {
             position: fixed; top: 50%; transform: translateY(-50%);
@@ -171,16 +187,16 @@
         }
 
         /* ========================================================================= */
-        /* --- ESTILO: SISTEMA DE ETIQUETAS PEDAGÓGICAS (EXTERNA) --- */
+        /* --- ESTILO: SISTEMA DE ETIQUETAS PEDAGÓGICAS Y PERSONAJE --- */
         /* ========================================================================= */
         .pedagogical-layer {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; /* Permite hacer clic a través de ella */
+            pointer-events: none;
             z-index: 200;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: center; /* Alineación vertical */
             padding: 0 20px;
         }
 
@@ -189,19 +205,21 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            /* AJUSTE 1: Mover hacia arriba todo el bloque (nube + personaje) */
+            margin-bottom: 120px; 
             transition: opacity 0.5s ease-in-out;
         }
 
         .ped-label-left {
-            margin-left: 60px; /* Espacio para barra lateral */
+            margin-left: 60px;
             text-align: right;
-            align-items: flex-end;
+            align-items: flex-end; /* Alinea contenido a la derecha */
         }
 
         .ped-label-right {
             margin-right: 60px;
             text-align: left;
-            align-items: flex-start;
+            align-items: flex-start; /* Alinea contenido a la izquierda */
         }
 
         .ped-cloud {
@@ -215,18 +233,34 @@
             transform: translateY(20px);
             transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
             max-width: 100%;
+            margin-bottom: 10px; /* Espacio entre nube y personaje */
+        }
+
+        /* AJUSTE 2: Estilos para el Personaje */
+        .ped-character {
+            width: 120px; /* Tamaño del personaje */
+            height: auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition-delay: 0.1s; /* Aparece un poquito después de la nube */
+        }
+        
+        /* Efecto espejo para el personaje de la derecha para que mire hacia adentro (opcional) */
+        .ped-label-right .ped-character {
+            transform: scaleX(-1) translateY(20px); 
         }
 
         /* Triangulitos de las nubes */
         .ped-label-left .ped-cloud::after {
-            content: ''; position: absolute; top: 50%; right: -10px; margin-top: -10px;
-            border-width: 10px 0 10px 10px; border-style: solid;
-            border-color: transparent transparent transparent #fff;
+            content: ''; position: absolute; top: 100%; right: 40px; 
+            border-width: 10px 10px 0 10px; border-style: solid;
+            border-color: #fff transparent transparent transparent;
         }
         .ped-label-right .ped-cloud::after {
-            content: ''; position: absolute; top: 50%; left: -10px; margin-top: -10px;
-            border-width: 10px 10px 10px 0; border-style: solid;
-            border-color: transparent #fff transparent transparent;
+            content: ''; position: absolute; top: 100%; left: 40px; 
+            border-width: 10px 10px 0 10px; border-style: solid;
+            border-color: #fff transparent transparent transparent;
         }
 
         /* Decoración de título */
@@ -247,10 +281,20 @@
             line-height: 1.5;
         }
 
-        /* Clase para activar animación */
+        /* Clases para activar animación */
         .ped-cloud.active {
             opacity: 1;
             transform: translateY(0);
+        }
+        .ped-character.active {
+            opacity: 1;
+            /* Respetamos el scaleX(-1) si está a la derecha */
+        }
+        .ped-label-left .ped-character.active {
+            transform: translateY(0);
+        }
+        .ped-label-right .ped-character.active {
+            transform: scaleX(-1) translateY(0);
         }
 
         @media (max-width: 1300px) {
@@ -287,21 +331,38 @@
     <audio id="pageFlipSound" src="https://raw.githubusercontent.com/libroalbum/libro-lbum-pedag-gico/main/images/sonido%20deslizar.mp3" preload="auto"></audio>
 
     <!-- ========================================================================= -->
-    <!-- --- HTML: CAPA DE ETIQUETAS PEDAGÓGICAS (EXTERNA AL LIBRO) --- -->
+    <!-- --- HTML: CAPA DE ETIQUETAS Y PERSONAJE --- -->
     <!-- ========================================================================= -->
     <div class="pedagogical-layer">
+        
+        <!-- LADO IZQUIERDO -->
         <div class="ped-label-container ped-label-left">
             <div id="cloud-left" class="ped-cloud">
                 <h3 id="title-left">Título</h3>
                 <p id="desc-left">Descripción...</p>
             </div>
+            
+            <!-- *** CAMBIA AQUI EL LINK DE LA IMAGEN DEL PERSONAJE (LADO IZQUIERDO) *** -->
+            <!-- Link temporal: Patricio Estrella -->
+            <img id="char-left" class="ped-character" 
+                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Patrick_Star_character.png/330px-Patrick_Star_character.png" 
+                 alt="Personaje Guía">
         </div>
+
+        <!-- LADO DERECHO -->
         <div class="ped-label-container ped-label-right">
             <div id="cloud-right" class="ped-cloud">
                 <h3 id="title-right">Título</h3>
                 <p id="desc-right">Descripción...</p>
             </div>
+            
+            <!-- *** CAMBIA AQUI EL LINK DE LA IMAGEN DEL PERSONAJE (LADO DERECHO) *** -->
+            <!-- Link temporal: Patricio Estrella -->
+            <img id="char-right" class="ped-character" 
+                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Patrick_Star_character.png/330px-Patrick_Star_character.png" 
+                 alt="Personaje Guía">
         </div>
+
     </div>
 
     <script>
@@ -507,6 +568,7 @@
         // --- RENDERIZADO ---
         const bookContainer = document.getElementById('book');
         let currentPaperIndex = -1;
+        let globalPageCounter = 1; 
 
         bookData.forEach((sheet, index) => {
             const paper = document.createElement('div');
@@ -514,21 +576,33 @@
             paper.style.zIndex = bookData.length - index;
             paper.id = `p-${index}`;
 
-            const createFace = (data, isBack) => {
+            const frontPageNum = globalPageCounter;
+            globalPageCounter++;
+            const backPageNum = globalPageCounter;
+            globalPageCounter++;
+            const totalPages = bookData.length * 2;
+
+            const createFace = (data, isBack, pageNum) => {
                 let contentHTML = '';
                 if(data.type === 'text-page') {
                     contentHTML = `<h2>${data.title || ''}</h2><p>${data.text || ''}</p>`;
                 }
 
                 const bgStyle = data.bg ? `background-image: url('${data.bg}');` : '';
+                
+                let pageNumberHTML = '';
+                if (pageNum > 1 && pageNum < totalPages) {
+                    pageNumberHTML = `<span class="page-number">${pageNum}</span>`;
+                }
 
                 return `
                 <div class="${isBack ? 'back' : 'front'} ${data.type}" style="${bgStyle}">
                     <div class="content-wrapper">${contentHTML}</div>
+                    ${pageNumberHTML}
                 </div>`;
             };
 
-            paper.innerHTML = createFace(sheet.front, false) + createFace(sheet.back, true);
+            paper.innerHTML = createFace(sheet.front, false, frontPageNum) + createFace(sheet.back, true, backPageNum);
             bookContainer.appendChild(paper);
         });
 
@@ -559,7 +633,6 @@
             prevBtn.disabled = currentPaperIndex === -1;
             nextBtn.disabled = currentPaperIndex === papers.length - 1;
 
-            // *** LLAMADA A LA FUNCIÓN DE NUBES AJUSTADA ***
             updatePedagogicalLabels();
         }
 
@@ -608,7 +681,7 @@
         }
 
         // =========================================================================
-        // --- NUEVO SCRIPT: LÓGICA CORREGIDA SEGÚN LAS PÁGINAS SOLICITADAS ---
+        // --- SCRIPT: LÓGICA DE NUBES Y PERSONAJES ---
         // =========================================================================
         
         function updatePedagogicalLabels() {
@@ -618,10 +691,16 @@
             const descLeft = document.getElementById('desc-left');
             const titleRight = document.getElementById('title-right');
             const descRight = document.getElementById('desc-right');
+            
+            // Referencias a las imágenes de personaje
+            const charLeft = document.getElementById('char-left');
+            const charRight = document.getElementById('char-right');
 
-            // 1. Ocultar nubes
+            // 1. Ocultar todo (Fade out)
             cloudLeft.classList.remove('active');
             cloudRight.classList.remove('active');
+            charLeft.classList.remove('active');
+            charRight.classList.remove('active');
 
             // 2. Esperar y mostrar la info correcta
             setTimeout(() => {
@@ -639,7 +718,6 @@
                 } 
                 
                 // GUARDAS (Indice 0)
-                // Izq: Guarda 1 (reverso portada) | Der: Guarda 2 (anverso sgte hoja)
                 else if (currentPaperIndex === 0) {
                     leftInfo = { 
                         title: "Guardas (Anverso)", 
@@ -652,7 +730,6 @@
                 }
 
                 // HOJA DE RESPETO y CRÉDITOS (Indice 1)
-                // Izq: Hoja de Respeto (Pag 4) | Der: Créditos (Pag 5)
                 else if (currentPaperIndex === 1) {
                     leftInfo = {
                         title: "Hoja de Respeto",
@@ -665,7 +742,6 @@
                 }
 
                 // DEDICATORIA e INICIO DEL CUENTO (Indice 2)
-                // Izq: Dedicatoria (Pag 6) | Der: Inicio Cuerpo (Pag 7)
                 else if (currentPaperIndex === 2) {
                     leftInfo = {
                         title: "Dedicatoria",
@@ -678,7 +754,6 @@
                 }
 
                 // CUERPO DEL CUENTO (Indices 3 al 10)
-                // Páginas interiores (8 a 22 aprox)
                 else if (currentPaperIndex >= 3 && currentPaperIndex <= 10) {
                     leftInfo = {
                         title: "Narrativa Visual",
@@ -691,7 +766,6 @@
                 }
 
                 // FIN DEL CUENTO y GUARDA FINAL (Indice 11)
-                // Izq: Fin Cuerpo (Pag 24) | Der: Guarda Final (Pag 25)
                 else if (currentPaperIndex === 11) {
                     leftInfo = {
                         title: "Desenlace",
@@ -704,7 +778,6 @@
                 }
 
                 // CONTRAPORTADA (Indice 12)
-                // Izq: Contraportada (Pag 26)
                 else if (currentPaperIndex === 12) {
                     leftInfo = {
                         title: "Contraportada",
@@ -713,17 +786,19 @@
                     // Derecha vacía (libro cerrado)
                 }
 
-                // --- APLICAR TEXTOS ---
+                // --- APLICAR TEXTOS Y ACTIVAR PERSONAJES ---
                 if (leftInfo) {
                     titleLeft.innerText = leftInfo.title;
                     descLeft.innerText = leftInfo.text;
                     cloudLeft.classList.add('active');
+                    charLeft.classList.add('active'); // Activa personaje izq
                 }
                 
                 if (rightInfo) {
                     titleRight.innerText = rightInfo.title;
                     descRight.innerText = rightInfo.text;
                     cloudRight.classList.add('active');
+                    charRight.classList.add('active'); // Activa personaje der
                 }
 
             }, 300);
