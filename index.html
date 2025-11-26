@@ -196,7 +196,7 @@
             z-index: 200;
             display: flex;
             justify-content: space-between;
-            align-items: stretch; /* Importante para permitir alineaciones dinámicas */
+            align-items: stretch; 
             padding: 0 5px; 
         }
 
@@ -205,10 +205,9 @@
             display: flex;
             flex-direction: column;
             transition: opacity 0.5s ease-in-out;
-            /* Eliminamos justificaciones fijas aquí, las manejan las clases .align-top/bottom */
         }
 
-        /* CLASES DINÁMICAS DE POSICIÓN */
+        /* CLASES DINÁMICAS DE POSICIÓN VERTICAL (Se mantienen) */
         .align-bottom {
             justify-content: flex-end;
             padding-bottom: max(20px, calc(50vh - 280px));
@@ -221,7 +220,8 @@
             padding-bottom: 0;
         }
 
-        /* Configuraciones Específicas Izquierda/Derecha */
+        /* --- CONFIGURACIÓN DE ANIMACIONES LATERALES --- */
+        
         .ped-label-left {
             margin-left: 5px; 
             text-align: right;
@@ -234,6 +234,12 @@
             align-items: flex-start;
         }
 
+        /* Estilos base (ocultos) */
+        .ped-cloud, .ped-character {
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
         .ped-cloud {
             background-color: #fff;
             padding: 20px;
@@ -241,9 +247,6 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.15);
             border: 1px solid #eee;
             position: relative;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
             max-width: 100%;
             margin-bottom: 10px;
         }
@@ -251,14 +254,40 @@
         .ped-character {
             width: 120px;
             height: auto;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-            transition-delay: 0.1s;
+            transition-delay: 0.1s; /* Retraso para el personaje */
         }
-        
+
+        /* --- ANIMACIONES LADO IZQUIERDO: Entran desde la izquierda (-X) --- */
+        .ped-label-left .ped-cloud,
+        .ped-label-left .ped-character {
+            transform: translateX(-100px); /* Posición inicial fuera */
+        }
+
+        .ped-label-left .ped-cloud.active,
+        .ped-label-left .ped-character.active {
+            opacity: 1;
+            transform: translateX(0); /* Posición final */
+        }
+
+
+        /* --- ANIMACIONES LADO DERECHO: Entran desde la derecha (+X) --- */
+        .ped-label-right .ped-cloud {
+            transform: translateX(100px); /* Posición inicial fuera */
+        }
+        .ped-label-right .ped-cloud.active {
+            opacity: 1;
+            transform: translateX(0); /* Posición final */
+        }
+
+        /* Personaje Derecho (Con efecto espejo scaleX) */
         .ped-label-right .ped-character {
-            transform: scaleX(-1) translateY(20px); 
+            /* Inicial: Desplazado a la derecha Y espejado */
+            transform: translateX(100px) scaleX(-1); 
+        }
+        .ped-label-right .ped-character.active {
+            opacity: 1;
+            /* Final: En su sitio Y espejado */
+            transform: translateX(0) scaleX(-1);
         }
 
         /* Triangulitos de las nubes */
@@ -288,21 +317,6 @@
             font-size: 0.85rem;
             color: #666;
             line-height: 1.5;
-        }
-
-        /* Clases para activar animación */
-        .ped-cloud.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .ped-character.active {
-            opacity: 1;
-        }
-        .ped-label-left .ped-character.active {
-            transform: translateY(0);
-        }
-        .ped-label-right .ped-character.active {
-            transform: scaleX(-1) translateY(0);
         }
 
         @media (max-width: 1300px) {
@@ -715,14 +729,6 @@
                 let rightInfo = null;
 
                 // --- LÓGICA DE INTERCAMBIO DE POSICIONES (ALTERNAR) ---
-                // Si el índice es par: Izq=Abajo, Der=Arriba
-                // Si el índice es impar: Izq=Arriba, Der=Abajo
-                // (O viceversa, según como empiece la portada -1)
-                
-                // Index -1 (Impar): Izq Arriba / Der Abajo
-                // Index 0 (Par): Izq Abajo / Der Arriba 
-                // ... etc.
-
                 const isEven = (currentPaperIndex % 2 === 0);
 
                 if (isEven) {
