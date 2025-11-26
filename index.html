@@ -196,8 +196,10 @@
             z-index: 200;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            /* AJUSTE DE LATERALES: Se reduce el padding para empujar más a los bordes */
+            
+            /* AJUSTE: Permitir que los contenedores ocupen toda la altura para poder alinearse arriba/abajo */
+            align-items: stretch; 
+            
             padding: 0 5px; 
         }
 
@@ -205,24 +207,32 @@
             width: 250px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            /* Mantener altura ajustada */
-            margin-bottom: 120px; 
+            /* AJUSTE: Eliminado el justify-content: center fijo */
             transition: opacity 0.5s ease-in-out;
         }
 
+        /* --- IZQUIERDA: ALINEACIÓN INFERIOR --- */
         .ped-label-left {
-            /* AJUSTE: Reducir margen para pegar más al borde izquierdo */
             margin-left: 5px; 
             text-align: right;
             align-items: flex-end;
+            
+            /* Alineación al fondo */
+            justify-content: flex-end; 
+            /* Cálculo para que quede a la altura de la base del libro (aprox 300px desde el centro) */
+            padding-bottom: max(20px, calc(50vh - 280px)); 
         }
 
+        /* --- DERECHA: ALINEACIÓN SUPERIOR --- */
         .ped-label-right {
-            /* AJUSTE: Reducir margen para pegar más al borde derecho */
             margin-right: 5px; 
             text-align: left;
             align-items: flex-start;
+            
+            /* Alineación arriba */
+            justify-content: flex-start; 
+            /* Cálculo para que quede a la altura del tope del libro */
+            padding-top: max(20px, calc(50vh - 280px)); 
         }
 
         .ped-cloud {
@@ -298,7 +308,6 @@
 
         @media (max-width: 1300px) {
             .ped-label-container { width: 200px; }
-            /* Mantener márgenes mínimos también en pantallas pequeñas */
             .ped-label-left { margin-left: 5px; }
             .ped-label-right { margin-right: 5px; }
         }
@@ -335,7 +344,7 @@
     <!-- ========================================================================= -->
     <div class="pedagogical-layer">
         
-        <!-- LADO IZQUIERDO -->
+        <!-- LADO IZQUIERDO: ALINEADO ABAJO -->
         <div class="ped-label-container ped-label-left">
             <div id="cloud-left" class="ped-cloud">
                 <h3 id="title-left">Título</h3>
@@ -348,7 +357,7 @@
                  alt="Personaje Guía">
         </div>
 
-        <!-- LADO DERECHO -->
+        <!-- LADO DERECHO: ALINEADO ARRIBA -->
         <div class="ped-label-container ped-label-right">
             <div id="cloud-right" class="ped-cloud">
                 <h3 id="title-right">Título</h3>
