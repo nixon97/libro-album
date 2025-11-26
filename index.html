@@ -207,7 +207,7 @@
             transition: opacity 0.5s ease-in-out;
         }
 
-        /* CLASES DINÁMICAS DE POSICIÓN VERTICAL (Se mantienen) */
+        /* CLASES DINÁMICAS DE POSICIÓN VERTICAL */
         .align-bottom {
             justify-content: flex-end;
             padding-bottom: max(20px, calc(50vh - 280px));
@@ -254,39 +254,37 @@
         .ped-character {
             width: 120px;
             height: auto;
-            transition-delay: 0.1s; /* Retraso para el personaje */
+            transition-delay: 0.1s; 
         }
 
         /* --- ANIMACIONES LADO IZQUIERDO: Entran desde la izquierda (-X) --- */
         .ped-label-left .ped-cloud,
         .ped-label-left .ped-character {
-            transform: translateX(-100px); /* Posición inicial fuera */
+            transform: translateX(-100px); 
         }
 
         .ped-label-left .ped-cloud.active,
         .ped-label-left .ped-character.active {
             opacity: 1;
-            transform: translateX(0); /* Posición final */
+            transform: translateX(0); 
         }
 
 
         /* --- ANIMACIONES LADO DERECHO: Entran desde la derecha (+X) --- */
         .ped-label-right .ped-cloud {
-            transform: translateX(100px); /* Posición inicial fuera */
+            transform: translateX(100px); 
         }
         .ped-label-right .ped-cloud.active {
             opacity: 1;
-            transform: translateX(0); /* Posición final */
+            transform: translateX(0); 
         }
 
         /* Personaje Derecho (Con efecto espejo scaleX) */
         .ped-label-right .ped-character {
-            /* Inicial: Desplazado a la derecha Y espejado */
             transform: translateX(100px) scaleX(-1); 
         }
         .ped-label-right .ped-character.active {
             opacity: 1;
-            /* Final: En su sitio Y espejado */
             transform: translateX(0) scaleX(-1);
         }
 
@@ -728,23 +726,29 @@
                 let leftInfo = null;
                 let rightInfo = null;
 
-                // --- LÓGICA DE INTERCAMBIO DE POSICIONES (ALTERNAR) ---
-                const isEven = (currentPaperIndex % 2 === 0);
+                // --- LÓGICA DE INTERCAMBIO DE POSICIONES (RITMO NATURAL) ---
+                // Patrón: Intercambia, Intercambia, Mantiene, Mantiene...
+                // Esto genera un ciclo de estados A, B, A, A... que se repite cada 4 páginas.
+                // Indices (empezando en 0): 0(A), 1(B), 2(A), 3(A)...
+                
+                const normalizedIndex = currentPaperIndex + 1; // Ajustamos para empezar en 0 (Portada)
+                const cycleState = normalizedIndex % 4; 
+                const useAlternateConfig = (cycleState === 1); // Solo el índice 1 del ciclo es Config B
 
-                if (isEven) {
-                    // CONFIGURACIÓN A (Par): Izquierda Abajo, Derecha Arriba
-                    containerLeft.classList.remove('align-top');
-                    containerLeft.classList.add('align-bottom');
-                    
-                    containerRight.classList.remove('align-bottom');
-                    containerRight.classList.add('align-top');
-                } else {
-                    // CONFIGURACIÓN B (Impar): Izquierda Arriba, Derecha Abajo
+                if (useAlternateConfig) {
+                    // CONFIGURACIÓN B (Alterna): Izquierda Arriba, Derecha Abajo
                     containerLeft.classList.remove('align-bottom');
                     containerLeft.classList.add('align-top');
                     
                     containerRight.classList.remove('align-top');
                     containerRight.classList.add('align-bottom');
+                } else {
+                    // CONFIGURACIÓN A (Base): Izquierda Abajo, Derecha Arriba
+                    containerLeft.classList.remove('align-top');
+                    containerLeft.classList.add('align-bottom');
+                    
+                    containerRight.classList.remove('align-bottom');
+                    containerRight.classList.add('align-top');
                 }
 
                 // --- LOGICA DE CONTENIDO ---
