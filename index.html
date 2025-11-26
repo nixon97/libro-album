@@ -204,19 +204,19 @@
             width: 250px;
             display: flex;
             flex-direction: column;
-            transition: opacity 0.5s ease-in-out;
+            /* CAMBIO: Transición más suave para cambios de posición */
+            transition: padding 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* CLASES DINÁMICAS DE POSICIÓN VERTICAL */
+        /* CLASES DINÁMICAS DE POSICIÓN VERTICAL (Base) */
         .align-bottom {
             justify-content: flex-end;
-            padding-bottom: max(20px, calc(50vh - 280px));
+            /* El padding se ajustará dinámicamente en JS para la variación */
             padding-top: 0;
         }
 
         .align-top {
             justify-content: flex-start;
-            padding-top: max(20px, calc(50vh - 280px));
             padding-bottom: 0;
         }
 
@@ -237,7 +237,8 @@
         /* Estilos base (ocultos) */
         .ped-cloud, .ped-character {
             opacity: 0;
-            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            /* CAMBIO: Curva de animación 'Fluid' (más natural) */
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .ped-cloud {
@@ -260,7 +261,7 @@
         /* --- ANIMACIONES LADO IZQUIERDO: Entran desde la izquierda (-X) --- */
         .ped-label-left .ped-cloud,
         .ped-label-left .ped-character {
-            transform: translateX(-100px); 
+            transform: translateX(-150px); /* Un poco más lejos para dar más recorrido */
         }
 
         .ped-label-left .ped-cloud.active,
@@ -272,7 +273,7 @@
 
         /* --- ANIMACIONES LADO DERECHO: Entran desde la derecha (+X) --- */
         .ped-label-right .ped-cloud {
-            transform: translateX(100px); 
+            transform: translateX(150px); 
         }
         .ped-label-right .ped-cloud.active {
             opacity: 1;
@@ -281,7 +282,7 @@
 
         /* Personaje Derecho (Con efecto espejo scaleX) */
         .ped-label-right .ped-character {
-            transform: translateX(100px) scaleX(-1); 
+            transform: translateX(150px) scaleX(-1); 
         }
         .ped-label-right .ped-character.active {
             opacity: 1;
@@ -715,7 +716,7 @@
             const charLeft = document.getElementById('char-left');
             const charRight = document.getElementById('char-right');
 
-            // 1. Ocultar todo
+            // 1. Ocultar todo (Fade out)
             cloudLeft.classList.remove('active');
             cloudRight.classList.remove('active');
             charLeft.classList.remove('active');
@@ -726,29 +727,46 @@
                 let leftInfo = null;
                 let rightInfo = null;
 
-                // --- LÓGICA DE INTERCAMBIO DE POSICIONES (RITMO NATURAL) ---
-                // Patrón: Intercambia, Intercambia, Mantiene, Mantiene...
-                // Esto genera un ciclo de estados A, B, A, A... que se repite cada 4 páginas.
-                // Indices (empezando en 0): 0(A), 1(B), 2(A), 3(A)...
+                // --- LÓGICA DE MOVIMIENTO ORGÁNICO (ALEATORIO) ---
+                // 1. Determinar aleatoriamente si la izquierda va arriba o abajo
+                // 2. Determinar aleatoriamente un "margen variable" para que no siempre sea la misma altura
                 
-                const normalizedIndex = currentPaperIndex + 1; // Ajustamos para empezar en 0 (Portada)
-                const cycleState = normalizedIndex % 4; 
-                const useAlternateConfig = (cycleState === 1); // Solo el índice 1 del ciclo es Config B
+                const isLeftUp = Math.random() > 0.5; // 50% probabilidad
+                const isRightUp = !isLeftUp; // El lado derecho hace lo contrario para equilibrar
 
-                if (useAlternateConfig) {
-                    // CONFIGURACIÓN B (Alterna): Izquierda Arriba, Derecha Abajo
-                    containerLeft.classList.remove('align-bottom');
+                // Altura base
+                const baseHeight = "calc(50vh - 280px)"; 
+                
+                // Variación aleatoria entre 0px y 60px para que "floten" a distintas alturas
+                const randomOffsetLeft = Math.floor(Math.random() * 60) + "px";
+                const randomOffsetRight = Math.floor(Math.random() * 60) + "px";
+
+                // Aplicar lógica Izquierda
+                containerLeft.classList.remove('align-top', 'align-bottom');
+                // Reset padding inline
+                containerLeft.style.paddingTop = "";
+                containerLeft.style.paddingBottom = "";
+
+                if (isLeftUp) {
                     containerLeft.classList.add('align-top');
-                    
-                    containerRight.classList.remove('align-top');
-                    containerRight.classList.add('align-bottom');
+                    containerLeft.style.paddingTop = `calc(${baseHeight} + ${randomOffsetLeft})`;
                 } else {
-                    // CONFIGURACIÓN A (Base): Izquierda Abajo, Derecha Arriba
-                    containerLeft.classList.remove('align-top');
                     containerLeft.classList.add('align-bottom');
-                    
-                    containerRight.classList.remove('align-bottom');
+                    containerLeft.style.paddingBottom = `calc(${baseHeight} + ${randomOffsetLeft})`;
+                }
+
+                // Aplicar lógica Derecha
+                containerRight.classList.remove('align-top', 'align-bottom');
+                // Reset padding inline
+                containerRight.style.paddingTop = "";
+                containerRight.style.paddingBottom = "";
+
+                if (isRightUp) {
                     containerRight.classList.add('align-top');
+                    containerRight.style.paddingTop = `calc(${baseHeight} + ${randomOffsetRight})`;
+                } else {
+                    containerRight.classList.add('align-bottom');
+                    containerRight.style.paddingBottom = `calc(${baseHeight} + ${randomOffsetRight})`;
                 }
 
                 // --- LOGICA DE CONTENIDO ---
