@@ -187,35 +187,37 @@
         }
 
         /* ========================================================================= */
-        /* --- !!! AJUSTE MÓVIL (CORREGIDO) !!! --- */
+        /* --- !!! AJUSTE MÓVIL ESPECÍFICO (CORRECCIÓN DE DEFORMACIÓN Y BURBUJAS) !!! --- */
         /* ========================================================================= */
         @media (max-width: 768px) {
             :root { 
-                /* He reducido un poco más el ancho para dar "aire" a los costados */
-                /* 42vw por página x 2 = 84vw total. Queda un margen seguro a los lados */
-                --book-width: 42vw; 
-                --book-height: 55vh; /* Altura un poco más contenida */
+                /* CORRECCIÓN DE DEFORMACIÓN: */
+                /* Usamos el ancho máximo posible seguro (44vw por página = 88vw total) */
+                --book-width: 44vw; 
+                /* La altura NO es fija, se calcula proporcionalmente al ancho (ratio 1.35 aprox) */
+                /* Esto asegura que la cartilla NUNCA se deforme, siempre será un rectángulo armónico */
+                --book-height: calc(44vw * 1.35); 
             }
 
-            /* Reducir perspectiva drásticamente para evitar distorsión extrema en móviles */
+            /* Perspectiva más suave */
             #stage { perspective: 1200px; }
 
+            /* Ajuste de textos internos */
             .text-page { padding: 15px; }
-            .text-page h2 { font-size: 0.9rem; margin-bottom: 10px; }
-            .text-page p { font-size: 0.65rem; line-height: 1.4; }
-            
-            /* Ajuste de controles inferiores */
+            .text-page h2 { font-size: 0.8rem; margin-bottom: 8px; }
+            .text-page p { font-size: 0.55rem; line-height: 1.4; }
+            .legal-text { font-size: 0.45rem !important; }
+            .page-number { font-size: 8px; bottom: 8px; }
+
+            /* Controles abajo */
             .nav-btn {
-                top: auto;
-                bottom: 20px; 
-                transform: none;
+                top: auto; bottom: 30px; transform: none;
                 width: 40px; height: 40px;
                 background: rgba(255,255,255,0.9);
-                border: 1px solid #eee;
+                border: 1px solid #ddd;
             }
-            .nav-btn:hover:not(:disabled) { transform: scale(1.05); }
-            .prev-btn { left: 15px; }
-            .next-btn { right: 15px; }
+            .prev-btn { left: 20px; }
+            .next-btn { right: 20px; }
         }
 
         /* ========================================================================= */
@@ -239,29 +241,11 @@
             transition: padding 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .align-bottom {
-            justify-content: flex-end;
-            padding-top: 0;
-        }
+        .align-bottom { justify-content: flex-end; padding-top: 0; }
+        .align-top { justify-content: flex-start; padding-bottom: 0; }
 
-        .align-top {
-            justify-content: flex-start;
-            padding-bottom: 0;
-        }
-
-        /* --- CONFIGURACIÓN DE ANIMACIONES LATERALES --- */
-        
-        .ped-label-left {
-            margin-left: 5px; 
-            text-align: right;
-            align-items: flex-end;
-        }
-
-        .ped-label-right {
-            margin-right: 5px; 
-            text-align: left;
-            align-items: flex-start;
-        }
+        .ped-label-left { margin-left: 5px; text-align: right; align-items: flex-end; }
+        .ped-label-right { margin-right: 5px; text-align: left; align-items: flex-start; }
 
         .ped-cloud, .ped-character {
             opacity: 0;
@@ -280,75 +264,56 @@
         }
 
         .ped-character {
-            width: 120px;
-            height: auto;
-            transition-delay: 0.1s; 
+            width: 120px; height: auto; transition-delay: 0.1s; 
         }
 
-        /* --- ANIMACIONES --- */
-        .ped-label-left .ped-cloud,
-        .ped-label-left .ped-character {
-            transform: translateX(-150px);
-        }
+        /* ANIMACIONES */
+        .ped-label-left .ped-cloud, .ped-label-left .ped-character { transform: translateX(-150px); }
+        .ped-label-left .ped-cloud.active, .ped-label-left .ped-character.active { opacity: 1; transform: translateX(0); }
 
-        .ped-label-left .ped-cloud.active,
-        .ped-label-left .ped-character.active {
-            opacity: 1;
-            transform: translateX(0); 
-        }
+        .ped-label-right .ped-cloud { transform: translateX(150px); }
+        .ped-label-right .ped-cloud.active { opacity: 1; transform: translateX(0); }
 
-        .ped-label-right .ped-cloud {
-            transform: translateX(150px); 
-        }
-        .ped-label-right .ped-cloud.active {
-            opacity: 1;
-            transform: translateX(0); 
-        }
+        .ped-label-right .ped-character { transform: translateX(150px) scaleX(-1); }
+        .ped-label-right .ped-character.active { opacity: 1; transform: translateX(0) scaleX(-1); }
 
-        .ped-label-right .ped-character {
-            transform: translateX(150px) scaleX(-1); 
-        }
-        .ped-label-right .ped-character.active {
-            opacity: 1;
-            transform: translateX(0) scaleX(-1);
-        }
-
-        /* Triangulitos */
+        /* Triangulitos nube */
         .ped-label-left .ped-cloud::after {
             content: ''; position: absolute; top: 100%; right: 40px; 
-            border-width: 10px 10px 0 10px; border-style: solid;
-            border-color: #fff transparent transparent transparent;
+            border-width: 10px 10px 0 10px; border-style: solid; border-color: #fff transparent transparent transparent;
         }
         .ped-label-right .ped-cloud::after {
             content: ''; position: absolute; top: 100%; left: 40px; 
-            border-width: 10px 10px 0 10px; border-style: solid;
-            border-color: #fff transparent transparent transparent;
+            border-width: 10px 10px 0 10px; border-style: solid; border-color: #fff transparent transparent transparent;
         }
 
         .ped-cloud h3 {
-            font-family: 'Cinzel', serif;
-            color: var(--accent-color);
-            font-size: 1rem;
-            margin-bottom: 8px;
-            border-bottom: 2px solid var(--gold-color);
-            display: inline-block;
-            padding-bottom: 3px;
+            font-family: 'Cinzel', serif; color: var(--accent-color); font-size: 1rem;
+            margin-bottom: 8px; border-bottom: 2px solid var(--gold-color); display: inline-block; padding-bottom: 3px;
         }
-
-        .ped-cloud p {
-            font-family: 'Lato', sans-serif;
-            font-size: 0.85rem;
-            color: #666;
-            line-height: 1.5;
-        }
+        .ped-cloud p { font-family: 'Lato', sans-serif; font-size: 0.85rem; color: #666; line-height: 1.5; }
 
         @media (max-width: 1300px) {
             .ped-label-container { width: 200px; }
-            .ped-label-left { margin-left: 5px; }
-            .ped-label-right { margin-right: 5px; }
         }
+
+        /* --- CORRECCIÓN FINAL: VISIBILIDAD DE PERSONAJES EN MÓVIL --- */
+        /* Eliminamos el display:none que los ocultaba y los adaptamos */
         @media (max-width: 900px) {
-            .pedagogical-layer { display: none; } 
+            /* Permitimos que se vean, pero ajustamos tamaño */
+            .pedagogical-layer { display: flex; } 
+            
+            .ped-label-container { width: 140px; } /* Más angostos */
+            
+            .ped-character { width: 80px; } /* Personajes más pequeños */
+            
+            .ped-cloud { 
+                padding: 10px; 
+                margin-bottom: 5px;
+            }
+            .ped-cloud h3 { font-size: 0.8rem; margin-bottom: 4px; }
+            .ped-cloud p { font-size: 0.65rem; line-height: 1.2; display: none; } /* Solo mostramos título en móvil para no saturar */
+            .ped-cloud p:first-of-type { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         }
     </style>
 </head>
