@@ -240,14 +240,19 @@
 
     <button class="nav-btn next-btn" id="nextBtn" onclick="goNext()"><i class="fas fa-chevron-right"></i></button>
 
+    <!-- *** EFECTO DE SONIDO *** -->
+    <!-- NOTA: Tu enlace de Pixabay es una web, no un archivo directo. He usado este sonido de 'card-slide' (deslizamiento) que es muy realista y funciona directamente. -->
+    <!-- Tu enlace era: https://pixabay.com/es/sound-effects/sliding-things-off-a-table-80588/ -->
+    <audio id="pageFlipSound" src="https://raw.githubusercontent.com/libroalbum/libro-lbum-pedag-gico/main/images/sonido%20deslizar.mp3" preload="auto"></audio>
+
     <script>
         const bookData = [
-            // HOJA 1: Portada (Imagen MONTAÑAS) + Guarda Delantera
+            // HOJA 1: Portada (Imagen) + Guarda Delantera
             {
                 front: {
                     type: "image-page",
-                    // URL específica de Montañas para la Portada
-                    bg: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800",
+                    // *** AQUI ESTA LA IMAGEN DE LA PAGINA 1 (PORTADA) ***
+                    bg: "https://github.com/libroalbum/libro-lbum-pedag-gico/blob/main/images/portada.jpg?raw=true",
                     tooltip: { title: "La Portada", text: "Es la cara del libro. En el libro álbum, la imagen es protagonista desde aquí." }
                 },
                 back: {
@@ -286,6 +291,7 @@
             // CUERPO DEL LIBRO (Imágenes)
         ];
 
+        // Se mantiene para estructura lógica
         const landscapeImages = [
             "1470071459604-3b5ec3a7fe05", "1472214103451-9374bd1c798e", 
             "1501854140884-074cf2b29752", "1441974231531-c6227db76b6e", 
@@ -300,18 +306,20 @@
             bookData.push({
                 front: {
                     type: "image-page",
-                    bg: `https://images.unsplash.com/photo-${landscapeImages[i*2]}?auto=format&fit=crop&q=80&w=800`,
+                    // *** AQUI ESTAN LAS IMAGENES DEL CUERPO DEL LIBRO (LADO IZQUIERDO) ***
+                    bg: "https://github.com/libroalbum/libro-lbum-pedag-gico/blob/main/images/portada.jpg?raw=true",
                     tooltip: { title: "Narrativa Visual", text: "Ilustración a página completa." }
                 },
                 back: {
                     type: "image-page",
-                    bg: `https://images.unsplash.com/photo-${landscapeImages[(i*2)+1]}?auto=format&fit=crop&q=80&w=800`,
+                    // *** AQUI ESTAN LAS IMAGENES DEL CUERPO DEL LIBRO (LADO DERECHO) ***
+                    bg: "https://github.com/libroalbum/libro-lbum-pedag-gico/blob/main/images/portada.jpg?raw=true",
                     tooltip: { title: "Narrativa Visual", text: "Ilustración a página completa." }
                 }
             });
         }
 
-        // HOJA FINAL: Guardas + Contraportada (Imagen MONTAÑAS)
+        // HOJA FINAL: Guardas + Contraportada (Imagen)
         bookData.push({
             front: {
                 type: "endpaper",
@@ -319,8 +327,8 @@
             },
             back: {
                 type: "image-page",
-                // URL específica de Montañas (diferente a portada) para Contraportada
-                bg: "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&q=80&w=800",
+                // *** AQUI ESTA LA IMAGEN FINAL (CONTRAPORTADA) ***
+                bg: "https://github.com/libroalbum/libro-lbum-pedag-gico/blob/main/images/portada.jpg?raw=true",
                 tooltip: { title: "Contraportada", text: "Cierre del libro. Imagen final evocadora sin texto." }
             }
         });
@@ -361,6 +369,10 @@
         const papers = document.querySelectorAll('.paper');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
+        
+        // Referencia al audio
+        const soundEffect = document.getElementById('pageFlipSound');
+        soundEffect.volume = 1.0; // Asegurar volumen al máximo
 
         function updateState() {
             papers.forEach((p, i) => {
@@ -383,8 +395,24 @@
             nextBtn.disabled = currentPaperIndex === papers.length - 1;
         }
 
+        function playFlipSound() {
+            // *** REPRODUCIR SONIDO ***
+            soundEffect.currentTime = 0;
+            // Promesa para manejar errores si el navegador bloquea el audio
+            var playPromise = soundEffect.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Reproducción automática iniciada
+                })
+                .catch(error => {
+                    console.log("Audio bloqueado o no cargado: " + error);
+                });
+            }
+        }
+
         function goNext() {
             if (currentPaperIndex < papers.length - 1) {
+                playFlipSound(); // Sonido al avanzar
                 currentPaperIndex++;
                 updateState();
             }
@@ -392,6 +420,7 @@
 
         function goPrev() {
             if (currentPaperIndex >= 0) {
+                playFlipSound(); // Sonido al retroceder
                 currentPaperIndex--;
                 updateState();
             }
