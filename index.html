@@ -196,8 +196,9 @@
             z-index: 200;
             display: flex;
             justify-content: space-between;
-            align-items: center; /* Alineación vertical */
-            padding: 0 20px;
+            align-items: center;
+            /* AJUSTE DE LATERALES: Se reduce el padding para empujar más a los bordes */
+            padding: 0 5px; 
         }
 
         .ped-label-container {
@@ -205,21 +206,23 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            /* AJUSTE 1: Mover hacia arriba todo el bloque (nube + personaje) */
+            /* Mantener altura ajustada */
             margin-bottom: 120px; 
             transition: opacity 0.5s ease-in-out;
         }
 
         .ped-label-left {
-            margin-left: 60px;
+            /* AJUSTE: Reducir margen para pegar más al borde izquierdo */
+            margin-left: 5px; 
             text-align: right;
-            align-items: flex-end; /* Alinea contenido a la derecha */
+            align-items: flex-end;
         }
 
         .ped-label-right {
-            margin-right: 60px;
+            /* AJUSTE: Reducir margen para pegar más al borde derecho */
+            margin-right: 5px; 
             text-align: left;
-            align-items: flex-start; /* Alinea contenido a la izquierda */
+            align-items: flex-start;
         }
 
         .ped-cloud {
@@ -233,20 +236,18 @@
             transform: translateY(20px);
             transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
             max-width: 100%;
-            margin-bottom: 10px; /* Espacio entre nube y personaje */
+            margin-bottom: 10px;
         }
 
-        /* AJUSTE 2: Estilos para el Personaje */
         .ped-character {
-            width: 120px; /* Tamaño del personaje */
+            width: 120px;
             height: auto;
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-            transition-delay: 0.1s; /* Aparece un poquito después de la nube */
+            transition-delay: 0.1s;
         }
         
-        /* Efecto espejo para el personaje de la derecha para que mire hacia adentro (opcional) */
         .ped-label-right .ped-character {
             transform: scaleX(-1) translateY(20px); 
         }
@@ -263,7 +264,6 @@
             border-color: #fff transparent transparent transparent;
         }
 
-        /* Decoración de título */
         .ped-cloud h3 {
             font-family: 'Cinzel', serif;
             color: var(--accent-color);
@@ -288,7 +288,6 @@
         }
         .ped-character.active {
             opacity: 1;
-            /* Respetamos el scaleX(-1) si está a la derecha */
         }
         .ped-label-left .ped-character.active {
             transform: translateY(0);
@@ -299,8 +298,9 @@
 
         @media (max-width: 1300px) {
             .ped-label-container { width: 200px; }
-            .ped-label-left { margin-left: 10px; }
-            .ped-label-right { margin-right: 10px; }
+            /* Mantener márgenes mínimos también en pantallas pequeñas */
+            .ped-label-left { margin-left: 5px; }
+            .ped-label-right { margin-right: 5px; }
         }
         @media (max-width: 900px) {
             .pedagogical-layer { display: none; } 
@@ -343,7 +343,6 @@
             </div>
             
             <!-- *** CAMBIA AQUI EL LINK DE LA IMAGEN DEL PERSONAJE (LADO IZQUIERDO) *** -->
-            <!-- Link temporal: Patricio Estrella -->
             <img id="char-left" class="ped-character" 
                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Patrick_Star_character.png/330px-Patrick_Star_character.png" 
                  alt="Personaje Guía">
@@ -357,7 +356,6 @@
             </div>
             
             <!-- *** CAMBIA AQUI EL LINK DE LA IMAGEN DEL PERSONAJE (LADO DERECHO) *** -->
-            <!-- Link temporal: Patricio Estrella -->
             <img id="char-right" class="ped-character" 
                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Patrick_Star_character.png/330px-Patrick_Star_character.png" 
                  alt="Personaje Guía">
@@ -692,11 +690,10 @@
             const titleRight = document.getElementById('title-right');
             const descRight = document.getElementById('desc-right');
             
-            // Referencias a las imágenes de personaje
             const charLeft = document.getElementById('char-left');
             const charRight = document.getElementById('char-right');
 
-            // 1. Ocultar todo (Fade out)
+            // 1. Ocultar todo
             cloudLeft.classList.remove('active');
             cloudRight.classList.remove('active');
             charLeft.classList.remove('active');
@@ -707,98 +704,48 @@
                 let leftInfo = null;
                 let rightInfo = null;
 
-                // --- LOGICA EXACTA SOLICITADA ---
+                // --- LOGICA EXACTA ---
                 
-                // PORTADA (Indice -1)
                 if (currentPaperIndex === -1) {
-                    rightInfo = { 
-                        title: "La Portada", 
-                        text: "Es la cara del libro. En el libro álbum, la imagen es protagonista desde aquí." 
-                    };
+                    rightInfo = { title: "La Portada", text: "Es la cara del libro. En el libro álbum, la imagen es protagonista desde aquí." };
                 } 
-                
-                // GUARDAS (Indice 0)
                 else if (currentPaperIndex === 0) {
-                    leftInfo = { 
-                        title: "Guardas (Anverso)", 
-                        text: "Estas son las guardas. Son las páginas que conectan la cubierta con el interior." 
-                    };
-                    rightInfo = { 
-                        title: "Guardas (Reverso)", 
-                        text: "El color o diseño de las guardas anticipa la atmósfera emocional de la historia." 
-                    };
+                    leftInfo = { title: "Guardas (Anverso)", text: "Estas son las guardas. Son las páginas que conectan la cubierta con el interior." };
+                    rightInfo = { title: "Guardas (Reverso)", text: "El color o diseño de las guardas anticipa la atmósfera emocional de la historia." };
                 }
-
-                // HOJA DE RESPETO y CRÉDITOS (Indice 1)
                 else if (currentPaperIndex === 1) {
-                    leftInfo = {
-                        title: "Hoja de Respeto",
-                        text: "Página de cortesía antes del contenido. Deja respirar al lector."
-                    };
-                    rightInfo = { 
-                        title: "Créditos", 
-                        text: "Aquí se encuentran los datos legales: autoría, editorial y derechos de autor." 
-                    };
+                    leftInfo = { title: "Hoja de Respeto", text: "Página de cortesía antes del contenido. Deja respirar al lector." };
+                    rightInfo = { title: "Créditos", text: "Aquí se encuentran los datos legales: autoría, editorial y derechos de autor." };
                 }
-
-                // DEDICATORIA e INICIO DEL CUENTO (Indice 2)
                 else if (currentPaperIndex === 2) {
-                    leftInfo = {
-                        title: "Dedicatoria",
-                        text: "Espacio íntimo donde el autor ofrenda su trabajo a alguien especial."
-                    };
-                    rightInfo = { 
-                        title: "Cuerpo del Cuento", 
-                        text: "Aquí comienza la narrativa visual y textual de la historia (Página 7)." 
-                    };
+                    leftInfo = { title: "Dedicatoria", text: "Espacio íntimo donde el autor ofrenda su trabajo a alguien especial." };
+                    rightInfo = { title: "Cuerpo del Cuento", text: "Aquí comienza la narrativa visual y textual de la historia (Página 7)." };
                 }
-
-                // CUERPO DEL CUENTO (Indices 3 al 10)
                 else if (currentPaperIndex >= 3 && currentPaperIndex <= 10) {
-                    leftInfo = {
-                        title: "Narrativa Visual",
-                        text: "La imagen izquierda dialoga con la derecha para construir significado."
-                    };
-                    rightInfo = { 
-                        title: "Secuencia", 
-                        text: "La sucesión de páginas marca el ritmo de lectura y el paso del tiempo." 
-                    };
+                    leftInfo = { title: "Narrativa Visual", text: "La imagen izquierda dialoga con la derecha para construir significado." };
+                    rightInfo = { title: "Secuencia", text: "La sucesión de páginas marca el ritmo de lectura y el paso del tiempo." };
                 }
-
-                // FIN DEL CUENTO y GUARDA FINAL (Indice 11)
                 else if (currentPaperIndex === 11) {
-                    leftInfo = {
-                        title: "Desenlace",
-                        text: "Última página de la historia propiamente dicha."
-                    };
-                    rightInfo = { 
-                        title: "Guarda Final", 
-                        text: "Cierra la estructura física del libro, conectando el bloque de hojas con la tapa trasera." 
-                    };
+                    leftInfo = { title: "Desenlace", text: "Última página de la historia propiamente dicha." };
+                    rightInfo = { title: "Guarda Final", text: "Cierra la estructura física del libro, conectando el bloque de hojas con la tapa trasera." };
                 }
-
-                // CONTRAPORTADA (Indice 12)
                 else if (currentPaperIndex === 12) {
-                    leftInfo = {
-                        title: "Contraportada",
-                        text: "Cierre del libro. A menudo contiene una imagen final evocadora sin revelar el final."
-                    };
-                    // Derecha vacía (libro cerrado)
+                    leftInfo = { title: "Contraportada", text: "Cierre del libro. A menudo contiene una imagen final evocadora sin revelar el final." };
                 }
 
-                // --- APLICAR TEXTOS Y ACTIVAR PERSONAJES ---
+                // --- APLICAR TEXTOS Y ACTIVAR ---
                 if (leftInfo) {
                     titleLeft.innerText = leftInfo.title;
                     descLeft.innerText = leftInfo.text;
                     cloudLeft.classList.add('active');
-                    charLeft.classList.add('active'); // Activa personaje izq
+                    charLeft.classList.add('active');
                 }
                 
                 if (rightInfo) {
                     titleRight.innerText = rightInfo.title;
                     descRight.innerText = rightInfo.text;
                     cloudRight.classList.add('active');
-                    charRight.classList.add('active'); // Activa personaje der
+                    charRight.classList.add('active');
                 }
 
             }, 300);
