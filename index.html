@@ -9,7 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        /* --- VARIABLES & RESET --- */
+        /* --- VARIABLES & RESET (CÓDIGO ORIGINAL) --- */
         :root {
             --book-width: 460px;
             --book-height: 600px;
@@ -38,7 +38,7 @@
             color: var(--text-color);
         }
 
-        /* --- UI EXTERNA --- */
+        /* --- UI EXTERNA (CÓDIGO ORIGINAL) --- */
         .sidebar {
             position: fixed; left: 0; top: 0; bottom: 0; width: 50px;
             background: #fff; border-right: 1px solid #ddd;
@@ -62,7 +62,7 @@
         }
         .btn-icon:hover { color: var(--accent-color); transform: scale(1.1); }
 
-        /* --- ESCENARIO 3D --- */
+        /* --- ESCENARIO 3D (CÓDIGO ORIGINAL) --- */
         #stage {
             perspective: 2500px;
             width: 100%; height: 100%;
@@ -79,7 +79,7 @@
         }
         .book.opened { transform: translateX(50%); }
 
-        /* --- HOJAS (PAPERS) --- */
+        /* --- HOJAS (PAPERS) (CÓDIGO ORIGINAL) --- */
         .paper {
             position: absolute; width: 100%; height: 100%; top: 0; left: 0;
             transform-origin: left center;
@@ -88,7 +88,7 @@
         }
         .paper.flipped { transform: rotateY(-180deg); z-index: 0; }
 
-        /* --- CARAS DE LA HOJA --- */
+        /* --- CARAS DE LA HOJA (CÓDIGO ORIGINAL) --- */
         .front, .back {
             position: absolute; width: 100%; height: 100%; top: 0; left: 0;
             background-color: var(--paper-texture);
@@ -104,7 +104,7 @@
             border-radius: 5px 2px 2px 5px; 
         }
 
-        /* Sombras del lomo */
+        /* Sombras del lomo (CÓDIGO ORIGINAL) */
         .front::after {
             content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 25px;
             background: linear-gradient(to right, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
@@ -116,9 +116,7 @@
             pointer-events: none;
         }
 
-        /* --- ESTILOS DE PÁGINA --- */
-
-        /* 1. Imagen (Portada, Cuerpo, Contraportada) */
+        /* --- ESTILOS DE PÁGINA (CÓDIGO ORIGINAL) --- */
         .image-page {
             background-size: cover;
             background-position: center;
@@ -126,7 +124,6 @@
         }
         .image-page .content-wrapper { display: none; }
 
-        /* 2. Texto (Créditos, Dedicatoria, Respeto) */
         .text-page {
             background-color: #fffefae6;
             display: flex; flex-direction: column;
@@ -149,7 +146,6 @@
         }
         .legal-text { font-size: 0.75rem !important; color: #888 !important; font-style: normal !important; }
 
-        /* 3. Guardas (Verde Pastel) */
         .endpaper {
             background-color: var(--endpaper-bg);
             background-image: radial-gradient(var(--endpaper-dot) 1.5px, transparent 1.5px), radial-gradient(var(--endpaper-dot) 1.5px, transparent 1.5px);
@@ -157,7 +153,7 @@
             background-position: 0 0, 10px 10px;
         }
 
-        /* --- ELEMENTOS PEDAGÓGICOS (CSS se mantiene pero no se usará en el HTML) --- */
+        /* --- ELEMENTOS PEDAGÓGICOS ORIGINALES (Mantengo el CSS aunque no se use en el HTML) --- */
         .edu-hotspot {
             position: absolute; top: 20px; right: 20px;
             width: 30px; height: 30px; background: var(--gold-color);
@@ -199,7 +195,7 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
         }
 
-        /* --- BOTONES NAVEGACIÓN --- */
+        /* --- BOTONES NAVEGACIÓN (CÓDIGO ORIGINAL) --- */
         .nav-btn {
             position: fixed; top: 50%; transform: translateY(-50%);
             background: rgba(255,255,255,0.8); border: none;
@@ -217,10 +213,103 @@
             .prev-btn { left: 20px; } .next-btn { right: 20px; }
             .sidebar { display: none; }
         }
+
+        /* ========================================================================= */
+        /* --- NUEVO ESTILO: SISTEMA DE ETIQUETAS PEDAGÓGICAS (EXTRA) --- */
+        /* ========================================================================= */
+        .pedagogical-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* Permite hacer clic a través de ella */
+            z-index: 200;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .ped-label-container {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .ped-label-left {
+            margin-left: 60px; /* Espacio para barra lateral */
+            text-align: right;
+            align-items: flex-end;
+        }
+
+        .ped-label-right {
+            margin-right: 60px;
+            text-align: left;
+            align-items: flex-start;
+        }
+
+        .ped-cloud {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            border: 1px solid #eee;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            max-width: 100%;
+        }
+
+        /* Triangulitos de las nubes */
+        .ped-label-left .ped-cloud::after {
+            content: ''; position: absolute; top: 50%; right: -10px; margin-top: -10px;
+            border-width: 10px 0 10px 10px; border-style: solid;
+            border-color: transparent transparent transparent #fff;
+        }
+        .ped-label-right .ped-cloud::after {
+            content: ''; position: absolute; top: 50%; left: -10px; margin-top: -10px;
+            border-width: 10px 10px 10px 0; border-style: solid;
+            border-color: transparent #fff transparent transparent;
+        }
+
+        /* Decoración de título */
+        .ped-cloud h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--accent-color);
+            font-size: 1rem;
+            margin-bottom: 8px;
+            border-bottom: 2px solid var(--gold-color);
+            display: inline-block;
+            padding-bottom: 3px;
+        }
+
+        .ped-cloud p {
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Clase para activar animación */
+        .ped-cloud.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1300px) {
+            .ped-label-container { width: 200px; }
+            .ped-label-left { margin-left: 10px; }
+            .ped-label-right { margin-right: 10px; }
+        }
+        @media (max-width: 900px) {
+            .pedagogical-layer { display: none; } /* Ocultar en móviles pequeños */
+        }
     </style>
 </head>
 <body>
 
+    <!-- --- CÓDIGO HTML ORIGINAL INTACTO --- -->
     <div class="sidebar">
         <div class="project-title">Libro Álbum Digital</div>
     </div>
@@ -241,7 +330,26 @@
 
     <audio id="pageFlipSound" src="https://raw.githubusercontent.com/libroalbum/libro-lbum-pedag-gico/main/images/sonido%20deslizar.mp3" preload="auto"></audio>
 
+    <!-- ========================================================================= -->
+    <!-- --- NUEVO HTML: CAPA DE ETIQUETAS PEDAGÓGICAS (EXTERNA AL LIBRO) --- -->
+    <!-- ========================================================================= -->
+    <div class="pedagogical-layer">
+        <div class="ped-label-container ped-label-left">
+            <div id="cloud-left" class="ped-cloud">
+                <h3 id="title-left">Título</h3>
+                <p id="desc-left">Descripción...</p>
+            </div>
+        </div>
+        <div class="ped-label-container ped-label-right">
+            <div id="cloud-right" class="ped-cloud">
+                <h3 id="title-right">Título</h3>
+                <p id="desc-right">Descripción...</p>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // --- CÓDIGO JAVASCRIPT ORIGINAL INTACTO ---
         const bookData = [
             // HOJA 1: Portada (Imagen) + Guarda Delantera
             {
@@ -284,10 +392,10 @@
                     tooltip: { title: "Dedicatoria", text: "Espacio íntimo donde el autor ofrenda su trabajo." }
                 }
             },
-            // CUERPO DEL LIBRO (Imágenes) - A PARTIR DE AQUI EDITAS TUS IMAGENES INDIVIDUALES
+            // CUERPO DEL LIBRO (Imágenes)
         ];
 
-        // Se mantiene para estructura lógica (aunque ahora usamos enlaces directos abajo)
+        // Se mantiene para estructura lógica
         const landscapeImages = [
             "1470071459604-3b5ec3a7fe05", "1472214103451-9374bd1c798e", 
             "1501854140884-074cf2b29752", "1441974231531-c6227db76b6e", 
@@ -299,7 +407,7 @@
         ];
 
         // -----------------------------------------------------------------------------------------
-        // AQUI EMPIEZAN LAS HOJAS INDIVIDUALES (Antes esto era un bucle, ahora están separadas)
+        // AQUI EMPIEZAN LAS HOJAS INDIVIDUALES
         // -----------------------------------------------------------------------------------------
 
         // --- HOJA DE CONTENIDO 1 (Cuerpo) ---
@@ -414,10 +522,6 @@
             }
         });
 
-        // =========================================================================================
-        // --- HOJAS NUEVAS AGREGADAS (INICIO) ---
-        // =========================================================================================
-
         // --- HOJA NUEVA EXTRA 1 (Cuerpo) ---
         bookData.push({
             front: {
@@ -450,14 +554,6 @@
             }
         });
 
-        // =========================================================================================
-        // --- HOJAS NUEVAS AGREGADAS (FIN) ---
-        // =========================================================================================
-
-        // -----------------------------------------------------------------------------------------
-        // FIN DE LAS HOJAS INDIVIDUALES
-        // -----------------------------------------------------------------------------------------
-
         // HOJA FINAL: Guardas + Contraportada (Imagen)
         bookData.push({
             front: {
@@ -472,7 +568,7 @@
             }
         });
 
-        // --- RENDERIZADO ---
+        // --- RENDERIZADO (CÓDIGO ORIGINAL) ---
         const bookContainer = document.getElementById('book');
         let currentPaperIndex = -1;
 
@@ -507,7 +603,7 @@
         
         // Referencia al audio
         const soundEffect = document.getElementById('pageFlipSound');
-        soundEffect.volume = 1.0; // Asegurar volumen al máximo
+        soundEffect.volume = 1.0; 
 
         function updateState() {
             papers.forEach((p, i) => {
@@ -528,12 +624,13 @@
 
             prevBtn.disabled = currentPaperIndex === -1;
             nextBtn.disabled = currentPaperIndex === papers.length - 1;
+
+            // *** LLAMADA A LA NUEVA FUNCIÓN (ÚNICA INSERCIÓN NECESARIA) ***
+            updatePedagogicalLabels();
         }
 
         function playFlipSound() {
-            // *** REPRODUCIR SONIDO ***
             soundEffect.currentTime = 0;
-            // Promesa para manejar errores si el navegador bloquea el audio
             var playPromise = soundEffect.play();
             if (playPromise !== undefined) {
                 playPromise.then(_ => {
@@ -580,6 +677,113 @@
             }
         }
 
+        // =========================================================================
+        // --- NUEVO SCRIPT: LÓGICA DE LAS NUBES PEDAGÓGICAS (EXTRA) ---
+        // =========================================================================
+        
+        // Datos de las etiquetas según el índice de página
+        // Index -1: Portada (Cerrado)
+        // Index 0: Guarda Izq / Guarda Der
+        // Index 1: Guarda Izq / Hoja Respeto Der... etc
+        
+        function updatePedagogicalLabels() {
+            const cloudLeft = document.getElementById('cloud-left');
+            const cloudRight = document.getElementById('cloud-right');
+            const titleLeft = document.getElementById('title-left');
+            const descLeft = document.getElementById('desc-left');
+            const titleRight = document.getElementById('title-right');
+            const descRight = document.getElementById('desc-right');
+
+            // Resetear animación (fade out)
+            cloudLeft.classList.remove('active');
+            cloudRight.classList.remove('active');
+
+            // Esperar un poco para cambiar texto y reaparecer (sincronizado con flip)
+            setTimeout(() => {
+                let leftInfo = null;
+                let rightInfo = null;
+
+                // LÓGICA DE CONTENIDO SEGÚN INDICE (currentPaperIndex)
+                if (currentPaperIndex === -1) {
+                    // --- LIBRO CERRADO (PORTADA) ---
+                    rightInfo = { 
+                        title: "La Portada", 
+                        text: "Esta es la portada. Es la primera página visible del libro-álbum y contiene la imagen protagonista que invita a la lectura." 
+                    };
+                } 
+                else if (currentPaperIndex === 0) {
+                    // --- PRIMER GIRO (GUARDAS) ---
+                    leftInfo = { 
+                        title: "Guardas (Anverso)", 
+                        text: "Estas son las guardas. Son las páginas que conectan la cubierta con el interior del libro." 
+                    };
+                    rightInfo = { 
+                        title: "Guardas (Reverso)", 
+                        text: "El color o diseño de las guardas anticipa la atmósfera emocional de la historia." 
+                    };
+                }
+                else if (currentPaperIndex === 1) {
+                    // --- SEGUNDO GIRO (HOJA DE RESPETO) ---
+                    leftInfo = {
+                        title: "Transición",
+                        text: "Continuidad de las guardas hacia el interior del libro."
+                    };
+                    rightInfo = { 
+                        title: "Hoja de Respeto", 
+                        text: "Página de cortesía antes del contenido. Deja respirar al lector y presenta el título sutilmente." 
+                    };
+                }
+                else if (currentPaperIndex === 2) {
+                    // --- TERCER GIRO (CRÉDITOS Y DEDICATORIA) ---
+                    leftInfo = {
+                        title: "Página Legal",
+                        text: "Aquí se encuentran los créditos: autoría, ilustración, editorial y derechos de autor (copyright)."
+                    };
+                    rightInfo = { 
+                        title: "Dedicatoria", 
+                        text: "Espacio íntimo donde el autor o ilustrador ofrenda su trabajo a alguien especial." 
+                    };
+                }
+                else if (currentPaperIndex >= 3 && currentPaperIndex < bookData.length - 1) {
+                    // --- CUERPO DEL LIBRO (NARRATIVA) ---
+                    leftInfo = {
+                        title: "Narrativa Visual (Izquierda)",
+                        text: "En el libro-álbum, la imagen izquierda dialoga con la derecha para construir significado."
+                    };
+                    rightInfo = { 
+                        title: "Narrativa Visual (Derecha)", 
+                        text: "La secuencia de imágenes marca el ritmo de la lectura y el paso del tiempo." 
+                    };
+                }
+                else if (currentPaperIndex === bookData.length - 1) {
+                    // --- ÚLTIMO GIRO (CONTRAPORTADA) ---
+                    leftInfo = {
+                        title: "Guardas Finales",
+                        text: "Cierran la estructura física del libro, despidiendo al lector."
+                    };
+                    rightInfo = { 
+                        title: "Contraportada", 
+                        text: "Cierre del libro. A menudo contiene una imagen final evocadora o una sinopsis sin revelar el final." 
+                    };
+                }
+
+                // APLICAR TEXTOS Y MOSTRAR (FADE IN)
+                if (leftInfo) {
+                    titleLeft.innerText = leftInfo.title;
+                    descLeft.innerText = leftInfo.text;
+                    cloudLeft.classList.add('active');
+                }
+                
+                if (rightInfo) {
+                    titleRight.innerText = rightInfo.title;
+                    descRight.innerText = rightInfo.text;
+                    cloudRight.classList.add('active');
+                }
+
+            }, 300); // Pequeño retraso para suavidad
+        }
+
+        // Inicializar estado
         updateState();
     </script>
 </body>
