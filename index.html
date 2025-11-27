@@ -92,33 +92,33 @@
             z-index: -1; /* Para que quede detrás de las hojas */
             
             /* Posición inicial (Libro cerrado - Portada) */
-            width: 94%; 
-            height: 94%; 
-            left: 3%; 
-            top: 3%;
+            width: 96%; 
+            height: 96%; 
+            left: 5%; 
+            top: 5%;
             
-            /* Estilo visual de la sombra sutil */
-            background: rgba(0,0,0,0.25); 
-            filter: blur(20px); /* Difuminado para que no parezca un cuadro sólido */
-            border-radius: 15px;
+            /* Estilo visual de la sombra sutil - AJUSTADO SEGÚN IMAGEN DE REFERENCIA */
+            background: rgba(0,0,0,0.4); 
+            filter: blur(25px); /* Difuminado para que no parezca un cuadro sólido */
+            border-radius: 20px;
             
             /* Animación suave para acompañar el movimiento del libro */
             transition: all 0.6s ease-in-out;
-            opacity: 0.6;
+            opacity: 0.7;
         }
 
         /* 1. Cuando el libro está ABIERTO: La sombra se duplica y se centra */
         .book.opened::before {
-            width: 194%; /* Casi el doble de ancho */
-            left: -97%; /* Se mueve a la izquierda para cubrir la página abierta */
-            opacity: 0.4; /* Un poco más suave al estar extendida */
-            background: rgba(0,0,0,0.2);
+            width: 196%; /* Casi el doble de ancho */
+            left: -95%; /* Se mueve a la izquierda para cubrir la página abierta */
+            opacity: 0.5; /* Un poco más suave al estar extendida */
+            background: rgba(0,0,0,0.3);
         }
 
         /* 2. Cuando el libro está CERRADO AL FINAL (Contraportada): La sombra va a la izquierda */
         .book.closed-back::before {
-            width: 94%;
-            left: -97%; /* La sombra se mueve a donde están las hojas apiladas */
+            width: 96%;
+            left: -99%; /* La sombra se mueve a donde están las hojas apiladas */
         }
         /* ------------------------------------------------------------------------- */
 
