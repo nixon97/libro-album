@@ -74,8 +74,11 @@
             height: var(--book-height);
             transform-style: preserve-3d;
             transition: transform 0.6s ease-in-out;
+            /* La clase .opened aplicará el translateX(50%) para centrar las páginas dobles */
         }
-        .book.opened { transform: translateX(50%); }
+        .book.opened { 
+            transform: translateX(50%); 
+        }
 
         /* --- HOJAS (PAPERS) --- */
         .paper {
@@ -187,7 +190,7 @@
         }
 
         /* ========================================================================= */
-        /* --- !!! AJUSTE MÓVIL ESPECÍFICO (CORRECCIÓN DE DEFORMACIÓN Y BURBUJAS) !!! --- */
+        /* --- AJUSTE MÓVIL ESPECÍFICO (CORRECCIÓN DE DEFORMACIÓN Y BURBUJAS) --- */
         /* ========================================================================= */
         @media (max-width: 768px) {
             :root { 
@@ -195,7 +198,6 @@
                 /* Usamos el ancho máximo posible seguro (44vw por página = 88vw total) */
                 --book-width: 44vw; 
                 /* La altura NO es fija, se calcula proporcionalmente al ancho (ratio 1.35 aprox) */
-                /* Esto asegura que la cartilla NUNCA se deforme, siempre será un rectángulo armónico */
                 --book-height: calc(44vw * 1.35); 
             }
 
@@ -608,11 +610,20 @@
                 }
             });
 
-            if (currentPaperIndex >= 0 && currentPaperIndex < papers.length - 1) {
+            // --- INICIO DE AJUSTE: CENTRADO DE PORTADA Y CONTRAPORTADA ---
+            // Solo aplicamos el desplazamiento 'translateX(50%)' (clase .opened) 
+            // si estamos viendo páginas interiores (currentPaperIndex >= 0) Y NO 
+            // estamos en la última hoja (currentPaperIndex < papers.length - 1).
+            const isBookOpen = currentPaperIndex >= 0 && currentPaperIndex < papers.length - 1;
+            
+            if (isBookOpen) {
                 bookContainer.classList.add('opened');
             } else {
+                // Si está en la portada (-1) o contraportada (papers.length - 1), 
+                // quitamos el desplazamiento para que quede centrado.
                 bookContainer.classList.remove('opened');
             }
+            // --- FIN DE AJUSTE ---
 
             prevBtn.disabled = currentPaperIndex === -1;
             nextBtn.disabled = currentPaperIndex === papers.length - 1;
@@ -665,7 +676,7 @@
         }
 
         // =========================================================================
-        // --- SCRIPT: LÓGICA DE NUBES Y PERSONAJES (CORREGIDA) ---
+        // --- SCRIPT: LÓGICA DE NUBES Y PERSONAJES ---
         // =========================================================================
         
         function updatePedagogicalLabels() {
@@ -696,6 +707,7 @@
                 const isLeftUp = Math.random() > 0.5; 
                 const isRightUp = !isLeftUp; 
 
+                // Altura base para evitar solapamiento con el libro
                 const baseHeight = "calc(50vh - 280px)"; 
                 const randomOffsetLeft = Math.floor(Math.random() * 60) + "px";
                 const randomOffsetRight = Math.floor(Math.random() * 60) + "px";
@@ -724,23 +736,30 @@
                     containerRight.style.paddingBottom = `calc(${baseHeight} + ${randomOffsetRight})`;
                 }
 
-                // --- LÓGICA DE CONTENIDO DINÁMICA (SOLUCIÓN AL PROBLEMA DE DESAPARICIÓN) ---
+                // --- LÓGICA DE CONTENIDO DINÁMICA ---
                 
-                // Caso especial: Libro cerrado (Inicio)
+                // Caso especial: Libro cerrado (Portada)
                 if (currentPaperIndex === -1) {
+                    // Solo se ve la Portada (derecha)
                     const firstPage = bookData[0].front;
                     if(firstPage.tooltip) rightInfo = firstPage.tooltip;
                 } 
+                // Caso especial: Libro cerrado (Contraportada)
+                else if (currentPaperIndex === papers.length - 1) {
+                    // Solo se ve la Contraportada (izquierda)
+                    const lastPage = bookData[papers.length - 1].back;
+                    if(lastPage.tooltip) leftInfo = lastPage.tooltip;
+
+                }
+                // Caso normal: Libro abierto
                 else {
-                    // Lado IZQUIERDO: Es el reverso de la página actual volteada
-                    // La página actual volteada es bookData[currentPaperIndex].back
+                    // Lado IZQUIERDO: Reverso de la página actual volteada
                     const leftPage = bookData[currentPaperIndex].back;
                     if(leftPage && leftPage.tooltip) {
                         leftInfo = leftPage.tooltip;
                     }
 
-                    // Lado DERECHO: Es el anverso de la siguiente página (si existe)
-                    // La siguiente página es bookData[currentPaperIndex + 1].front
+                    // Lado DERECHO: Anverso de la siguiente página
                     if (currentPaperIndex + 1 < bookData.length) {
                         const rightPage = bookData[currentPaperIndex + 1].front;
                         if(rightPage && rightPage.tooltip) {
