@@ -370,6 +370,70 @@
             .ped-cloud p { font-size: 0.65rem; line-height: 1.2; display: none; } /* Solo mostramos título en móvil para no saturar */
             .ped-cloud p:first-of-type { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         }
+
+        /* ------------------------------------------------------------------------- */
+        /* --- ESTILOS DE LA VENTANA DE BIENVENIDA (POPUP) (NUEVO) --- */
+        /* ------------------------------------------------------------------------- */
+        .intro-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000; /* Encima de todo */
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.5s ease;
+        }
+        .intro-modal {
+            background: #fff;
+            width: 90%; max-width: 500px;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid var(--gold-color);
+        }
+        .intro-character-circle {
+            width: 150px; height: 150px;
+            background: var(--endpaper-bg);
+            border-radius: 50%;
+            margin: -80px auto 20px auto; /* Para que sobresalga arriba */
+            border: 5px solid #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex; align-items: flex-end; justify-content: center;
+        }
+        .intro-character-img {
+            width: 80%; height: auto;
+        }
+        .intro-title {
+            font-family: 'Cinzel', serif; color: var(--accent-color);
+            font-size: 1.5rem; margin-bottom: 15px;
+        }
+        .intro-text {
+            font-family: 'Lato', sans-serif; color: #555;
+            font-size: 1rem; line-height: 1.6; margin-bottom: 25px;
+        }
+        .close-intro-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: transparent; border: none;
+            font-size: 1.5rem; color: #999; cursor: pointer;
+            transition: 0.3s;
+        }
+        .close-intro-btn:hover { color: var(--accent-color); transform: rotate(90deg); }
+        .action-btn {
+            background: var(--accent-color); color: #fff;
+            border: none; padding: 12px 30px;
+            font-family: 'Cinzel', serif; font-size: 1rem;
+            border-radius: 30px; cursor: pointer;
+            transition: 0.3s; box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3);
+        }
+        .action-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(93, 64, 55, 0.4); background: var(--gold-color); }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -416,7 +480,33 @@
         </div>
     </div>
 
+    <!-- AQUÍ ESTÁ LA NUEVA VENTANA DE BIENVENIDA -->
+    <div class="intro-overlay" id="introOverlay">
+        <div class="intro-modal">
+            <button class="close-intro-btn" onclick="closeIntro()"><i class="fas fa-times"></i></button>
+            <div class="intro-character-circle">
+                <img src="https://github.com/libroalbum/libro-lbum-pedag-gico/blob/main/images/personaje%20derecha.png?raw=true" class="intro-character-img" alt="Guía">
+            </div>
+            <h2 class="intro-title">¡Hola, Aventurero!</h2>
+            <p class="intro-text">
+                Aquí vas a ver un ejemplo de la estructura de un <strong>Libro Álbum Ilustrado</strong> y cuáles son las características de cada una de sus partes.
+                <br><br>
+                ¡Prepárate para explorar!
+            </p>
+            <button class="action-btn" onclick="closeIntro()">Comenzar Lectura</button>
+        </div>
+    </div>
+
     <script>
+        // Función para cerrar la ventana de bienvenida
+        function closeIntro() {
+            const overlay = document.getElementById('introOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 500);
+        }
+
         const bookData = [
             // HOJA 1: Portada (Imagen) + Guarda Delantera
             {
