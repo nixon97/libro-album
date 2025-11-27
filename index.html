@@ -368,7 +368,14 @@
             }
             .ped-cloud h3 { font-size: 0.8rem; margin-bottom: 4px; }
             .ped-cloud p { font-size: 0.65rem; line-height: 1.2; display: none; } /* Solo mostramos título en móvil para no saturar */
-            .ped-cloud p:first-of-type { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+            
+            /* --- AJUSTE SOLICITADO: Permitir lectura completa en móvil --- */
+            .ped-cloud p:first-of-type { 
+                display: block; 
+                overflow: visible; /* Antes hidden: permite que el texto se vea si es largo */
+                white-space: normal; /* Antes nowrap: permite que el texto baje de línea */
+                text-overflow: clip; /* Antes ellipsis: elimina los "..." */
+            }
         }
 
         /* ------------------------------------------------------------------------- */
@@ -667,7 +674,7 @@
             },
             back: {
                 type: "image-page",
-                bg: "https://github.com/libroalbum/libro-lbum-pedag-gico/blob/main/images/pg16.jpg?raw=true",
+                bg: "https://github.com/libroalbum/libro-lbum-pedag-gico/blob/main/images/pg%2016.jpg?raw=true",
                 tooltip: { title: "Calma", text: "La tensión disminuye." }
             }
         });
@@ -681,7 +688,7 @@
             },
             back: {
                 type: "image-page",
-                bg: "https://github.com/libroalbum/libro-lbum-pedag-gico/blob/main/images/pg%20final.png?raw=true",
+                bg: "https://github.com/libroalbum/libro-lbum-pedag-gico/blob/main/images/pg13.jpg?raw=true",
                 tooltip: { title: "Recuerdo", text: "Imágenes que perduran." }
             }
         });
