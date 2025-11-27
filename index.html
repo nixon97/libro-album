@@ -13,7 +13,12 @@
         :root {
             --book-width: 460px;
             --book-height: 600px;
-            --bg-color: #eef2f3;
+            
+            /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
+            /* --- AQUÍ PUEDES EDITAR EL COLOR DE FONDO (Color detrás del libro) --- */
+            --bg-color: #BDBDBD; 
+            /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+
             --paper-texture: #fdfbf7;
             --text-color: #2c3e50;
             --accent-color: #5d4037;
@@ -76,9 +81,57 @@
             transition: transform 0.6s ease-in-out;
             /* La clase .opened aplicará el translateX(50%) para centrar las páginas dobles */
         }
+
+        /* ------------------------------------------------------------------------- */
+        /* --- AJUSTE DE SOMBRA REALISTA (NUEVO) --- */
+        /* ------------------------------------------------------------------------- */
+        /* Creamos una sombra "falsa" detrás del libro que se anima según el estado */
+        .book::before {
+            content: '';
+            position: absolute;
+            z-index: -1; /* Para que quede detrás de las hojas */
+            
+            /* Posición inicial (Libro cerrado - Portada) */
+            width: 94%; 
+            height: 94%; 
+            left: 3%; 
+            top: 3%;
+            
+            /* Estilo visual de la sombra sutil */
+            background: rgba(0,0,0,0.25); 
+            filter: blur(20px); /* Difuminado para que no parezca un cuadro sólido */
+            border-radius: 15px;
+            
+            /* Animación suave para acompañar el movimiento del libro */
+            transition: all 0.6s ease-in-out;
+            opacity: 0.6;
+        }
+
+        /* 1. Cuando el libro está ABIERTO: La sombra se duplica y se centra */
+        .book.opened::before {
+            width: 194%; /* Casi el doble de ancho */
+            left: -97%; /* Se mueve a la izquierda para cubrir la página abierta */
+            opacity: 0.4; /* Un poco más suave al estar extendida */
+            background: rgba(0,0,0,0.2);
+        }
+
+        /* 2. Cuando el libro está CERRADO AL FINAL (Contraportada): La sombra va a la izquierda */
+        .book.closed-back::before {
+            width: 94%;
+            left: -97%; /* La sombra se mueve a donde están las hojas apiladas */
+        }
+        /* ------------------------------------------------------------------------- */
+
+
         .book.opened { 
             transform: translateX(50%); 
         }
+        
+        /* --- AJUSTE AGREGADO: CENTRADO DE CONTRAPORTADA --- */
+        .book.closed-back {
+            transform: translateX(100%);
+        }
+        /* -------------------------------------------------- */
 
         /* --- HOJAS (PAPERS) --- */
         .paper {
@@ -610,18 +663,24 @@
                 }
             });
 
-            // --- INICIO DE AJUSTE: CENTRADO DE PORTADA Y CONTRAPORTADA ---
-            // Solo aplicamos el desplazamiento 'translateX(50%)' (clase .opened) 
-            // si estamos viendo páginas interiores (currentPaperIndex >= 0) Y NO 
-            // estamos en la última hoja (currentPaperIndex < papers.length - 1).
+            // --- INICIO DE AJUSTE CORREGIDO ---
+            
             const isBookOpen = currentPaperIndex >= 0 && currentPaperIndex < papers.length - 1;
             
             if (isBookOpen) {
+                // Libro abierto (Páginas internas)
                 bookContainer.classList.add('opened');
+                bookContainer.classList.remove('closed-back'); // Asegurar que no esté la clase de cierre
             } else {
-                // Si está en la portada (-1) o contraportada (papers.length - 1), 
-                // quitamos el desplazamiento para que quede centrado.
+                // Libro cerrado (Portada o Contraportada)
                 bookContainer.classList.remove('opened');
+                
+                // Si es la ULTIMA hoja (Contraportada), aplicamos la corrección de centrado
+                if (currentPaperIndex === papers.length - 1) {
+                    bookContainer.classList.add('closed-back');
+                } else {
+                    bookContainer.classList.remove('closed-back');
+                }
             }
             // --- FIN DE AJUSTE ---
 
